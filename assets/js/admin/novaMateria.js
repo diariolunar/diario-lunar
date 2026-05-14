@@ -18,8 +18,6 @@ import {
 let imagemCapaArquivo = null;
 let imagemCapaUrl = "";
 let postAtual = null;
-let autosaveInterval = null;
-let autosaveKey = "";
 
 let cropImagemOriginal = null;
 let cropImagemObj = null;
@@ -152,105 +150,6 @@ async function carregarHistorico() {
         <p>Não foi possível carregar o histórico.</p>
       </div>
     `;
-  }
-}
-
-function salvarAutosaveLocal() {
-  if (!autosaveKey) return;
-
-  const dados = {
-    titulo: document.getElementById("tituloMateria")?.value || "",
-    categoria: document.getElementById("categoriaMateria")?.value || "Literatura",
-    data: document.getElementById("dataMateria")?.value || "",
-    destaque: document.getElementById("destaqueMateria")?.checked || false,
-    conteudo: document.getElementById("editorArea")?.innerHTML || "",
-    imagem: imagemCapaUrl || "",
-    salvoEm: new Date().toISOString()
-  };
-
-  localStorage.setItem(autosaveKey, JSON.stringify(dados));
-
-  const status = document.getElementById("autosaveStatus");
-
-  if (status) {
-    status.innerText =
-      "Rascunho automático salvo às " +
-      new Date().toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-  }
-}
-
-function recuperarAutosave() {
-  if (!autosaveKey) return;
-
-  const salvo = localStorage.getItem(autosaveKey);
-
-  if (!salvo) return;
-
-  const confirmar = confirm(
-    "Existe um rascunho automático salvo neste editor. Deseja recuperar?"
-  );
-
-  if (!confirmar) return;
-
-  try {
-    const dados = JSON.parse(salvo);
-
-    document.getElementById("tituloMateria").value = dados.titulo || "";
-    document.getElementById("categoriaMateria").value = dados.categoria || "Literatura";
-    document.getElementById("dataMateria").value = dados.data || "";
-    document.getElementById("destaqueMateria").checked = dados.destaque === true;
-    document.getElementById("editorArea").innerHTML = dados.conteudo || "";
-
-    if (dados.imagem) {
-      imagemCapaUrl = dados.imagem;
-
-      const preview = document.getElementById("previewCapa");
-
-      preview.src = dados.imagem;
-      preview.style.display = "block";
-
-      document.getElementById("uploadCapaBox").innerText =
-        "Imagem recuperada do rascunho automático.";
-    }
-
-  } catch {
-    localStorage.removeItem(autosaveKey);
-  }
-}
-
-function iniciarAutosave() {
-  if (autosaveInterval) {
-    clearInterval(autosaveInterval);
-  }
-
-  const campos = [
-    "tituloMateria",
-    "categoriaMateria",
-    "dataMateria",
-    "destaqueMateria",
-    "editorArea"
-  ];
-
-  campos.forEach((id) => {
-    const elemento = document.getElementById(id);
-
-    if (!elemento) return;
-
-    elemento.addEventListener("input", salvarAutosaveLocal);
-    elemento.addEventListener("change", salvarAutosaveLocal);
-  });
-
-  autosaveInterval = setInterval(salvarAutosaveLocal, 10000);
-
-  recuperarAutosave();
-}
-
-function limparAutosave() {
-  if (autosaveKey) {
-    localStorage.removeItem(autosaveKey);
   }
 }
 
@@ -415,8 +314,6 @@ function confirmarCropImagem() {
         "Imagem cortada e selecionada. Ela será enviada ao salvar.";
 
       document.getElementById("cropModal").classList.remove("active");
-
-      salvarAutosaveLocal();
     },
     "image/jpeg",
     0.9
@@ -507,8 +404,6 @@ async function salvarMateria(status, usuario) {
       });
     }
 
-    limparAutosave();
-
     const mensagens = {
       rascunho: "Rascunho salvo com sucesso!",
       em_revisao: "Matéria enviada para revisão!",
@@ -593,10 +488,6 @@ export async function renderNovaMateria(usuario, postExistente = null) {
   imagemCapaArquivo = null;
   imagemCapaUrl = postExistente?.imagem || "";
 
-  autosaveKey = postExistente?.id
-    ? `diarioLunarAutosave_editar_${postExistente.id}`
-    : `diarioLunarAutosave_nova_${usuario.id || usuario.user || "admin"}`;
-
   const modoEdicao = !!postExistente;
   const historicoHtml = await carregarHistorico();
   const usuarioPodeRevisar = podeRevisar(usuario);
@@ -609,7 +500,6 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     iniciarUploadCapa();
     iniciarCropBotoes();
     iniciarBotoesSalvar(usuario);
-    iniciarAutosave();
   }, 100);
 
   return `
@@ -666,10 +556,6 @@ export async function renderNovaMateria(usuario, postExistente = null) {
           }
         </div>
       </div>
-
-      <p id="autosaveStatus" class="autosave-status">
-        Autosave ativo.
-      </p>
 
       <div class="form-grid">
         <div class="form-group">
