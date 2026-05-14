@@ -42,28 +42,46 @@ async function carregarHistoricoSeguro(postId) {
   }
 }
 
+function travarBotoes(travar) {
+  document
+    .querySelectorAll(".editor-actions-top button")
+    .forEach((botao) => {
+      botao.disabled = travar;
+    });
+}
+
 async function aprovarMateria(post, usuarioAtual, onFinalizar) {
   const confirmar = confirm("Deseja aprovar e publicar esta matéria?");
 
   if (!confirmar) return;
 
-  await atualizarPost(post.id, {
-    status: "publicado",
-    motivoReprovacao: "",
-    atualizadoEm: new Date()
-  });
+  travarBotoes(true);
 
-  await registrarHistoricoPost({
-    postId: post.id,
-    acao: "Matéria aprovada",
-    usuario: usuarioAtual,
-    statusAnterior: post.status || "em_revisao",
-    statusNovo: "publicado"
-  });
+  try {
+    await atualizarPost(post.id, {
+      status: "publicado",
+      motivoReprovacao: "",
+      atualizadoEm: new Date()
+    });
 
-  alert("Matéria aprovada e publicada.");
+    await registrarHistoricoPost({
+      postId: post.id,
+      acao: "Matéria aprovada",
+      usuario: usuarioAtual,
+      statusAnterior: post.status || "em_revisao",
+      statusNovo: "publicado"
+    });
 
-  await onFinalizar();
+    alert("Matéria aprovada e publicada.");
+
+    await onFinalizar("publicas");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao aprovar matéria.");
+  }
+
+  travarBotoes(false);
 }
 
 async function agendarMateria(post, usuarioAtual, onFinalizar) {
@@ -80,25 +98,35 @@ async function agendarMateria(post, usuarioAtual, onFinalizar) {
 
   if (!data) return;
 
-  await atualizarPost(post.id, {
-    status: "agendado",
-    data: new Date(data + "T12:00:00"),
-    motivoReprovacao: "",
-    atualizadoEm: new Date()
-  });
+  travarBotoes(true);
 
-  await registrarHistoricoPost({
-    postId: post.id,
-    acao: "Matéria agendada na revisão",
-    usuario: usuarioAtual,
-    statusAnterior: post.status || "em_revisao",
-    statusNovo: "agendado",
-    observacao: `Agendada para ${data}`
-  });
+  try {
+    await atualizarPost(post.id, {
+      status: "agendado",
+      data: new Date(data + "T12:00:00"),
+      motivoReprovacao: "",
+      atualizadoEm: new Date()
+    });
 
-  alert("Matéria agendada.");
+    await registrarHistoricoPost({
+      postId: post.id,
+      acao: "Matéria agendada na revisão",
+      usuario: usuarioAtual,
+      statusAnterior: post.status || "em_revisao",
+      statusNovo: "agendado",
+      observacao: `Agendada para ${data}`
+    });
 
-  await onFinalizar();
+    alert("Matéria agendada.");
+
+    await onFinalizar("publicas");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao agendar matéria.");
+  }
+
+  travarBotoes(false);
 }
 
 async function reprovarMateria(post, usuarioAtual, onFinalizar) {
@@ -109,24 +137,34 @@ async function reprovarMateria(post, usuarioAtual, onFinalizar) {
     return;
   }
 
-  await atualizarPost(post.id, {
-    status: "reprovado",
-    motivoReprovacao: motivo,
-    atualizadoEm: new Date()
-  });
+  travarBotoes(true);
 
-  await registrarHistoricoPost({
-    postId: post.id,
-    acao: "Matéria reprovada",
-    usuario: usuarioAtual,
-    statusAnterior: post.status || "em_revisao",
-    statusNovo: "reprovado",
-    observacao: motivo
-  });
+  try {
+    await atualizarPost(post.id, {
+      status: "reprovado",
+      motivoReprovacao: motivo,
+      atualizadoEm: new Date()
+    });
 
-  alert("Matéria reprovada.");
+    await registrarHistoricoPost({
+      postId: post.id,
+      acao: "Matéria reprovada",
+      usuario: usuarioAtual,
+      statusAnterior: post.status || "em_revisao",
+      statusNovo: "reprovado",
+      observacao: motivo
+    });
 
-  await onFinalizar();
+    alert("Matéria reprovada.");
+
+    await onFinalizar("rascunhos");
+
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao reprovar matéria.");
+  }
+
+  travarBotoes(false);
 }
 
 function renderHistorico(historico) {
@@ -195,7 +233,7 @@ export async function renderRevisarMateria(
     }
 
     if (cancelarBtn) {
-      cancelarBtn.onclick = () => onFinalizar();
+      cancelarBtn.onclick = () => onFinalizar("revisao");
     }
   }, 100);
 

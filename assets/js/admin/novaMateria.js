@@ -21,6 +21,15 @@ let postAtual = null;
 let autosaveInterval = null;
 let autosaveKey = "";
 
+let cropImagemOriginal = null;
+let cropImagemObj = null;
+let cropZoom = 1;
+let cropOffsetX = 0;
+let cropOffsetY = 0;
+let cropDragging = false;
+let cropStartX = 0;
+let cropStartY = 0;
+
 function pegarDataPublicacao() {
   const campoData = document.getElementById("dataMateria");
 
@@ -289,10 +298,149 @@ function fecharPreview() {
   }
 }
 
+function desenharCrop() {
+  const canvas = document.getElementById("cropCanvas");
+
+  if (!canvas || !cropImagemObj) return;
+
+  const ctx = canvas.getContext("2d");
+
+  const largura = canvas.width;
+  const altura = canvas.height;
+
+  ctx.clearRect(0, 0, largura, altura);
+  ctx.fillStyle = "#111827";
+  ctx.fillRect(0, 0, largura, altura);
+
+  const escalaBase = Math.max(
+    largura / cropImagemObj.width,
+    altura / cropImagemObj.height
+  );
+
+  const escala = escalaBase * cropZoom;
+
+  const imgW = cropImagemObj.width * escala;
+  const imgH = cropImagemObj.height * escala;
+
+  const x = (largura - imgW) / 2 + cropOffsetX;
+  const y = (altura - imgH) / 2 + cropOffsetY;
+
+  ctx.drawImage(cropImagemObj, x, y, imgW, imgH);
+}
+
+function abrirCropImagem(arquivo) {
+  const modal = document.getElementById("cropModal");
+  const canvas = document.getElementById("cropCanvas");
+  const zoom = document.getElementById("cropZoom");
+
+  cropImagemOriginal = arquivo;
+  cropZoom = 1;
+  cropOffsetX = 0;
+  cropOffsetY = 0;
+
+  zoom.value = "1";
+
+  const img = new Image();
+  const url = URL.createObjectURL(arquivo);
+
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+
+    cropImagemObj = img;
+    modal.classList.add("active");
+
+    desenharCrop();
+  };
+
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    alert("Não foi possível carregar essa imagem para corte.");
+  };
+
+  img.src = url;
+
+  canvas.onmousedown = (event) => {
+    cropDragging = true;
+    cropStartX = event.clientX - cropOffsetX;
+    cropStartY = event.clientY - cropOffsetY;
+  };
+
+  window.onmouseup = () => {
+    cropDragging = false;
+  };
+
+  canvas.onmousemove = (event) => {
+    if (!cropDragging) return;
+
+    cropOffsetX = event.clientX - cropStartX;
+    cropOffsetY = event.clientY - cropStartY;
+
+    desenharCrop();
+  };
+
+  zoom.oninput = () => {
+    cropZoom = Number(zoom.value);
+    desenharCrop();
+  };
+}
+
+function confirmarCropImagem() {
+  const canvas = document.getElementById("cropCanvas");
+
+  canvas.toBlob(
+    (blob) => {
+      if (!blob) {
+        alert("Erro ao cortar imagem.");
+        return;
+      }
+
+      const arquivoCortado = new File(
+        [blob],
+        cropImagemOriginal.name.replace(/\.[^/.]+$/, ".jpg"),
+        {
+          type: "image/jpeg",
+          lastModified: Date.now()
+        }
+      );
+
+      imagemCapaArquivo = arquivoCortado;
+
+      const preview = document.getElementById("previewCapa");
+      const urlPreview = URL.createObjectURL(arquivoCortado);
+
+      preview.src = urlPreview;
+      preview.style.display = "block";
+
+      document.getElementById("uploadCapaBox").innerText =
+        "Imagem cortada e selecionada. Ela será enviada ao salvar.";
+
+      document.getElementById("cropModal").classList.remove("active");
+
+      salvarAutosaveLocal();
+    },
+    "image/jpeg",
+    0.9
+  );
+}
+
+function iniciarCropBotoes() {
+  const cancelar = document.getElementById("cancelarCropBtn");
+  const confirmar = document.getElementById("confirmarCropBtn");
+
+  if (cancelar) {
+    cancelar.onclick = () => {
+      document.getElementById("cropModal").classList.remove("active");
+    };
+  }
+
+  if (confirmar) {
+    confirmar.onclick = confirmarCropImagem;
+  }
+}
+
 function iniciarUploadCapa() {
   const uploadBox = document.getElementById("uploadCapaBox");
   const input = document.getElementById("imagemCapaInput");
-  const preview = document.getElementById("previewCapa");
 
   uploadBox.onclick = () => {
     input.click();
@@ -303,14 +451,7 @@ function iniciarUploadCapa() {
 
     if (!arquivo) return;
 
-    imagemCapaArquivo = arquivo;
-
-    preview.src = URL.createObjectURL(arquivo);
-    preview.style.display = "block";
-
-    uploadBox.innerText = "Imagem selecionada. Ela será enviada ao salvar.";
-
-    salvarAutosaveLocal();
+    abrirCropImagem(arquivo);
   };
 }
 
@@ -379,7 +520,7 @@ async function salvarMateria(status, usuario) {
 
   } catch (error) {
     console.error(error);
-    alert("Erro ao salvar matéria.");
+    alert(error?.message || "Erro ao salvar matéria.");
   }
 
   botoes.forEach((botao) => {
@@ -466,6 +607,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     });
 
     iniciarUploadCapa();
+    iniciarCropBotoes();
     iniciarBotoesSalvar(usuario);
     iniciarAutosave();
   }, 100);
@@ -700,6 +842,48 @@ export async function renderNovaMateria(usuario, postExistente = null) {
 
           <div id="previewConteudo"></div>
 
+        </div>
+      </div>
+
+      <div id="cropModal" class="crop-modal">
+        <div class="crop-modal-content">
+          <div class="admin-header-flex">
+            <div>
+              <h2>Ajustar imagem de capa</h2>
+              <p>Arraste a imagem e use o zoom para encaixar no formato 16:9.</p>
+            </div>
+
+            <button id="cancelarCropBtn" class="btn">
+              Cancelar
+            </button>
+          </div>
+
+          <canvas
+            id="cropCanvas"
+            width="1280"
+            height="720"
+          ></canvas>
+
+          <label class="crop-label">
+            Zoom da imagem
+          </label>
+
+          <input
+            id="cropZoom"
+            type="range"
+            min="1"
+            max="3"
+            step="0.01"
+            value="1"
+          >
+
+          <button
+            id="confirmarCropBtn"
+            class="btn btn-gradient"
+            style="margin-top:18px;"
+          >
+            Usar imagem cortada
+          </button>
         </div>
       </div>
 
