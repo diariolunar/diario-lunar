@@ -17,14 +17,24 @@ export function renderNavbar() {
 
         <a
           href="/index.html"
-          style="display: flex; align-items: center; text-decoration: none;"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #07101f;
+            padding: 10px 18px;
+            border-radius: 18px;
+            text-decoration: none;
+            flex-shrink: 0;
+          "
         >
           <img
             src="/assets/images/logo-diario-lunar2.png"
             alt="Diário Lunar"
             style="
-              height: 58px;
+              height: 62px;
               width: auto;
+              max-width: 230px;
               display: block;
               object-fit: contain;
             "
@@ -34,46 +44,35 @@ export function renderNavbar() {
         <nav style="
           display: flex;
           align-items: center;
-          gap: 18px;
+          justify-content: flex-end;
+          gap: 10px;
           flex-wrap: wrap;
-          font-weight: 600;
+          font-weight: 700;
         ">
-          <a href="/index.html">Início</a>
+          <a class="nav-link" href="/index.html">Início</a>
+          <a class="nav-link" href="/materias.html">Todas as Matérias</a>
+          <a class="nav-link" href="/categoria.html?tipo=Literatura">Literatura</a>
+          <a class="nav-link" href="/categoria.html?tipo=Comunidade">Comunidade</a>
+          <a class="nav-link" href="/categoria.html?tipo=Autores">Autores</a>
+          <a class="nav-link" href="/categoria.html?tipo=Eventos">Eventos</a>
+          <a class="nav-link" href="/categoria.html?tipo=Resenhas">Resenhas</a>
+          <a class="nav-link" href="/categoria.html?tipo=Entrevistas">Entrevistas</a>
+          <a class="nav-link" href="/categoria.html?tipo=Destaques%20Lunar">Destaques Lunar</a>
+          <a class="nav-link" href="/sugestao.html">Sugestão de Pauta</a>
 
-          <a href="/materias.html">
-            Todas as Matérias
-          </a>
-
-          <a href="/categoria.html?tipo=Literatura">
-            Literatura
-          </a>
-
-          <a href="/categoria.html?tipo=Comunidade">
-            Comunidade
-          </a>
-
-          <a href="/categoria.html?tipo=Autores">
-            Autores
-          </a>
-
-          <a href="/categoria.html?tipo=Eventos">
-            Eventos
-          </a>
-
-          <a href="/categoria.html?tipo=Resenhas">
-            Resenhas
-          </a>
-
-          <a href="/categoria.html?tipo=Entrevistas">
-            Entrevistas
-          </a>
-
-          <a href="/categoria.html?tipo=Destaques%20Lunar">
-            Destaques Lunar
-          </a>
-
-          <a href="/sugestao.html">
-            Sugestão de Pauta
+          <a
+            href="/admin.html"
+            style="
+              background: linear-gradient(90deg, #0ea5e9, #7c3aed);
+              color: #ffffff;
+              padding: 11px 18px;
+              border-radius: 999px;
+              text-decoration: none;
+              font-weight: 800;
+              margin-left: 6px;
+            "
+          >
+            ADM
           </a>
         </nav>
 
