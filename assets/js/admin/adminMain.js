@@ -36,13 +36,30 @@ import {
 const app = document.getElementById("adminApp");
 
 let usuarioAtual = null;
-let paginaAtual = "dashboard";
 let tipoListaAtual = "todas";
 
 function mostrarCarregando(texto = "Carregando...") {
   document.getElementById("adminPage").innerHTML = `
     <div class="admin-card">
       <p>${texto}</p>
+    </div>
+  `;
+}
+
+function mostrarErro(error, contexto = "Erro") {
+  console.error(contexto, error);
+
+  document.getElementById("adminPage").innerHTML = `
+    <div class="admin-card">
+      <h1>Erro ao carregar</h1>
+
+      <p>
+        Ocorreu um erro nesta tela. Abra o console do navegador para ver os detalhes.
+      </p>
+
+      <pre style="white-space:pre-wrap; background:#f8fafc; padding:15px; border-radius:12px; margin-top:15px;">
+${error?.message || error || "Erro desconhecido"}
+      </pre>
     </div>
   `;
 }
@@ -55,9 +72,7 @@ function atualizarUsuarioPainel(novoUsuario) {
 function renderLogin() {
   app.innerHTML = `
     <section class="admin-login">
-
       <div class="admin-login-card">
-
         <img src="/assets/images/logo-vertical.png">
 
         <h1>Entrar na Área ADM</h1>
@@ -91,9 +106,7 @@ function renderLogin() {
           id="loginErro"
           class="login-erro"
         ></p>
-
       </div>
-
     </section>
   `;
 
@@ -115,150 +128,172 @@ function renderLogin() {
 function mostrarSemPermissao() {
   document.getElementById("adminPage").innerHTML = `
     <div class="admin-card">
-
       <h1>Acesso negado</h1>
-
       <p>Você não tem permissão para acessar esta área.</p>
-
     </div>
   `;
 }
 
 async function abrirDashboard() {
-  paginaAtual = "dashboard";
+  try {
+    mostrarCarregando("Carregando dashboard...");
 
-  mostrarCarregando("Carregando dashboard...");
+    await publicarAgendadosVencidos(usuarioAtual);
 
-  await publicarAgendadosVencidos(usuarioAtual);
+    document.getElementById("adminPage").innerHTML =
+      await renderDashboard(usuarioAtual);
 
-  document.getElementById("adminPage").innerHTML =
-    await renderDashboard(usuarioAtual);
+  } catch (error) {
+    mostrarErro(error, "Erro no dashboard");
+  }
 }
 
 async function abrirNovaMateria(postExistente = null) {
-  paginaAtual = "novaMateria";
+  try {
+    if (!postExistente && !podePublicar(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
 
-  if (!postExistente && !podePublicar(usuarioAtual)) {
-    mostrarSemPermissao();
-    return;
+    if (postExistente && !podeEditar(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
+
+    mostrarCarregando("Carregando editor...");
+
+    const html = await renderNovaMateria(
+      usuarioAtual,
+      postExistente
+    );
+
+    document.getElementById("adminPage").innerHTML = html;
+
+  } catch (error) {
+    mostrarErro(error, "Erro ao abrir editor");
   }
-
-  if (postExistente && !podeEditar(usuarioAtual)) {
-    mostrarSemPermissao();
-    return;
-  }
-
-  mostrarCarregando("Carregando editor...");
-
-  const html = await renderNovaMateria(
-    usuarioAtual,
-    postExistente
-  );
-
-  document.getElementById("adminPage").innerHTML = html;
 }
 
 async function abrirListarMaterias(tipo = "todas") {
-  paginaAtual = "listarMaterias";
-  tipoListaAtual = tipo;
+  try {
+    tipoListaAtual = tipo;
 
-  if (
-    !podePublicar(usuarioAtual) &&
-    !podeEditar(usuarioAtual) &&
-    !podeExcluir(usuarioAtual) &&
-    !podeRevisar(usuarioAtual)
-  ) {
-    mostrarSemPermissao();
-    return;
+    if (
+      !podePublicar(usuarioAtual) &&
+      !podeEditar(usuarioAtual) &&
+      !podeExcluir(usuarioAtual) &&
+      !podeRevisar(usuarioAtual)
+    ) {
+      mostrarSemPermissao();
+      return;
+    }
+
+    mostrarCarregando("Carregando matérias...");
+
+    await publicarAgendadosVencidos(usuarioAtual);
+
+    const html = await renderListarMaterias(
+      usuarioAtual,
+      () => abrirListarMaterias(tipo),
+      tipo
+    );
+
+    document.getElementById("adminPage").innerHTML = html;
+
+    ativarAcoesMaterias();
+
+  } catch (error) {
+    mostrarErro(error, "Erro ao listar matérias");
   }
-
-  mostrarCarregando("Carregando matérias...");
-
-  await publicarAgendadosVencidos(usuarioAtual);
-
-  const html = await renderListarMaterias(
-    usuarioAtual,
-    () => abrirListarMaterias(tipo),
-    tipo
-  );
-
-  document.getElementById("adminPage").innerHTML = html;
-
-  ativarAcoesMaterias();
 }
 
 async function abrirRevisarMateria(postId) {
-  paginaAtual = "revisarMateria";
+  try {
+    if (!podeRevisar(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
 
-  if (!podeRevisar(usuarioAtual)) {
-    mostrarSemPermissao();
-    return;
+    mostrarCarregando("Carregando revisão...");
+
+    const html = await renderRevisarMateria(
+      postId,
+      usuarioAtual,
+      () => abrirListarMaterias("revisao")
+    );
+
+    document.getElementById("adminPage").innerHTML = html;
+
+  } catch (error) {
+    mostrarErro(error, "Erro ao abrir revisão");
   }
-
-  mostrarCarregando("Carregando revisão...");
-
-  const html = await renderRevisarMateria(
-    postId,
-    usuarioAtual,
-    () => abrirListarMaterias("revisao")
-  );
-
-  document.getElementById("adminPage").innerHTML = html;
 }
 
 async function abrirComentarios() {
-  paginaAtual = "comentarios";
+  try {
+    if (!podeModerarComentarios(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
 
-  if (!podeModerarComentarios(usuarioAtual)) {
-    mostrarSemPermissao();
-    return;
+    mostrarCarregando("Carregando comentários...");
+
+    document.getElementById("adminPage").innerHTML =
+      await renderComentariosAdmin(abrirComentarios);
+
+  } catch (error) {
+    mostrarErro(error, "Erro nos comentários");
   }
-
-  mostrarCarregando("Carregando comentários...");
-
-  document.getElementById("adminPage").innerHTML =
-    await renderComentariosAdmin(abrirComentarios);
 }
 
 function abrirCadastrarAdm() {
-  paginaAtual = "cadastrarAdm";
+  try {
+    if (!podeGerenciarAdmins(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
 
-  if (!podeGerenciarAdmins(usuarioAtual)) {
-    mostrarSemPermissao();
-    return;
+    document.getElementById("adminPage").innerHTML =
+      renderCadastrarAdm(async () => {
+        await abrirGerenciarAdms();
+      });
+
+  } catch (error) {
+    mostrarErro(error, "Erro ao cadastrar ADM");
   }
-
-  document.getElementById("adminPage").innerHTML =
-    renderCadastrarAdm(async () => {
-      await abrirGerenciarAdms();
-    });
 }
 
 async function abrirGerenciarAdms() {
-  paginaAtual = "gerenciarAdms";
+  try {
+    if (!podeGerenciarAdmins(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
 
-  if (!podeGerenciarAdmins(usuarioAtual)) {
-    mostrarSemPermissao();
-    return;
+    mostrarCarregando("Carregando ADMs...");
+
+    document.getElementById("adminPage").innerHTML =
+      await renderGerenciarAdms(
+        usuarioAtual,
+        abrirGerenciarAdms
+      );
+
+  } catch (error) {
+    mostrarErro(error, "Erro ao gerenciar ADMs");
   }
-
-  mostrarCarregando("Carregando ADMs...");
-
-  document.getElementById("adminPage").innerHTML =
-    await renderGerenciarAdms(
-      usuarioAtual,
-      abrirGerenciarAdms
-    );
 }
 
 function abrirEditarPerfil() {
-  paginaAtual = "editarPerfil";
+  try {
+    document.getElementById("adminPage").innerHTML =
+      renderEditarPerfil(
+        usuarioAtual,
+        atualizarUsuarioPainel
+      );
 
-  document.getElementById("adminPage").innerHTML =
-    renderEditarPerfil(
-      usuarioAtual,
-      atualizarUsuarioPainel
-    );
+  } catch (error) {
+    mostrarErro(error, "Erro ao editar perfil");
+  }
 }
 
 async function ativarAcoesMaterias() {
@@ -266,20 +301,25 @@ async function ativarAcoesMaterias() {
     .querySelectorAll("[data-editar]")
     .forEach((botao) => {
       botao.onclick = async () => {
-        if (!podeEditar(usuarioAtual)) {
-          mostrarSemPermissao();
-          return;
+        try {
+          if (!podeEditar(usuarioAtual)) {
+            mostrarSemPermissao();
+            return;
+          }
+
+          const id = botao.dataset.editar;
+          const post = await buscarPost(id);
+
+          if (!post) {
+            alert("Matéria não encontrada.");
+            return;
+          }
+
+          await abrirNovaMateria(post);
+
+        } catch (error) {
+          mostrarErro(error, "Erro ao editar matéria");
         }
-
-        const id = botao.dataset.editar;
-        const post = await buscarPost(id);
-
-        if (!post) {
-          alert("Matéria não encontrada.");
-          return;
-        }
-
-        await abrirNovaMateria(post);
       };
     });
 
@@ -288,7 +328,6 @@ async function ativarAcoesMaterias() {
     .forEach((botao) => {
       botao.onclick = async () => {
         const id = botao.dataset.revisar;
-
         await abrirRevisarMateria(id);
       };
     });
@@ -297,24 +336,29 @@ async function ativarAcoesMaterias() {
     .querySelectorAll("[data-excluir]")
     .forEach((botao) => {
       botao.onclick = async () => {
-        if (!podeExcluir(usuarioAtual)) {
-          mostrarSemPermissao();
-          return;
+        try {
+          if (!podeExcluir(usuarioAtual)) {
+            mostrarSemPermissao();
+            return;
+          }
+
+          const id = botao.dataset.excluir;
+
+          const confirmar = confirm(
+            "Deseja realmente excluir esta matéria?"
+          );
+
+          if (!confirmar) return;
+
+          await excluirPost(id);
+
+          alert("Matéria excluída com sucesso.");
+
+          await abrirListarMaterias(tipoListaAtual);
+
+        } catch (error) {
+          mostrarErro(error, "Erro ao excluir matéria");
         }
-
-        const id = botao.dataset.excluir;
-
-        const confirmar = confirm(
-          "Deseja realmente excluir esta matéria?"
-        );
-
-        if (!confirmar) return;
-
-        await excluirPost(id);
-
-        alert("Matéria excluída com sucesso.");
-
-        await abrirListarMaterias(tipoListaAtual);
       };
     });
 }
@@ -377,7 +421,6 @@ function ativarMenu() {
     .forEach((botao) => {
       botao.onclick = async () => {
         const pagina = botao.dataset.page;
-
         await abrirPagina(pagina);
       };
     });

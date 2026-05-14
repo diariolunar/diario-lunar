@@ -89,6 +89,63 @@ function validarMateria(dados, status) {
   return true;
 }
 
+async function carregarHistorico() {
+  if (!postAtual?.id) {
+    return `
+      <div class="historico-box">
+        <p>Nenhum histórico ainda. A matéria ainda não foi salva.</p>
+      </div>
+    `;
+  }
+
+  try {
+    const historico = await listarHistoricoPost(postAtual.id);
+
+    if (historico.length === 0) {
+      return `
+        <div class="historico-box">
+          <p>Nenhum histórico encontrado.</p>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="historico-box">
+        ${
+          historico.map((item) => `
+            <div class="historico-item">
+              <strong>${item.acao || "Alteração"}</strong>
+
+              <p>
+                ${item.statusAnterior || "-"} → ${item.statusNovo || "-"}
+              </p>
+
+              <p>
+                Por @${item.usuario || "admin"} em ${formatarDataHistorico(item.data)}
+              </p>
+
+              ${
+                item.observacao
+                  ? `<p><b>Observação:</b> ${item.observacao}</p>`
+                  : ""
+              }
+            </div>
+          `).join("")
+        }
+      </div>
+    `;
+
+  } catch (error) {
+    console.error("Erro ao carregar histórico:", error);
+
+    return `
+      <div class="historico-box">
+        <p>Não foi possível carregar o histórico.</p>
+      </div>
+    `;
+  }
+}
+
 function salvarAutosaveLocal() {
   if (!autosaveKey) return;
 
@@ -330,49 +387,6 @@ async function salvarMateria(status, usuario) {
   });
 }
 
-async function carregarHistorico() {
-  if (!postAtual?.id) {
-    return `
-      <div class="historico-box">
-        <p>Nenhum histórico ainda. A matéria ainda não foi salva.</p>
-      </div>
-    `;
-  }
-
-  const historico = await listarHistoricoPost(postAtual.id);
-
-  if (historico.length === 0) {
-    return `
-      <div class="historico-box">
-        <p>Nenhum histórico encontrado.</p>
-      </div>
-    `;
-  }
-
-  return `
-    <div class="historico-box">
-      ${
-        historico.map((item) => `
-          <div class="historico-item">
-            <strong>${item.acao || "Alteração"}</strong>
-            <p>
-              ${item.statusAnterior || "-"} → ${item.statusNovo || "-"}
-            </p>
-            <p>
-              Por @${item.usuario || "admin"} em ${formatarDataHistorico(item.data)}
-            </p>
-            ${
-              item.observacao
-                ? `<p><b>Observação:</b> ${item.observacao}</p>`
-                : ""
-            }
-          </div>
-        `).join("")
-      }
-    </div>
-  `;
-}
-
 function iniciarBotoesSalvar(usuario) {
   window.usuarioAtualEditor = usuario;
 
@@ -442,6 +456,10 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     ? `diarioLunarAutosave_editar_${postExistente.id}`
     : `diarioLunarAutosave_nova_${usuario.id || usuario.user || "admin"}`;
 
+  const modoEdicao = !!postExistente;
+  const historicoHtml = await carregarHistorico();
+  const usuarioPodeRevisar = podeRevisar(usuario);
+
   setTimeout(() => {
     iniciarEditor({
       onPreview: () => abrirPreview("em_revisao")
@@ -450,11 +468,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     iniciarUploadCapa();
     iniciarBotoesSalvar(usuario);
     iniciarAutosave();
-  }, 50);
-
-  const modoEdicao = !!postExistente;
-  const historicoHtml = await carregarHistorico();
-  const usuarioPodeRevisar = podeRevisar(usuario);
+  }, 100);
 
   return `
     <div class="admin-card">

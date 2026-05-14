@@ -33,6 +33,15 @@ function formatarDataPost(data) {
   }
 }
 
+async function carregarHistoricoSeguro(postId) {
+  try {
+    return await listarHistoricoPost(postId);
+  } catch (error) {
+    console.error("Erro ao carregar histórico da revisão:", error);
+    return [];
+  }
+}
+
 async function aprovarMateria(post, usuarioAtual, onFinalizar) {
   const confirmar = confirm("Deseja aprovar e publicar esta matéria?");
 
@@ -162,7 +171,7 @@ export async function renderRevisarMateria(
     `;
   }
 
-  const historico = await listarHistoricoPost(post.id);
+  const historico = await carregarHistoricoSeguro(post.id);
 
   setTimeout(() => {
     const aprovarBtn = document.getElementById("aprovarRevisaoBtn");
@@ -188,7 +197,7 @@ export async function renderRevisarMateria(
     if (cancelarBtn) {
       cancelarBtn.onclick = () => onFinalizar();
     }
-  }, 50);
+  }, 100);
 
   return `
     <div class="admin-card">
