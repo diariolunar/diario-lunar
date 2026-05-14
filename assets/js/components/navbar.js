@@ -1,13 +1,43 @@
 export function renderNavbar() {
   return `
-    <header class="navbar">
-      <div class="container navbar-content">
+    <header style="
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    ">
+      <div class="container" style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 14px 20px;
+      ">
 
-        <a href="/index.html" class="navbar-logo">
-          <img src="/assets/images/logo-diario-lunar2.png" alt="Diário Lunar">
+        <a
+          href="/index.html"
+          style="display: flex; align-items: center; text-decoration: none;"
+        >
+          <img
+            src="/assets/images/logo-diario-lunar2.png"
+            alt="Diário Lunar"
+            style="
+              height: 58px;
+              width: auto;
+              display: block;
+              object-fit: contain;
+            "
+          >
         </a>
 
-        <nav class="navbar-menu">
+        <nav style="
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          flex-wrap: wrap;
+          font-weight: 600;
+        ">
           <a href="/index.html">Início</a>
 
           <a href="/materias.html">
