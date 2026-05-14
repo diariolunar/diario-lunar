@@ -11,40 +11,41 @@ import { renderFooter } from "../components/footer.js";
 document.getElementById("navbar").innerHTML = renderNavbar();
 document.getElementById("footer").innerHTML = renderFooter();
 
-const tipo =
-  new URLSearchParams(window.location.search)
-  .get("tipo") || "Literatura";
+const params = new URLSearchParams(window.location.search);
 
-document.getElementById("nomeCategoria")
-.innerText = tipo;
+const tipo =
+  params.get("tipo") ||
+  params.get("categoria") ||
+  params.get("cat") ||
+  "Literatura";
+
+document.getElementById("nomeCategoria").innerText = tipo;
 
 const descricoes = {
-  "Literatura":
+  Literatura:
     "Matérias sobre livros, narrativas, leitura e construção literária.",
 
-  "Comunidade":
+  Comunidade:
     "Notícias, ações e movimentos da comunidade Lunar.",
 
-  "Resenhas":
+  Resenhas:
     "Leituras comentadas, análises e impressões sobre obras em destaque.",
 
-  "Entrevistas":
+  Entrevistas:
     "Conversas com autores, leitores e criadores da comunidade.",
 
-  "Autores":
+  Autores:
     "Destaques, perfis e trajetórias de quem escreve.",
 
-  "Eventos":
+  Eventos:
     "Chamadas, encontros, ações e novidades especiais.",
 
   "Destaques Lunar":
     "Obras, projetos e conteúdos selecionados pelo Diário Lunar."
 };
 
-document.getElementById("descricaoCategoria")
-.innerText =
-  descricoes[tipo]
-  || "Conteúdos selecionados do Diário Lunar.";
+document.getElementById("descricaoCategoria").innerText =
+  descricoes[tipo] || "Conteúdos selecionados do Diário Lunar.";
 
 function limparTexto(html) {
   let texto = html || "";
@@ -60,9 +61,7 @@ function limparTexto(html) {
   const area = document.createElement("textarea");
   area.innerHTML = texto;
 
-  texto = area.value;
-
-  return texto
+  return area.value
     .replace(/\n\s*\n/g, "\n")
     .replace(/[ \t]+/g, " ")
     .trim();
@@ -75,8 +74,7 @@ function cortarTexto(texto, limite) {
     return texto;
   }
 
-  return texto.substring(0, limite)
-    .trim() + "...";
+  return texto.substring(0, limite).trim() + "...";
 }
 
 function getDataNumber(post) {
@@ -100,20 +98,24 @@ function postEstaPublico(post) {
 
   if (status === "agendado") {
     const dataPost = getDataNumber(post);
-    const agora = Date.now();
-
-    return dataPost && dataPost <= agora;
+    return dataPost && dataPost <= Date.now();
   }
 
   return false;
 }
 
-async function carregarCategoria() {
-  const snapshot =
-    await getDocs(collection(db, "posts"));
+function normalizar(texto) {
+  return (texto || "")
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
 
-  const container =
-    document.getElementById("posts");
+async function carregarCategoria() {
+  const snapshot = await getDocs(collection(db, "posts"));
+  const container = document.getElementById("posts");
 
   container.innerHTML = "";
 
@@ -126,7 +128,7 @@ async function carregarCategoria() {
       return;
     }
 
-    if (post.categoria === tipo) {
+    if (normalizar(post.categoria) === normalizar(tipo)) {
       posts.push({
         id: docItem.id,
         ...post,
@@ -135,64 +137,47 @@ async function carregarCategoria() {
     }
   });
 
-  posts.sort(
-    (a, b) => b.dataNum - a.dataNum
-  );
-
-  posts.forEach((post) => {
-    const textoLimpo =
-      limparTexto(post.conteudo || "");
-
-    const div =
-      document.createElement("a");
-
-    div.className = "card post-card";
-    div.href = `/post.html?id=${post.id}`;
-    div.style.textDecoration = "none";
-    div.style.color = "inherit";
-
-    div.innerHTML = `
-      <img src="${post.imagem || "/assets/images/footer.png"}">
-
-      <div class="post-card-content">
-
-        <small>
-          ${post.categoria || "Matéria"}
-        </small>
-
-        <h3>
-          ${post.titulo || ""}
-        </h3>
-
-        <p>
-          ${cortarTexto(textoLimpo, 120)}
-        </p>
-
-        <span class="card-info">
-          👁️ ${post.views || 0} · 💜 ${post.curtidas || 0}
-        </span>
-
-      </div>
-    `;
-
-    container.appendChild(div);
-  });
+  posts.sort((a, b) => b.dataNum - a.dataNum);
 
   if (posts.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-
-        <h2>
-          Nenhuma matéria encontrada
-        </h2>
+        <h2>Nenhuma matéria encontrada</h2>
 
         <p>
           Ainda não existem publicações disponíveis nesta categoria.
         </p>
-
       </div>
     `;
+
+    return;
   }
+
+  container.innerHTML = posts.map((post) => {
+    const textoLimpo = limparTexto(post.conteudo || "");
+
+    return `
+      <a
+        href="/post.html?id=${post.id}"
+        class="card post-card"
+        style="text-decoration:none; color:inherit;"
+      >
+        <img src="${post.imagem || "/assets/images/footer.png"}">
+
+        <div class="post-card-content">
+          <small>${post.categoria || "Matéria"}</small>
+
+          <h3>${post.titulo || ""}</h3>
+
+          <p>${cortarTexto(textoLimpo, 120)}</p>
+
+          <span class="card-info">
+            👁️ ${post.views || 0} · 💜 ${post.curtidas || 0}
+          </span>
+        </div>
+      </a>
+    `;
+  }).join("");
 }
 
 carregarCategoria();
