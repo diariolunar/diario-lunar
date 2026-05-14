@@ -66,6 +66,19 @@ function formatarDataHistorico(data) {
   }
 }
 
+function conteudoTemTextoOuImagem(conteudo) {
+  const temp = document.createElement("div");
+  temp.innerHTML = conteudo || "";
+
+  const texto = temp.innerText
+    .replace(/\s+/g, "")
+    .trim();
+
+  const temImagem = temp.querySelector("img") !== null;
+
+  return texto.length > 0 || temImagem;
+}
+
 function montarDadosMateria(status, usuario) {
   return {
     titulo: document.getElementById("tituloMateria").value.trim(),
@@ -86,8 +99,16 @@ function validarMateria(dados, status) {
     return false;
   }
 
-  if (status === "em_revisao" || status === "publicado" || status === "agendado") {
-    if (!dados.categoria || !dados.conteudo || !dados.imagem) {
+  if (
+    status === "em_revisao" ||
+    status === "publicado" ||
+    status === "agendado"
+  ) {
+    const temCategoria = !!dados.categoria;
+    const temImagemCapa = !!dados.imagem || !!imagemCapaArquivo;
+    const temConteudo = conteudoTemTextoOuImagem(dados.conteudo);
+
+    if (!temCategoria || !temImagemCapa || !temConteudo) {
       alert("Preencha categoria, imagem de capa e conteúdo.");
       return false;
     }
@@ -162,11 +183,16 @@ function abrirPreview(status = "em_revisao") {
   const modal = document.getElementById("previewModal");
   const conteudo = document.getElementById("previewConteudo");
 
+  const imagemPreview =
+    imagemCapaUrl ||
+    document.getElementById("previewCapa")?.src ||
+    "/assets/images/footer.png";
+
   conteudo.innerHTML = `
     <article class="preview-article">
       <img
         class="preview-cover"
-        src="${dados.imagem || "/assets/images/footer.png"}"
+        src="${imagemPreview}"
       >
 
       <p style="color:var(--roxo); font-weight:bold; text-transform:uppercase;">
@@ -303,11 +329,13 @@ function confirmarCropImagem() {
       );
 
       imagemCapaArquivo = arquivoCortado;
+      imagemCapaUrl = "";
 
       const preview = document.getElementById("previewCapa");
       const urlPreview = URL.createObjectURL(arquivoCortado);
 
       preview.src = urlPreview;
+      preview.dataset.temImagemLocal = "true";
       preview.style.display = "block";
 
       document.getElementById("uploadCapaBox").innerText =
@@ -360,19 +388,21 @@ async function salvarMateria(status, usuario) {
   });
 
   try {
-    if (imagemCapaArquivo) {
-      imagemCapaUrl = await uploadArquivo(imagemCapaArquivo, "capas-materias");
-    }
+    const dadosAntesUpload = montarDadosMateria(status, usuario);
 
-    const dados = montarDadosMateria(status, usuario);
-
-    if (!validarMateria(dados, status)) {
+    if (!validarMateria(dadosAntesUpload, status)) {
       botoes.forEach((botao) => {
         botao.disabled = false;
       });
 
       return;
     }
+
+    if (imagemCapaArquivo) {
+      imagemCapaUrl = await uploadArquivo(imagemCapaArquivo, "capas-materias");
+    }
+
+    const dados = montarDadosMateria(status, usuario);
 
     const statusAnterior = postAtual?.status || "novo";
 
