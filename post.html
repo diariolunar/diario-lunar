@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Matéria - Diário Lunar</title>
+
+  <meta name="description" content="Leia matérias, notícias, entrevistas e destaques do Diário Lunar.">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:title" content="Matéria - Diário Lunar">
+  <meta property="og:description" content="Leia matérias, notícias, entrevistas e destaques do Diário Lunar.">
+  <meta property="og:image" content="/assets/images/logo-diario-lunar.png">
+  <meta property="og:type" content="article">
+
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="/assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="/assets/images/favicon.png">
+
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/post.css">
+</head>
+
+<body>
+  <div id="navbar"></div>
+
+  <main class="post-container container">
+    <a href="/index.html" class="voltar-link">← Voltar para o início</a>
+
+    <p id="categoria" class="post-category"></p>
+
+    <h1 id="titulo"></h1>
+
+    <div class="post-meta">
+      <div class="autor-box">
+        <a id="autorLink" href="#" style="display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit;">
+          <img id="fotoReporter" src="/assets/images/logo-vertical.png">
+
+          <div class="autor-texto">
+            Por <strong id="autorUser">@diario_lunar</strong>
+            <span id="autorNomenclatura"></span>
+          </div>
+        </a>
+      </div>
+
+      <div id="dataPublicacaoTexto" class="data-publicacao"></div>
+    </div>
+
+    <img id="imagem" class="post-cover">
+
+    <article id="conteudo" class="post-content"></article>
+
+    <section class="interaction-box">
+      <h3>Interação Lunar</h3>
+
+      <input id="usuarioWattpad" placeholder="Seu usuário do Wattpad">
+
+      <button id="salvarUsuarioBtn" class="btn">Salvar usuário</button>
+
+      <br><br>
+
+      <button id="curtirBtn" class="btn">
+        ❤️ Curtir (<span id="curtidas">0</span>)
+      </button>
+    </section>
+
+    <section class="interaction-box">
+      <h3>Comentários</h3>
+
+      <textarea id="comentarioInput" placeholder="Escreva um comentário..."></textarea>
+
+      <button id="comentarBtn" class="btn">Comentar</button>
+
+      <div id="listaComentarios"></div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module" src="/assets/js/pages/post.js"></script>
+</body>
+</html>

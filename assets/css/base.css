@@ -1,0 +1,36 @@
+:root {
+  --fundo: #F8F6F1;
+  --azul: #0EA5E9;
+  --roxo: #6D28D9;
+  --escuro: #07101F;
+  --branco: #ffffff;
+  --cinza: #64748b;
+  --sombra: 0 8px 25px rgba(0,0,0,0.07);
+  --raio: 22px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--fundo);
+  color: var(--escuro);
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: Arial, sans-serif;
+}

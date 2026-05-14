@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todas as Matérias - Diário Lunar</title>
+
+  <link rel="icon" href="/assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="/assets/images/favicon.png">
+
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/public.css">
+</head>
+
+<body>
+  <div id="navbar"></div>
+
+  <main>
+    <section class="container section">
+      <p style="color: var(--azul); font-weight: bold;">
+        ✦ Arquivo Lunar
+      </p>
+
+      <h1 style="font-size: 48px;">
+        Todas as Matérias
+      </h1>
+
+      <p>
+        Pesquise, filtre e explore todas as publicações do Diário Lunar.
+      </p>
+
+      <div class="materias-filtros">
+        <input
+          id="buscaMaterias"
+          type="search"
+          placeholder="Buscar por título, autor, categoria ou conteúdo..."
+        >
+
+        <select id="filtroCategoria">
+          <option value="Todas">Todas as categorias</option>
+          <option value="Literatura">Literatura</option>
+          <option value="Comunidade">Comunidade</option>
+          <option value="Autores">Autores</option>
+          <option value="Eventos">Eventos</option>
+          <option value="Resenhas">Resenhas</option>
+          <option value="Entrevistas">Entrevistas</option>
+          <option value="Destaques Lunar">Destaques Lunar</option>
+        </select>
+      </div>
+
+      <p id="resultadoBusca" class="resultado-busca"></p>
+
+      <div
+        class="grid grid-auto"
+        id="posts"
+        style="margin-top: 30px;"
+      ></div>
+
+      <div class="ver-mais">
+        <button
+          id="carregarMaisBtn"
+          class="btn"
+          style="display:none;"
+        >
+          Carregar mais matérias
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module" src="/assets/js/pages/materias.js"></script>
+</body>
+</html>

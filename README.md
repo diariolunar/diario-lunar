@@ -1,1 +1,1 @@
-# diario-lunar
+# jornal-lunar

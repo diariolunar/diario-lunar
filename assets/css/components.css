@@ -1,0 +1,103 @@
+.btn {
+  background: var(--roxo);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, var(--azul), var(--roxo));
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 50px;
+}
+
+.logo img {
+  height: 70px;
+}
+
+.menu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.menu a {
+  margin: 6px 10px;
+  text-decoration: none;
+  color: var(--escuro);
+  font-weight: 500;
+}
+
+.card {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+.footer {
+  background: url("../images/footer.png") center/cover no-repeat;
+  color: white;
+  padding: 45px 50px;
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: 1.4fr 1.2fr 1fr;
+  gap: 35px;
+  position: relative;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(7,16,31,0.82);
+}
+
+.footer > * {
+  position: relative;
+}
+
+.footer a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  margin: 8px 0;
+}
+
+.newsletter-box {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 22px;
+  border-radius: 20px;
+}
+
+.newsletter-box input {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  margin: 10px 0;
+}
+
+@media (max-width: 850px) {
+  .navbar {
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px 25px;
+  }
+
+  .footer {
+    grid-template-columns: 1fr;
+    padding: 40px 25px;
+  }
+}

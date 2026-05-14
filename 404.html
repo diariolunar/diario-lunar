@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página não encontrada - Diário Lunar</title>
+
+  <link rel="icon" href="/assets/images/favicon.png">
+  <link rel="apple-touch-icon" href="/assets/images/favicon.png">
+
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/public.css">
+</head>
+
+<body>
+  <div id="navbar"></div>
+
+  <main>
+    <section class="container section">
+      <div class="not-found-card">
+        <p>✦ Erro 404</p>
+
+        <h1>Essa página se perdeu no lado oculto da Lua</h1>
+
+        <p>
+          O endereço acessado não existe ou foi movido.
+          Você pode voltar para o início ou explorar as matérias publicadas.
+        </p>
+
+        <div class="not-found-actions">
+          <a href="/index.html" class="btn btn-gradient">Voltar ao início</a>
+          <a href="/materias.html" class="btn">Ver matérias</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module">
+    import { renderNavbar } from "/assets/js/components/navbar.js";
+    import { renderFooter } from "/assets/js/components/footer.js";
+
+    document.getElementById("navbar").innerHTML = renderNavbar();
+    document.getElementById("footer").innerHTML = renderFooter();
+  </script>
+</body>
+</html>

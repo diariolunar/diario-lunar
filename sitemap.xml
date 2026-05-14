@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/index.html</loc>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/materias.html</loc>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/equipe.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/contato.html</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/sobre.html</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/privacidade.html</loc>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Literatura</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Comunidade</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Autores</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Eventos</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Resenhas</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Entrevistas</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Destaques%20Lunar</loc>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
