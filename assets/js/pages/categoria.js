@@ -114,10 +114,11 @@ function normalizar(texto) {
 }
 
 async function carregarCategoria() {
-  const snapshot = await getDocs(collection(db, "posts"));
   const container = document.getElementById("posts");
 
-  container.innerHTML = "";
+  container.innerHTML = "<p>Carregando matérias...</p>";
+
+  const snapshot = await getDocs(collection(db, "posts"));
 
   let posts = [];
 
