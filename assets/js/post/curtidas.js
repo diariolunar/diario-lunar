@@ -5,116 +5,127 @@ import {
   getDoc,
   setDoc,
   deleteDoc,
-  updateDoc
+  updateDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
-function pegarUsuario() {
-  const inputUsuario = document.getElementById("usuarioWattpad");
+function getClientId() {
+  let clientId = localStorage.getItem("diarioLunarClientId");
 
-  const usuario = inputUsuario.value.trim();
+  if (!clientId) {
+    clientId =
+      "user_" +
+      Date.now() +
+      "_" +
+      Math.random().toString(36).substring(2, 12);
 
-  if (!usuario) {
-    alert("Digite seu usuário do Wattpad antes.");
-    return null;
+    localStorage.setItem("diarioLunarClientId", clientId);
   }
 
-  localStorage.setItem("usuarioWattpad", usuario);
-
-  return usuario
-    .toLowerCase()
-    .replaceAll(" ", "");
+  return clientId;
 }
 
-async function verificarCurtida(postId) {
-  const inputUsuario = document.getElementById("usuarioWattpad");
-
-  const usuario = inputUsuario.value
-    .trim()
-    .toLowerCase()
-    .replaceAll(" ", "");
-
-  if (!usuario || !postId) return;
-
-  const likeId = `${postId}_${usuario}`;
-  const likeRef = doc(db, "likes", likeId);
-  const likeSnap = await getDoc(likeRef);
-
-  const total = document.getElementById("curtidas").innerText || 0;
-
-  if (likeSnap.exists()) {
-    document.getElementById("curtirBtn").innerHTML =
-      `💜 Curtido (<span id="curtidas">${total}</span>)`;
-  } else {
-    document.getElementById("curtirBtn").innerHTML =
-      `❤️ Curtir (<span id="curtidas">${total}</span>)`;
-  }
+function getLikeId(postId) {
+  return `${postId}_${getClientId()}`;
 }
 
-async function curtir(postId) {
-  const usuario = pegarUsuario();
+function buscarBotaoCurtir() {
+  return (
+    document.getElementById("curtirBtn") ||
+    document.getElementById("botaoCurtir") ||
+    document.getElementById("likeBtn") ||
+    document.getElementById("btnCurtir") ||
+    document.querySelector("[data-like-btn]")
+  );
+}
 
-  if (!usuario) return;
+function atualizarVisualBotao(botao, curtido) {
+  if (!botao) return;
 
-  const likeId = `${postId}_${usuario}`;
-  const likeRef = doc(db, "likes", likeId);
+  botao.disabled = false;
+
+  botao.innerHTML = curtido
+    ? "💜 Curtido"
+    : "🤍 Curtir";
+
+  botao.classList.toggle("curtido", curtido);
+}
+
+async function usuarioJaCurtiu(postId) {
+  const likeRef = doc(db, "likes", getLikeId(postId));
   const likeSnap = await getDoc(likeRef);
 
+  return likeSnap.exists();
+}
+
+async function atualizarContador(postId) {
   const postRef = doc(db, "posts", postId);
   const postSnap = await getDoc(postRef);
 
   if (!postSnap.exists()) return;
 
   const post = postSnap.data();
+  const contador = document.getElementById("curtidas");
 
-  if (post.status && post.status !== "publicado") {
-    alert("Essa matéria não está disponível para interação.");
-    return;
+  if (contador) {
+    contador.innerText = post.curtidas || 0;
   }
-
-  let atual = post.curtidas || 0;
-
-  if (likeSnap.exists()) {
-    await deleteDoc(likeRef);
-
-    const novoTotal = Math.max(atual - 1, 0);
-
-    await updateDoc(postRef, {
-      curtidas: novoTotal
-    });
-
-    document.getElementById("curtidas").innerText = novoTotal;
-    document.getElementById("curtirBtn").innerHTML =
-      `❤️ Curtir (<span id="curtidas">${novoTotal}</span>)`;
-
-    return;
-  }
-
-  await setDoc(likeRef, {
-    postId: postId,
-    usuario: usuario,
-    data: new Date()
-  });
-
-  await updateDoc(postRef, {
-    curtidas: atual + 1
-  });
-
-  document.getElementById("curtidas").innerText = atual + 1;
-  document.getElementById("curtirBtn").innerHTML =
-    `💜 Curtido (<span id="curtidas">${atual + 1}</span>)`;
 }
 
-export function iniciarCurtidas(postId) {
-  const inputUsuario = document.getElementById("usuarioWattpad");
-  const usuarioSalvo = localStorage.getItem("usuarioWattpad");
+export async function iniciarCurtidas(postId) {
+  if (!postId) return;
 
-  if (usuarioSalvo) {
-    inputUsuario.value = usuarioSalvo;
+  const botao = buscarBotaoCurtir();
+
+  if (!botao) {
+    console.warn("Botão de curtir não encontrado.");
+    return;
   }
 
-  document.getElementById("curtirBtn").onclick = () => {
-    curtir(postId);
-  };
+  botao.disabled = true;
 
-  verificarCurtida(postId);
+  let curtido = await usuarioJaCurtiu(postId);
+
+  atualizarVisualBotao(botao, curtido);
+  await atualizarContador(postId);
+
+  botao.onclick = async () => {
+    botao.disabled = true;
+
+    const likeRef = doc(db, "likes", getLikeId(postId));
+    const postRef = doc(db, "posts", postId);
+
+    try {
+      if (curtido) {
+        await deleteDoc(likeRef);
+
+        await updateDoc(postRef, {
+          curtidas: increment(-1)
+        });
+
+        curtido = false;
+
+      } else {
+        await setDoc(likeRef, {
+          postId,
+          clientId: getClientId(),
+          data: new Date()
+        });
+
+        await updateDoc(postRef, {
+          curtidas: increment(1)
+        });
+
+        curtido = true;
+      }
+
+      atualizarVisualBotao(botao, curtido);
+      await atualizarContador(postId);
+
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível registrar a curtida agora.");
+      botao.disabled = false;
+    }
+  };
 }
