@@ -219,7 +219,7 @@ async function abrirRevisarMateria(postId) {
     const html = await renderRevisarMateria(
       postId,
       usuarioAtual,
-      () => abrirListarMaterias("revisao")
+      (destino = "revisao") => abrirListarMaterias(destino)
     );
 
     document.getElementById("adminPage").innerHTML = html;
@@ -374,8 +374,13 @@ async function abrirPagina(pagina) {
     return;
   }
 
+  if (pagina === "materiasPublicadas") {
+    await abrirListarMaterias("publicadas");
+    return;
+  }
+
   if (pagina === "materiasPublicas") {
-    await abrirListarMaterias("publicas");
+    await abrirListarMaterias("publicadas");
     return;
   }
 

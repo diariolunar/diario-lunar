@@ -51,8 +51,8 @@ export function renderSidebar(usuario = {}) {
                     : ""
                 }
 
-                <button data-page="materiasPublicas">
-                  Matérias Públicas
+                <button data-page="materiasPublicadas">
+                  Matérias Publicadas
                 </button>
 
                 <button data-page="materiasRascunho">

@@ -66,7 +66,7 @@ function statusInfo(status) {
 }
 
 function filtrarPorTipo(posts, tipo) {
-  if (tipo === "publicas") {
+  if (tipo === "publicadas" || tipo === "publicas") {
     return posts.filter((post) =>
       post.status === "publicado" ||
       post.status === "agendado"
@@ -92,8 +92,12 @@ function filtrarPorTipo(posts, tipo) {
 
 function tituloDaPagina(tipo) {
   const mapa = {
+    publicadas: {
+      titulo: "Matérias Publicadas",
+      descricao: "Gerencie matérias publicadas e agendadas."
+    },
     publicas: {
-      titulo: "Matérias Públicas",
+      titulo: "Matérias Publicadas",
       descricao: "Gerencie matérias publicadas e agendadas."
     },
     rascunhos: {

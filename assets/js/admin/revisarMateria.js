@@ -74,14 +74,13 @@ async function aprovarMateria(post, usuarioAtual, onFinalizar) {
 
     alert("Matéria aprovada e publicada.");
 
-    await onFinalizar("publicas");
+    await onFinalizar("publicadas");
 
   } catch (error) {
     console.error(error);
     alert("Erro ao aprovar matéria.");
+    travarBotoes(false);
   }
-
-  travarBotoes(false);
 }
 
 async function agendarMateria(post, usuarioAtual, onFinalizar) {
@@ -119,14 +118,13 @@ async function agendarMateria(post, usuarioAtual, onFinalizar) {
 
     alert("Matéria agendada.");
 
-    await onFinalizar("publicas");
+    await onFinalizar("publicadas");
 
   } catch (error) {
     console.error(error);
     alert("Erro ao agendar matéria.");
+    travarBotoes(false);
   }
-
-  travarBotoes(false);
 }
 
 async function reprovarMateria(post, usuarioAtual, onFinalizar) {
@@ -162,9 +160,8 @@ async function reprovarMateria(post, usuarioAtual, onFinalizar) {
   } catch (error) {
     console.error(error);
     alert("Erro ao reprovar matéria.");
+    travarBotoes(false);
   }
-
-  travarBotoes(false);
 }
 
 function renderHistorico(historico) {

@@ -28,6 +28,34 @@ let cropDragging = false;
 let cropStartX = 0;
 let cropStartY = 0;
 
+function navegarDepoisDeSalvar(status) {
+  if (status === "publicado" || status === "agendado") {
+    const botao = document.querySelector('[data-page="materiasPublicadas"]');
+
+    if (botao) {
+      botao.click();
+    }
+
+    return;
+  }
+
+  if (status === "em_revisao") {
+    const botao = document.querySelector('[data-page="materiasRevisar"]');
+
+    if (botao) {
+      botao.click();
+    }
+
+    return;
+  }
+
+  const botao = document.querySelector('[data-page="materiasRascunho"]');
+
+  if (botao) {
+    botao.click();
+  }
+}
+
 function pegarDataPublicacao() {
   const campoData = document.getElementById("dataMateria");
 
@@ -442,6 +470,8 @@ async function salvarMateria(status, usuario) {
     };
 
     alert(mensagens[status] || "Matéria salva.");
+
+    navegarDepoisDeSalvar(status);
 
   } catch (error) {
     console.error(error);
