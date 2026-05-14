@@ -133,6 +133,7 @@ export function renderNavbar() {
 
         .dropdown-lunar{
           position:relative;
+          padding:12px 0;
         }
 
         .dropdown-btn-lunar{
@@ -161,7 +162,7 @@ export function renderNavbar() {
           display:none;
           flex-direction:column;
           z-index:999;
-          margin-top:10px;
+          margin-top:0;
         }
 
         .dropdown-content-lunar a{
