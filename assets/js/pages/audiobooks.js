@@ -13,27 +13,64 @@ document.getElementById("footer").innerHTML = renderFooter();
 
 const container = document.getElementById("audiobooks");
 
-function converterGoogleDriveParaAudio(url) {
-  if (!url) return "";
-
-  if (!url.includes("drive.google.com")) {
-    return url;
+function extrairIdDrive(url) {
+  if (!url || !url.includes("drive.google.com")) {
+    return "";
   }
 
   const match = url.match(/\/d\/([^/]+)/);
 
   if (match && match[1]) {
-    return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+    return match[1];
   }
 
-  const idParam = new URLSearchParams(url.split("?")[1]);
-  const id = idParam.get("id");
+  try {
+    const params = new URLSearchParams(url.split("?")[1]);
+    return params.get("id") || "";
+  } catch {
+    return "";
+  }
+}
+
+function montarImagemCapa(url) {
+  const id = extrairIdDrive(url);
 
   if (id) {
-    return `https://drive.google.com/uc?export=download&id=${id}`;
+    return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
   }
 
-  return url;
+  return url || "/assets/images/footer.png";
+}
+
+function montarPlayer(audioUrl) {
+  const id = extrairIdDrive(audioUrl);
+
+  if (id) {
+    return `
+      <iframe
+        src="https://drive.google.com/file/d/${id}/preview"
+        width="100%"
+        height="90"
+        allow="autoplay"
+        style="border:0; border-radius:16px; margin-top:15px;"
+      ></iframe>
+    `;
+  }
+
+  if (audioUrl) {
+    return `
+      <audio controls style="width:100%; margin-top:15px;">
+        <source src="${audioUrl}">
+        Seu navegador não suporta reprodução de áudio.
+      </audio>
+    `;
+  }
+
+  return `
+    <p style="color:#991b1b; font-weight:bold;">
+      Áudio não informado.
+    </p>
+  `;
 }
 
 function getDataNumber(item) {
@@ -49,13 +86,16 @@ function getDataNumber(item) {
 }
 
 function criarCardAudiobook(audio) {
-  const audioUrl = converterGoogleDriveParaAudio(
-    audio.audioUrl || audio.linkAudio || ""
-  );
+  const capaUrl = montarImagemCapa(audio.capa || "");
+  const audioUrl = audio.audioUrl || audio.linkAudio || "";
 
   return `
     <div class="card post-card">
-      <img src="${audio.capa || "/assets/images/footer.png"}">
+      <img
+        src="${capaUrl}"
+        alt="${audio.titulo || "Audiobook"}"
+        onerror="this.src='/assets/images/footer.png'"
+      >
 
       <div class="post-card-content">
         <small>${audio.categoria || "Audiobook"}</small>
@@ -66,20 +106,7 @@ function criarCardAudiobook(audio) {
 
         ${audio.descricao ? `<p>${audio.descricao}</p>` : ""}
 
-        ${
-          audioUrl
-            ? `
-              <audio controls style="width:100%; margin-top:15px;">
-                <source src="${audioUrl}">
-                Seu navegador não suporta reprodução de áudio.
-              </audio>
-            `
-            : `
-              <p style="color:#991b1b; font-weight:bold;">
-                Áudio não informado.
-              </p>
-            `
-        }
+        ${montarPlayer(audioUrl)}
       </div>
     </div>
   `;
