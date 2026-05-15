@@ -176,9 +176,10 @@ async function carregarAudiobooks() {
 
         .audiobooks-grid{
           display:grid;
-          grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+          grid-template-columns:repeat(auto-fit,minmax(320px,320px));
           gap:28px;
           align-items:start;
+          justify-content:flex-start;
         }
 
         .audiobook-card{
