@@ -49,7 +49,9 @@ function getDataNumber(item) {
 }
 
 function criarCardAudiobook(audio) {
-  const audioUrl = converterGoogleDriveParaAudio(audio.audioUrl || audio.linkAudio || "");
+  const audioUrl = converterGoogleDriveParaAudio(
+    audio.audioUrl || audio.linkAudio || ""
+  );
 
   return `
     <div class="card post-card">
@@ -60,15 +62,9 @@ function criarCardAudiobook(audio) {
 
         <h3>${audio.titulo || "Sem título"}</h3>
 
-        <p>
-          ${audio.autor ? `Por ${audio.autor}` : "Autor não informado"}
-        </p>
+        <p>${audio.autor ? `Por ${audio.autor}` : "Autor não informado"}</p>
 
-        ${
-          audio.descricao
-            ? `<p>${audio.descricao}</p>`
-            : ""
-        }
+        ${audio.descricao ? `<p>${audio.descricao}</p>` : ""}
 
         ${
           audioUrl
@@ -90,40 +86,52 @@ function criarCardAudiobook(audio) {
 }
 
 async function carregarAudiobooks() {
-  container.innerHTML = "<p>Carregando audiobooks...</p>";
+  try {
+    container.innerHTML = "<p>Carregando audiobooks...</p>";
 
-  const snap = await getDocs(collection(db, "audiobooks"));
+    const snap = await getDocs(collection(db, "audiobooks"));
 
-  let lista = [];
+    let lista = [];
 
-  snap.forEach((item) => {
-    const audio = item.data();
+    snap.forEach((item) => {
+      const audio = item.data();
 
-    if (audio.status && audio.status !== "publicado") {
+      if (audio.status && audio.status !== "publicado") {
+        return;
+      }
+
+      lista.push({
+        id: item.id,
+        ...audio,
+        dataNum: getDataNumber(audio)
+      });
+    });
+
+    lista.sort((a, b) => b.dataNum - a.dataNum);
+
+    if (lista.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <h2>Nenhum audiobook publicado ainda</h2>
+          <p>Quando houver audiobooks disponíveis, eles aparecerão aqui.</p>
+        </div>
+      `;
+
       return;
     }
 
-    lista.push({
-      id: item.id,
-      ...audio,
-      dataNum: getDataNumber(audio)
-    });
-  });
+    container.innerHTML = lista.map(criarCardAudiobook).join("");
 
-  lista.sort((a, b) => b.dataNum - a.dataNum);
+  } catch (error) {
+    console.error(error);
 
-  if (lista.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <h2>Nenhum audiobook publicado ainda</h2>
-        <p>Quando houver audiobooks disponíveis, eles aparecerão aqui.</p>
+        <h2>Erro ao carregar audiobooks</h2>
+        <p>${error.message || "Verifique as regras do Firestore e o nome da coleção."}</p>
       </div>
     `;
-
-    return;
   }
-
-  container.innerHTML = lista.map(criarCardAudiobook).join("");
 }
 
 carregarAudiobooks();
