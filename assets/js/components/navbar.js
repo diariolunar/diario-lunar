@@ -69,6 +69,10 @@ export function renderNavbar() {
 
           </div>
 
+          <a class="nav-link-lunar" href="/audiobooks.html">
+            Audiobooks
+          </a>
+
           <a class="nav-link-lunar" href="/sugestao.html">
             Sugestão de Pauta
           </a>
