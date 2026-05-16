@@ -70,21 +70,16 @@ function montarPlayer(audioUrl) {
       <iframe
         src="https://drive.google.com/file/d/${id}/preview"
         width="100%"
-        height="110"
+        height="120"
         allow="autoplay"
-        style="
-          border:0;
-          border-radius:20px;
-          margin-top:20px;
-          background:#111827;
-        "
+        class="audio-player-frame"
       ></iframe>
     `;
   }
 
   if (audioUrl) {
     return `
-      <audio controls style="width:100%; margin-top:20px;">
+      <audio controls class="audio-player-native">
         <source src="${audioUrl}">
         Seu navegador não suporta reprodução de áudio.
       </audio>
@@ -92,7 +87,7 @@ function montarPlayer(audioUrl) {
   }
 
   return `
-    <p style="color:#991b1b; font-weight:bold;">
+    <p class="audio-error">
       Áudio não informado.
     </p>
   `;
@@ -140,8 +135,13 @@ async function carregarComentarios() {
   });
 
   comentarios.sort((a, b) => {
-    const dataA = a.data?.toDate ? a.data.toDate().getTime() : new Date(a.data || 0).getTime();
-    const dataB = b.data?.toDate ? b.data.toDate().getTime() : new Date(b.data || 0).getTime();
+    const dataA = a.data?.toDate
+      ? a.data.toDate().getTime()
+      : new Date(a.data || 0).getTime();
+
+    const dataB = b.data?.toDate
+      ? b.data.toDate().getTime()
+      : new Date(b.data || 0).getTime();
 
     return dataB - dataA;
   });
@@ -149,12 +149,25 @@ async function carregarComentarios() {
   box.innerHTML = comentarios.length
     ? comentarios.map((comentario) => `
         <div class="comentario-audiobook">
-          <strong>@${comentario.usuario || "usuario"}</strong>
-          <p>${comentario.texto || ""}</p>
-          <small>${formatarData(comentario.data)}</small>
+          <div class="comentario-avatar">
+            ${(comentario.usuario || "U").charAt(0).toUpperCase()}
+          </div>
+
+          <div>
+            <strong>@${comentario.usuario || "usuario"}</strong>
+
+            <p>${comentario.texto || ""}</p>
+
+            <small>${formatarData(comentario.data)}</small>
+          </div>
         </div>
       `).join("")
-    : "<p>Nenhum comentário ainda. Seja o primeiro a comentar.</p>";
+    : `
+      <div class="comentarios-vazio">
+        <h3>Nenhum comentário ainda</h3>
+        <p>Seja o primeiro a comentar este audiobook.</p>
+      </div>
+    `;
 }
 
 async function enviarComentario() {
@@ -192,7 +205,7 @@ async function iniciarCurtida(audio) {
   let curtido = localStorage.getItem(likeKey) === "true";
 
   function atualizarVisual() {
-    botao.innerText = curtido ? "💜 Curtido" : "🤍 Curtir";
+    botao.innerHTML = curtido ? "💜 Curtido" : "🤍 Curtir";
     contador.innerText = audio.curtidas || 0;
   }
 
@@ -269,13 +282,13 @@ async function carregarAudiobook() {
   document.title = `${audio.titulo || "Audiobook"} - Diário Lunar`;
 
   container.innerHTML = `
-    <a href="/audiobooks.html" class="btn" style="margin-bottom:25px; display:inline-block;">
+    <a href="/audiobooks.html" class="voltar-audiobooks">
       ← Voltar para Audiobooks
     </a>
 
-    <div class="audiobook-detalhe">
+    <section class="audiobook-hero">
 
-      <div class="audiobook-detalhe-capa">
+      <div class="audiobook-capa-box">
         <img
           src="${capa}"
           alt="${audio.titulo || "Audiobook"}"
@@ -283,29 +296,48 @@ async function carregarAudiobook() {
         >
       </div>
 
-      <div class="audiobook-detalhe-info">
-        <p style="color:var(--azul); font-weight:bold;">
+      <div class="audiobook-info-box">
+
+        <span class="audiobook-label">
           ✦ ${audio.categoria || "Audiobook"}
-        </p>
+        </span>
 
         <h1>${audio.titulo || "Sem título"}</h1>
 
-        <p><b>Autor:</b> ${audio.autor || "Não informado"}</p>
+        <div class="audiobook-meta-grid">
+          <div>
+            <small>Autor</small>
+            <strong>${audio.autor || "Não informado"}</strong>
+          </div>
 
-        <p><b>Gravado por:</b> ${audio.narrador || "Não informado"}</p>
+          <div>
+            <small>Gravado por</small>
+            <strong>${audio.narrador || "Não informado"}</strong>
+          </div>
 
-        <p><b>Publicado em:</b> ${formatarData(audio.data)}</p>
+          <div>
+            <small>Publicado em</small>
+            <strong>${formatarData(audio.data)}</strong>
+          </div>
+        </div>
 
         ${
           audio.descricao
-            ? `<p class="audiobook-detalhe-descricao">${audio.descricao}</p>`
+            ? `
+              <p class="audiobook-descricao">
+                ${audio.descricao}
+              </p>
+            `
             : ""
         }
 
-        ${montarPlayer(audio.audioUrl || audio.linkAudio || "")}
+        <div class="audiobook-player-box">
+          <h2>Ouça agora</h2>
+          ${montarPlayer(audio.audioUrl || audio.linkAudio || "")}
+        </div>
 
         <div class="audiobook-acoes">
-          <button id="curtirAudiobookBtn" class="btn">
+          <button id="curtirAudiobookBtn" class="btn-like-audio">
             🤍 Curtir
           </button>
 
@@ -313,102 +345,301 @@ async function carregarAudiobook() {
             💜 <b id="curtidasAudiobook">${audio.curtidas || 0}</b> curtida(s)
           </span>
         </div>
+
       </div>
 
-    </div>
+    </section>
 
-    <div class="admin-card" style="margin-top:35px;">
-      <h2>Comentários</h2>
+    <section class="comentarios-section">
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Seu nome/user</label>
-          <input id="comentarioUsuario" type="text" placeholder="Ex: Mayke">
-        </div>
-
-        <div class="form-group">
-          <label>Comentário</label>
-          <input id="comentarioTexto" type="text" placeholder="Escreva seu comentário">
+      <div class="comentarios-header">
+        <div>
+          <span class="audiobook-label">✦ Comunidade</span>
+          <h2>Comentários</h2>
+          <p>Compartilhe sua reação sobre este audiobook.</p>
         </div>
       </div>
 
-      <button id="enviarComentarioAudiobookBtn" class="btn btn-gradient">
-        Enviar comentário
-      </button>
+      <div class="comentario-form-card">
 
-      <div id="comentariosAudiobookLista" style="margin-top:25px;"></div>
-    </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Seu nome/user</label>
+
+            <input
+              id="comentarioUsuario"
+              type="text"
+              placeholder="Ex: Mayke"
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Comentário</label>
+
+            <input
+              id="comentarioTexto"
+              type="text"
+              placeholder="Escreva seu comentário"
+            >
+          </div>
+        </div>
+
+        <button id="enviarComentarioAudiobookBtn" class="btn btn-gradient">
+          Enviar comentário
+        </button>
+
+      </div>
+
+      <div id="comentariosAudiobookLista" class="comentarios-lista"></div>
+
+    </section>
 
     <style>
-      .audiobook-detalhe{
+      .voltar-audiobooks{
+        display:inline-flex;
+        align-items:center;
+        margin-bottom:26px;
+        color:#7c3aed;
+        text-decoration:none;
+        font-weight:800;
+      }
+
+      .audiobook-hero{
         display:grid;
         grid-template-columns:360px 1fr;
-        gap:35px;
+        gap:38px;
         align-items:start;
-        background:white;
-        border-radius:30px;
-        padding:32px;
-        box-shadow:0 10px 35px rgba(0,0,0,0.08);
+        background:#ffffff;
+        border-radius:34px;
+        padding:34px;
+        box-shadow:0 16px 45px rgba(0,0,0,0.08);
       }
 
-      .audiobook-detalhe-capa{
+      .audiobook-capa-box{
         aspect-ratio:3/4;
-        border-radius:24px;
+        border-radius:26px;
         overflow:hidden;
         background:#111827;
+        box-shadow:0 14px 35px rgba(0,0,0,0.18);
       }
 
-      .audiobook-detalhe-capa img{
+      .audiobook-capa-box img{
         width:100%;
         height:100%;
         object-fit:cover;
         display:block;
       }
 
-      .audiobook-detalhe-info h1{
-        font-size:52px;
-        line-height:1.1;
-        margin-bottom:22px;
+      .audiobook-info-box{
+        padding:8px 0;
       }
 
-      .audiobook-detalhe-info p{
+      .audiobook-label{
+        color:#0ea5e9;
+        font-weight:900;
+        text-transform:uppercase;
+        letter-spacing:0.5px;
+        font-size:14px;
+      }
+
+      .audiobook-info-box h1{
+        font-size:58px;
+        line-height:1.05;
+        margin:18px 0 24px;
+        color:#07101f;
+      }
+
+      .audiobook-meta-grid{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:14px;
+        margin-bottom:26px;
+      }
+
+      .audiobook-meta-grid div{
+        background:#f8fafc;
+        border:1px solid #e5e7eb;
+        border-radius:18px;
+        padding:15px;
+      }
+
+      .audiobook-meta-grid small{
+        display:block;
+        color:#64748b;
+        font-weight:700;
+        margin-bottom:6px;
+      }
+
+      .audiobook-meta-grid strong{
+        color:#111827;
+      }
+
+      .audiobook-descricao{
         font-size:18px;
+        line-height:1.85;
         color:#374151;
+        margin-bottom:28px;
       }
 
-      .audiobook-detalhe-descricao{
-        margin-top:24px;
-        line-height:1.8;
+      .audiobook-player-box{
+        background:#07101f;
+        border-radius:26px;
+        padding:24px;
+        margin-top:22px;
+      }
+
+      .audiobook-player-box h2{
+        color:white;
+        margin:0 0 10px;
+      }
+
+      .audio-player-frame{
+        border:0;
+        border-radius:18px;
+        background:#111827;
+      }
+
+      .audio-player-native{
+        width:100%;
+        margin-top:18px;
+      }
+
+      .audio-error{
+        color:#fecaca;
+        font-weight:bold;
       }
 
       .audiobook-acoes{
-        margin-top:25px;
+        margin-top:24px;
         display:flex;
         align-items:center;
         gap:18px;
         flex-wrap:wrap;
       }
 
+      .btn-like-audio{
+        border:none;
+        background:linear-gradient(90deg,#0ea5e9,#7c3aed);
+        color:white;
+        padding:13px 24px;
+        border-radius:999px;
+        font-weight:900;
+        cursor:pointer;
+      }
+
+      .comentarios-section{
+        margin-top:42px;
+        background:#ffffff;
+        border-radius:34px;
+        padding:34px;
+        box-shadow:0 16px 45px rgba(0,0,0,0.08);
+      }
+
+      .comentarios-header h2{
+        font-size:38px;
+        margin:10px 0 6px;
+      }
+
+      .comentarios-header p{
+        color:#64748b;
+        margin-bottom:24px;
+      }
+
+      .comentario-form-card{
+        background:#f8fafc;
+        border:1px solid #e5e7eb;
+        border-radius:24px;
+        padding:24px;
+        margin-bottom:28px;
+      }
+
+      .comentario-form-card input{
+        width:100%;
+        padding:15px;
+        border-radius:14px;
+        border:1px solid #cbd5e1;
+      }
+
+      .comentarios-lista{
+        display:flex;
+        flex-direction:column;
+        gap:16px;
+      }
+
       .comentario-audiobook{
-        border-bottom:1px solid #e5e7eb;
-        padding:16px 0;
+        display:flex;
+        gap:14px;
+        background:#ffffff;
+        border:1px solid #e5e7eb;
+        border-radius:20px;
+        padding:18px;
+      }
+
+      .comentario-avatar{
+        width:44px;
+        height:44px;
+        border-radius:50%;
+        background:linear-gradient(90deg,#0ea5e9,#7c3aed);
+        color:white;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:900;
+        flex-shrink:0;
       }
 
       .comentario-audiobook p{
         margin:8px 0;
+        color:#374151;
       }
 
       .comentario-audiobook small{
-        color:#6b7280;
+        color:#64748b;
       }
 
-      @media(max-width:850px){
-        .audiobook-detalhe{
+      .comentarios-vazio{
+        background:#f8fafc;
+        border:1px dashed #cbd5e1;
+        border-radius:22px;
+        padding:26px;
+        text-align:center;
+      }
+
+      .comentarios-vazio h3{
+        margin-bottom:8px;
+      }
+
+      .comentarios-vazio p{
+        color:#64748b;
+      }
+
+      @media(max-width:950px){
+        .audiobook-hero{
           grid-template-columns:1fr;
         }
 
-        .audiobook-detalhe-info h1{
-          font-size:38px;
+        .audiobook-capa-box{
+          max-width:360px;
+        }
+
+        .audiobook-info-box h1{
+          font-size:42px;
+        }
+
+        .audiobook-meta-grid{
+          grid-template-columns:1fr;
+        }
+      }
+
+      @media(max-width:650px){
+        .audiobook-hero,
+        .comentarios-section{
+          padding:22px;
+          border-radius:24px;
+        }
+
+        .audiobook-info-box h1{
+          font-size:34px;
         }
       }
     </style>
