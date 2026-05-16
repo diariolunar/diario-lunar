@@ -2,11 +2,22 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>Diário Lunar</title>
 
   <link rel="icon" href="/assets/images/favicon.png">
   <link rel="apple-touch-icon" href="/assets/images/favicon.png">
+
+  <link
+    rel="preload"
+    as="image"
+    href="/assets/images/footer.png"
+  >
 
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/layout.css">
@@ -21,38 +32,72 @@
     <section class="home-hero container">
       <div class="home-hero-text">
         <p>✦ Bem-vindo ao Diário Lunar</p>
-        <h1>As histórias que iluminam a comunidade literária</h1>
-        <p>Notícias, dicas, matérias, entrevistas e destaques do universo Lunar.</p>
-        <a href="/materias.html" class="btn">Ver todas as matérias</a>
+
+        <h1>
+          As histórias que iluminam a comunidade literária
+        </h1>
+
+        <p>
+          Notícias, dicas, matérias, entrevistas e destaques do universo Lunar.
+        </p>
+
+        <a href="/materias.html" class="btn">
+          Ver todas as matérias
+        </a>
       </div>
 
       <div class="hero-card" id="heroCard">
-        <img id="heroImagem" src="/assets/images/footer.png">
+        <img
+          id="heroImagem"
+          src="/assets/images/footer.png"
+          alt="Matéria destaque"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        >
+
         <div class="hero-content">
           <small id="heroCategoria">Literatura</small>
-          <h3 id="heroTitulo">Carregando matéria destaque...</h3>
-          <p id="heroResumo">Aguarde enquanto buscamos a matéria mais recente.</p>
+
+          <h3 id="heroTitulo">
+            Carregando matéria destaque...
+          </h3>
+
+          <p id="heroResumo">
+            Aguarde enquanto buscamos a matéria mais recente.
+          </p>
         </div>
       </div>
     </section>
 
     <section class="section container">
-      <h2 class="section-title"><span>✦</span> Últimas matérias</h2>
+      <h2 class="section-title">
+        <span>✦</span> Últimas matérias
+      </h2>
+
       <div class="grid grid-4" id="posts"></div>
 
       <div class="ver-mais">
-        <a href="/materias.html" class="btn">Ver todas as matérias</a>
+        <a href="/materias.html" class="btn">
+          Ver todas as matérias
+        </a>
       </div>
     </section>
 
     <section class="section container">
-      <h2 class="section-title"><span>✦</span> Matérias mais lidas</h2>
+      <h2 class="section-title">
+        <span>✦</span> Matérias mais lidas
+      </h2>
+
       <div class="grid grid-4" id="maisLidas"></div>
     </section>
   </main>
 
   <div id="footer"></div>
 
-  <script type="module" src="/assets/js/pages/home.js"></script>
+  <script
+    type="module"
+    src="/assets/js/pages/home.js"
+  ></script>
 </body>
 </html>
