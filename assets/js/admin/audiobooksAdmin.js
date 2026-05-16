@@ -100,6 +100,7 @@ function montarDadosAudiobook(status) {
   return {
     titulo: document.getElementById("tituloAudiobook").value.trim(),
     autor: document.getElementById("autorAudiobook").value.trim(),
+    narrador: document.getElementById("narradorAudiobook").value.trim(),
     descricao: document.getElementById("descricaoAudiobook").value.trim(),
     categoria: document.getElementById("categoriaAudiobook").value.trim() || "Audiobook",
     capa: capaUrlAtual,
@@ -119,8 +120,8 @@ function validarAudiobook(dados, status) {
   if (status === "publicado") {
     const temCapa = !!dados.capa || !!capaArquivo;
 
-    if (!dados.autor || !temCapa || !dados.audioUrl) {
-      alert("Para publicar, preencha autor, capa e link do áudio.");
+    if (!dados.autor || !dados.narrador || !temCapa || !dados.audioUrl) {
+      alert("Para publicar, preencha autor, quem gravou o áudio, capa e link do áudio.");
       return false;
     }
   }
@@ -325,6 +326,19 @@ export async function renderFormularioAudiobook(
         </div>
 
         <div class="form-group">
+          <label>Gravado por</label>
+
+          <input
+            id="narradorAudiobook"
+            type="text"
+            placeholder="Nome de quem gravou/narrou o áudio"
+            value="${audiobookAtual?.narrador || ""}"
+          >
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
           <label>Data</label>
 
           <input
@@ -332,6 +346,21 @@ export async function renderFormularioAudiobook(
             type="date"
             value="${formatarDataInput(audiobookAtual?.data)}"
           >
+        </div>
+
+        <div class="form-group">
+          <label>Link do áudio</label>
+
+          <input
+            id="audioAudiobook"
+            type="text"
+            placeholder="Cole aqui o link do áudio do Google Drive"
+            value="${audiobookAtual?.audioUrl || ""}"
+          >
+
+          <small>
+            O arquivo precisa estar como “Qualquer pessoa com o link pode visualizar”.
+          </small>
         </div>
       </div>
 
@@ -371,21 +400,6 @@ export async function renderFormularioAudiobook(
         >
       </div>
 
-      <div class="form-group">
-        <label>Link do áudio</label>
-
-        <input
-          id="audioAudiobook"
-          type="text"
-          placeholder="Cole aqui o link do áudio do Google Drive"
-          value="${audiobookAtual?.audioUrl || ""}"
-        >
-
-        <small>
-          O arquivo precisa estar como “Qualquer pessoa com o link pode visualizar”.
-        </small>
-      </div>
-
     </div>
   `;
 }
@@ -408,6 +422,10 @@ function criarCardAudiobookAdmin(audio) {
 
         <p>
           Autor: ${audio.autor || "Não informado"}
+        </p>
+
+        <p>
+          Gravado por: ${audio.narrador || "Não informado"}
         </p>
 
         <p>
