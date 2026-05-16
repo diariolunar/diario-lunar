@@ -74,6 +74,26 @@ export function renderSidebar(usuario = {}) {
         }
 
         ${
+          podePublicar(usuario) || podeEditar(usuario) || podeExcluir(usuario)
+            ? `
+              <button type="button" onclick="this.nextElementSibling.classList.toggle('submenu-open')">
+                Audiobooks ▾
+              </button>
+
+              <div class="admin-submenu">
+                <button data-page="novoAudiobook">
+                  Novo Audiobook
+                </button>
+
+                <button data-page="listarAudiobooks">
+                  Listar Audiobooks
+                </button>
+              </div>
+            `
+            : ""
+        }
+
+        ${
           podeModerarComentarios(usuario)
             ? `
               <button data-page="comentarios">
