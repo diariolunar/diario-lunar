@@ -111,8 +111,12 @@ function mostrarSkeleton() {
   }
 }
 
-function criarCard(post) {
+function criarCard(post, index = 0) {
   const texto = limparTexto(post.conteudo || "");
+  const imagem = post.imagem || "/assets/images/footer.png";
+
+  const loading = index < 2 ? "eager" : "lazy";
+  const fetchPriority = index < 2 ? "high" : "auto";
 
   return `
     <a
@@ -120,7 +124,14 @@ function criarCard(post) {
       class="card post-card"
       style="text-decoration:none; color:inherit;"
     >
-      <img src="${post.imagem || "/assets/images/footer.png"}">
+      <img
+        src="${imagem}"
+        alt="${post.titulo || "Matéria"}"
+        loading="${loading}"
+        fetchpriority="${fetchPriority}"
+        decoding="async"
+        onerror="this.src='/assets/images/footer.png'"
+      >
 
       <div class="post-card-content">
         <small>${post.categoria || "Matéria"}</small>
@@ -177,7 +188,10 @@ function renderizarMaterias() {
     return;
   }
 
-  container.innerHTML = materiasParaMostrar.map(criarCard).join("");
+  container.innerHTML =
+    materiasParaMostrar
+      .map((post, index) => criarCard(post, index))
+      .join("");
 
   resultadoBusca.innerText =
     `${materiasFiltradas.length} matéria(s) encontrada(s).`;
