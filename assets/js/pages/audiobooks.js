@@ -62,6 +62,15 @@ function montarPlayer(audioUrl) {
     `;
   }
 
+  if (audioUrl) {
+    return `
+      <audio controls style="width:100%; margin-top:18px;">
+        <source src="${audioUrl}">
+        Seu navegador não suporta reprodução de áudio.
+      </audio>
+    `;
+  }
+
   return `
     <p style="color:#991b1b; font-weight:bold;">
       Áudio não informado.
@@ -107,7 +116,11 @@ function criarCardAudiobook(audio) {
         </h3>
 
         <p class="audiobook-author">
-          ${audio.autor ? `Por ${audio.autor}` : "Autor não informado"}
+          ${audio.autor ? `Autor: ${audio.autor}` : "Autor não informado"}
+        </p>
+
+        <p class="audiobook-narrator">
+          ${audio.narrador ? `Gravado por: ${audio.narrador}` : "Gravado por: não informado"}
         </p>
 
         ${
@@ -222,32 +235,33 @@ async function carregarAudiobooks() {
 
         .audiobook-title{
           margin-top:12px;
-          font-size:36px;
+          font-size:30px;
           line-height:1.1;
           color:#07101f;
         }
 
-        .audiobook-author{
-          margin-top:14px;
-          font-size:22px;
+        .audiobook-author,
+        .audiobook-narrator{
+          margin-top:12px;
+          font-size:17px;
           color:#374151;
         }
 
         .audiobook-description{
-          margin-top:20px;
+          margin-top:18px;
           color:#4b5563;
           line-height:1.7;
-          font-size:17px;
+          font-size:16px;
         }
 
         @media(max-width:700px){
 
-          .audiobook-title{
-            font-size:28px;
+          .audiobooks-grid{
+            grid-template-columns:1fr;
           }
 
-          .audiobook-author{
-            font-size:18px;
+          .audiobook-title{
+            font-size:28px;
           }
 
         }
