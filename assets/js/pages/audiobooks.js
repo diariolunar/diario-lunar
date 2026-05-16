@@ -14,15 +14,11 @@ document.getElementById("footer").innerHTML = renderFooter();
 const container = document.getElementById("audiobooks");
 
 function extrairIdDrive(url) {
-  if (!url || !url.includes("drive.google.com")) {
-    return "";
-  }
+  if (!url || !url.includes("drive.google.com")) return "";
 
   const match = url.match(/\/d\/([^/]+)/);
 
-  if (match && match[1]) {
-    return match[1];
-  }
+  if (match && match[1]) return match[1];
 
   try {
     const params = new URLSearchParams(url.split("?")[1]);
@@ -42,61 +38,21 @@ function montarImagemCapa(url) {
   return url || "/assets/images/footer.png";
 }
 
-function montarPlayer(audioUrl) {
-  const id = extrairIdDrive(audioUrl);
-
-  if (id) {
-    return `
-      <iframe
-        src="https://drive.google.com/file/d/${id}/preview"
-        width="100%"
-        height="90"
-        allow="autoplay"
-        style="
-          border:0;
-          border-radius:18px;
-          margin-top:18px;
-          background:#111827;
-        "
-      ></iframe>
-    `;
-  }
-
-  if (audioUrl) {
-    return `
-      <audio controls style="width:100%; margin-top:18px;">
-        <source src="${audioUrl}">
-        Seu navegador não suporta reprodução de áudio.
-      </audio>
-    `;
-  }
-
-  return `
-    <p style="color:#991b1b; font-weight:bold;">
-      Áudio não informado.
-    </p>
-  `;
-}
-
 function getDataNumber(item) {
-  if (item.data?.toDate) {
-    return item.data.toDate().getTime();
-  }
-
-  if (item.data) {
-    return new Date(item.data).getTime();
-  }
-
+  if (item.data?.toDate) return item.data.toDate().getTime();
+  if (item.data) return new Date(item.data).getTime();
   return 0;
 }
 
 function criarCardAudiobook(audio) {
   const capaUrl = montarImagemCapa(audio.capa || "");
-  const audioUrl = audio.audioUrl || audio.linkAudio || "";
 
   return `
-    <div class="audiobook-card">
-
+    <a
+      href="/audiobook.html?id=${audio.id}"
+      class="audiobook-card"
+      style="text-decoration:none; color:inherit;"
+    >
       <div class="audiobook-image">
         <img
           src="${capaUrl}"
@@ -106,7 +62,6 @@ function criarCardAudiobook(audio) {
       </div>
 
       <div class="audiobook-content">
-
         <small class="audiobook-tag">
           ${audio.categoria || "Audiobook"}
         </small>
@@ -123,21 +78,11 @@ function criarCardAudiobook(audio) {
           ${audio.narrador ? `Gravado por: ${audio.narrador}` : "Gravado por: não informado"}
         </p>
 
-        ${
-          audio.descricao
-            ? `
-              <p class="audiobook-description">
-                ${audio.descricao}
-              </p>
-            `
-            : ""
-        }
-
-        ${montarPlayer(audioUrl)}
-
+        <p style="margin-top:16px; color:#7c3aed; font-weight:bold;">
+          Clique para ouvir →
+        </p>
       </div>
-
-    </div>
+    </a>
   `;
 }
 
@@ -152,9 +97,7 @@ async function carregarAudiobooks() {
     snap.forEach((item) => {
       const audio = item.data();
 
-      if (audio.status && audio.status !== "publicado") {
-        return;
-      }
+      if (audio.status && audio.status !== "publicado") return;
 
       lista.push({
         id: item.id,
@@ -169,11 +112,7 @@ async function carregarAudiobooks() {
       container.innerHTML = `
         <div class="empty-state">
           <h2>Nenhum audiobook publicado ainda</h2>
-
-          <p>
-            Quando houver audiobooks disponíveis,
-            eles aparecerão aqui.
-          </p>
+          <p>Quando houver audiobooks disponíveis, eles aparecerão aqui.</p>
         </div>
       `;
 
@@ -186,7 +125,6 @@ async function carregarAudiobooks() {
       </div>
 
       <style>
-
         .audiobooks-grid{
           display:grid;
           grid-template-columns:repeat(auto-fit,minmax(320px,320px));
@@ -247,25 +185,11 @@ async function carregarAudiobooks() {
           color:#374151;
         }
 
-        .audiobook-description{
-          margin-top:18px;
-          color:#4b5563;
-          line-height:1.7;
-          font-size:16px;
-        }
-
         @media(max-width:700px){
-
           .audiobooks-grid{
             grid-template-columns:1fr;
           }
-
-          .audiobook-title{
-            font-size:28px;
-          }
-
         }
-
       </style>
     `;
 
@@ -275,13 +199,7 @@ async function carregarAudiobooks() {
     container.innerHTML = `
       <div class="empty-state">
         <h2>Erro ao carregar audiobooks</h2>
-
-        <p>
-          ${
-            error.message ||
-            "Verifique as regras do Firestore."
-          }
-        </p>
+        <p>${error.message || "Verifique as regras do Firestore."}</p>
       </div>
     `;
   }
