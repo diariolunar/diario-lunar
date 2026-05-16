@@ -234,7 +234,7 @@ async function abrirRevisarMateria(postId) {
   }
 }
 
-async function abrirNovoAudiobook(audiobookAtual = null) {
+async function abrirFormularioAudiobook(audiobookAtual = null) {
   try {
     if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual)) {
       mostrarSemPermissao();
@@ -246,17 +246,21 @@ async function abrirNovoAudiobook(audiobookAtual = null) {
     document.getElementById("adminPage").innerHTML =
       await renderFormularioAudiobook(
         audiobookAtual,
-        abrirListarAudiobooks
+        abrirListaAudiobooks
       );
 
   } catch (error) {
-    mostrarErro(error, "Erro ao abrir audiobook");
+    mostrarErro(error, "Erro ao abrir formulário de audiobook");
   }
 }
 
-async function abrirListarAudiobooks() {
+async function abrirListaAudiobooks() {
   try {
-    if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual) && !podeExcluir(usuarioAtual)) {
+    if (
+      !podePublicar(usuarioAtual) &&
+      !podeEditar(usuarioAtual) &&
+      !podeExcluir(usuarioAtual)
+    ) {
       mostrarSemPermissao();
       return;
     }
@@ -265,8 +269,8 @@ async function abrirListarAudiobooks() {
 
     document.getElementById("adminPage").innerHTML =
       await renderListarAudiobooks(
-        abrirNovoAudiobook,
-        abrirListarAudiobooks
+        abrirFormularioAudiobook,
+        abrirListaAudiobooks
       );
 
   } catch (error) {
@@ -445,12 +449,12 @@ async function abrirPagina(pagina) {
   }
 
   if (pagina === "novoAudiobook") {
-    await abrirNovoAudiobook();
+    await abrirFormularioAudiobook();
     return;
   }
 
   if (pagina === "listarAudiobooks") {
-    await abrirListarAudiobooks();
+    await abrirListaAudiobooks();
     return;
   }
 
