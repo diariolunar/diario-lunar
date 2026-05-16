@@ -9,6 +9,11 @@ import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 
 import {
+  renderFormularioAudiobook,
+  renderListarAudiobooks
+} from "./audiobooksAdmin.js";
+
+import {
   buscarPost,
   excluirPost,
   publicarAgendadosVencidos
@@ -229,6 +234,46 @@ async function abrirRevisarMateria(postId) {
   }
 }
 
+async function abrirNovoAudiobook(audiobookAtual = null) {
+  try {
+    if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
+
+    mostrarCarregando("Carregando editor de audiobook...");
+
+    document.getElementById("adminPage").innerHTML =
+      await renderFormularioAudiobook(
+        audiobookAtual,
+        abrirListarAudiobooks
+      );
+
+  } catch (error) {
+    mostrarErro(error, "Erro ao abrir audiobook");
+  }
+}
+
+async function abrirListarAudiobooks() {
+  try {
+    if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual) && !podeExcluir(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
+
+    mostrarCarregando("Carregando audiobooks...");
+
+    document.getElementById("adminPage").innerHTML =
+      await renderListarAudiobooks(
+        abrirNovoAudiobook,
+        abrirListarAudiobooks
+      );
+
+  } catch (error) {
+    mostrarErro(error, "Erro ao listar audiobooks");
+  }
+}
+
 async function abrirComentarios() {
   try {
     if (!podeModerarComentarios(usuarioAtual)) {
@@ -396,6 +441,16 @@ async function abrirPagina(pagina) {
 
   if (pagina === "listarMaterias") {
     await abrirListarMaterias("todas");
+    return;
+  }
+
+  if (pagina === "novoAudiobook") {
+    await abrirNovoAudiobook();
+    return;
+  }
+
+  if (pagina === "listarAudiobooks") {
+    await abrirListarAudiobooks();
     return;
   }
 
