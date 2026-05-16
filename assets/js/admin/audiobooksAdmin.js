@@ -10,6 +10,13 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
+import {
+  uploadArquivo
+} from "../utils/upload.js";
+
+let capaArquivo = null;
+let capaUrlAtual = "";
+
 function extrairIdDrive(url) {
   if (!url || !url.includes("drive.google.com")) {
     return "";
@@ -95,7 +102,7 @@ function montarDadosAudiobook(status) {
     autor: document.getElementById("autorAudiobook").value.trim(),
     descricao: document.getElementById("descricaoAudiobook").value.trim(),
     categoria: document.getElementById("categoriaAudiobook").value.trim() || "Audiobook",
-    capa: document.getElementById("capaAudiobook").value.trim(),
+    capa: capaUrlAtual,
     audioUrl: document.getElementById("audioAudiobook").value.trim(),
     status,
     data: pegarDataAudiobook(),
@@ -110,7 +117,9 @@ function validarAudiobook(dados, status) {
   }
 
   if (status === "publicado") {
-    if (!dados.autor || !dados.capa || !dados.audioUrl) {
+    const temCapa = !!dados.capa || !!capaArquivo;
+
+    if (!dados.autor || !temCapa || !dados.audioUrl) {
       alert("Para publicar, preencha autor, capa e link do áudio.");
       return false;
     }
@@ -127,15 +136,21 @@ async function salvarAudiobook(status, audiobookAtual, onFinalizar) {
   });
 
   try {
-    const dados = montarDadosAudiobook(status);
+    const dadosAntesUpload = montarDadosAudiobook(status);
 
-    if (!validarAudiobook(dados, status)) {
+    if (!validarAudiobook(dadosAntesUpload, status)) {
       botoes.forEach((botao) => {
         botao.disabled = false;
       });
 
       return;
     }
+
+    if (capaArquivo) {
+      capaUrlAtual = await uploadArquivo(capaArquivo, "capas-audiobooks");
+    }
+
+    const dados = montarDadosAudiobook(status);
 
     if (audiobookAtual?.id) {
       await updateDoc(doc(db, "audiobooks", audiobookAtual.id), dados);
@@ -159,6 +174,8 @@ async function salvarAudiobook(status, audiobookAtual, onFinalizar) {
       );
     }
 
+    capaArquivo = null;
+
     await onFinalizar();
 
   } catch (error) {
@@ -171,23 +188,36 @@ async function salvarAudiobook(status, audiobookAtual, onFinalizar) {
   });
 }
 
-function iniciarPreviewCapa() {
-  const input = document.getElementById("capaAudiobook");
+function iniciarUploadCapaAudiobook() {
+  const uploadBox = document.getElementById("uploadCapaAudiobookBox");
+  const input = document.getElementById("capaAudiobookInput");
   const preview = document.getElementById("previewCapaAudiobook");
 
-  if (!input || !preview) return;
+  if (!uploadBox || !input || !preview) return;
 
-  function atualizar() {
-    const url = input.value.trim();
+  uploadBox.onclick = () => {
+    input.click();
+  };
 
-    preview.src = montarImagemCapa(url);
-    preview.style.display = url ? "block" : "none";
-  }
+  input.onchange = () => {
+    const arquivo = input.files[0];
 
-  input.addEventListener("input", atualizar);
-  input.addEventListener("change", atualizar);
+    if (!arquivo) return;
 
-  atualizar();
+    if (!arquivo.type.startsWith("image/")) {
+      alert("O arquivo precisa ser uma imagem.");
+      return;
+    }
+
+    capaArquivo = arquivo;
+    capaUrlAtual = "";
+
+    preview.src = URL.createObjectURL(arquivo);
+    preview.style.display = "block";
+
+    uploadBox.innerText =
+      "Imagem selecionada. Ela será enviada ao salvar.";
+  };
 }
 
 function iniciarBotoesFormulario(audiobookAtual, onFinalizar) {
@@ -222,8 +252,11 @@ export async function renderFormularioAudiobook(
   audiobookAtual = null,
   onFinalizar
 ) {
+  capaArquivo = null;
+  capaUrlAtual = audiobookAtual?.capa || "";
+
   setTimeout(() => {
-    iniciarPreviewCapa();
+    iniciarUploadCapaAudiobook();
     iniciarBotoesFormulario(audiobookAtual, onFinalizar);
   }, 80);
 
@@ -313,24 +346,28 @@ export async function renderFormularioAudiobook(
       </div>
 
       <div class="form-group">
-        <label>Link da capa</label>
+        <label>Capa do audiobook</label>
 
         <input
-          id="capaAudiobook"
-          type="text"
-          placeholder="Cole aqui o link da imagem do Google Drive"
-          value="${audiobookAtual?.capa || ""}"
+          id="capaAudiobookInput"
+          type="file"
+          accept="image/*"
+          style="display:none;"
         >
 
+        <div id="uploadCapaAudiobookBox" class="upload-box">
+          Clique para enviar a capa
+        </div>
+
         <small>
-          Use o link compartilhado do Google Drive. O site converte automaticamente para exibição.
+          A capa será enviada para o Firebase Storage. Audiobooks antigos com capa do Drive continuam funcionando.
         </small>
 
         <img
           id="previewCapaAudiobook"
           class="preview-capa"
-          src=""
-          style="display:none;"
+          src="${montarImagemCapa(capaUrlAtual)}"
+          style="${capaUrlAtual ? "display:block;" : "display:none;"}"
         >
       </div>
 
