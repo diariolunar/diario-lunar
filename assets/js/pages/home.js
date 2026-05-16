@@ -71,8 +71,20 @@ function postEstaPublico(post) {
   return false;
 }
 
+function preloadImagem(url) {
+  if (!url) return;
+
+  const link = document.createElement("link");
+  link.rel = "preload";
+  link.as = "image";
+  link.href = url;
+
+  document.head.appendChild(link);
+}
+
 function criarCardPost(post) {
   const textoLimpo = limparTexto(post.conteudo);
+  const imagem = post.imagem || "/assets/images/footer.png";
 
   return `
     <a
@@ -80,7 +92,13 @@ function criarCardPost(post) {
       class="card post-card"
       style="text-decoration:none; color:inherit;"
     >
-      <img src="${post.imagem || "/assets/images/footer.png"}">
+      <img
+        src="${imagem}"
+        alt="${post.titulo || "Matéria"}"
+        loading="lazy"
+        decoding="async"
+        onerror="this.src='/assets/images/footer.png'"
+      >
 
       <div class="post-card-content">
         <small>${post.categoria || "Matéria"}</small>
@@ -101,6 +119,7 @@ async function carregarHome() {
   const snapshot = await getDocs(collection(db, "posts"));
   const container = document.getElementById("posts");
   const maisLidasContainer = document.getElementById("maisLidas");
+  const heroImagem = document.getElementById("heroImagem");
 
   container.innerHTML = "";
   maisLidasContainer.innerHTML = "";
@@ -142,10 +161,21 @@ async function carregarHome() {
       ? destaques.sort((a, b) => b.dataNum - a.dataNum)[0]
       : listaPosts[0];
 
+  const imagemDestaque =
+    destaque.imagem || "/assets/images/footer.png";
+
+  preloadImagem(imagemDestaque);
+
   const textoDestaque = limparTexto(destaque.conteudo);
 
-  document.getElementById("heroImagem").src =
-    destaque.imagem || "/assets/images/footer.png";
+  heroImagem.loading = "eager";
+  heroImagem.fetchPriority = "high";
+  heroImagem.decoding = "async";
+  heroImagem.alt = destaque.titulo || "Matéria destaque";
+  heroImagem.onerror = () => {
+    heroImagem.src = "/assets/images/footer.png";
+  };
+  heroImagem.src = imagemDestaque;
 
   document.getElementById("heroCategoria").innerText =
     destaque.categoria || "Matéria";
