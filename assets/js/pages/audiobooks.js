@@ -39,13 +39,22 @@ function montarImagemCapa(url) {
 }
 
 function getDataNumber(item) {
-  if (item.data?.toDate) return item.data.toDate().getTime();
-  if (item.data) return new Date(item.data).getTime();
+  if (item.data?.toDate) {
+    return item.data.toDate().getTime();
+  }
+
+  if (item.data) {
+    return new Date(item.data).getTime();
+  }
+
   return 0;
 }
 
-function criarCardAudiobook(audio) {
+function criarCardAudiobook(audio, index = 0) {
   const capaUrl = montarImagemCapa(audio.capa || "");
+
+  const loading = index < 2 ? "eager" : "lazy";
+  const fetchPriority = index < 2 ? "high" : "auto";
 
   return `
     <a
@@ -57,11 +66,15 @@ function criarCardAudiobook(audio) {
         <img
           src="${capaUrl}"
           alt="${audio.titulo || "Audiobook"}"
+          loading="${loading}"
+          fetchpriority="${fetchPriority}"
+          decoding="async"
           onerror="this.src='/assets/images/footer.png'"
         >
       </div>
 
       <div class="audiobook-content">
+
         <small class="audiobook-tag">
           ${audio.categoria || "Audiobook"}
         </small>
@@ -71,16 +84,25 @@ function criarCardAudiobook(audio) {
         </h3>
 
         <p class="audiobook-author">
-          ${audio.autor ? `Autor: ${audio.autor}` : "Autor não informado"}
+          ${
+            audio.autor
+              ? `Autor: ${audio.autor}`
+              : "Autor não informado"
+          }
         </p>
 
         <p class="audiobook-narrator">
-          ${audio.narrador ? `Gravado por: ${audio.narrador}` : "Gravado por: não informado"}
+          ${
+            audio.narrador
+              ? `Gravado por: ${audio.narrador}`
+              : "Gravado por: não informado"
+          }
         </p>
 
         <p style="margin-top:16px; color:#7c3aed; font-weight:bold;">
           Clique para ouvir →
         </p>
+
       </div>
     </a>
   `;
@@ -88,7 +110,22 @@ function criarCardAudiobook(audio) {
 
 async function carregarAudiobooks() {
   try {
-    container.innerHTML = "<p>Carregando audiobooks...</p>";
+    container.innerHTML = `
+      <div class="audiobooks-grid">
+        ${Array.from({ length: 4 }).map(() => `
+          <div class="skeleton-card">
+            <div class="skeleton skeleton-img"></div>
+
+            <div class="skeleton-content">
+              <div class="skeleton skeleton-line small"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line medium"></div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
 
     const snap = await getDocs(collection(db, "audiobooks"));
 
@@ -97,7 +134,9 @@ async function carregarAudiobooks() {
     snap.forEach((item) => {
       const audio = item.data();
 
-      if (audio.status && audio.status !== "publicado") return;
+      if (audio.status && audio.status !== "publicado") {
+        return;
+      }
 
       lista.push({
         id: item.id,
@@ -112,7 +151,11 @@ async function carregarAudiobooks() {
       container.innerHTML = `
         <div class="empty-state">
           <h2>Nenhum audiobook publicado ainda</h2>
-          <p>Quando houver audiobooks disponíveis, eles aparecerão aqui.</p>
+
+          <p>
+            Quando houver audiobooks disponíveis,
+            eles aparecerão aqui.
+          </p>
         </div>
       `;
 
@@ -121,10 +164,13 @@ async function carregarAudiobooks() {
 
     container.innerHTML = `
       <div class="audiobooks-grid">
-        ${lista.map(criarCardAudiobook).join("")}
+        ${lista.map((audio, index) =>
+          criarCardAudiobook(audio, index)
+        ).join("")}
       </div>
 
       <style>
+
         .audiobooks-grid{
           display:grid;
           grid-template-columns:repeat(auto-fit,minmax(320px,320px));
@@ -186,10 +232,17 @@ async function carregarAudiobooks() {
         }
 
         @media(max-width:700px){
+
           .audiobooks-grid{
             grid-template-columns:1fr;
           }
+
+          .audiobook-title{
+            font-size:28px;
+          }
+
         }
+
       </style>
     `;
 
@@ -199,7 +252,13 @@ async function carregarAudiobooks() {
     container.innerHTML = `
       <div class="empty-state">
         <h2>Erro ao carregar audiobooks</h2>
-        <p>${error.message || "Verifique as regras do Firestore."}</p>
+
+        <p>
+          ${
+            error.message ||
+            "Verifique as regras do Firestore."
+          }
+        </p>
       </div>
     `;
   }
