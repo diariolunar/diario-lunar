@@ -29,9 +29,11 @@ const PASTAS_STORAGE = [
 ];
 
 function ehUrlOtimizavel(url) {
+  const caminhoStorage = extrairCaminhoStorage(url);
+
   return (
     typeof url === "string" &&
-    /^https?:\/\//i.test(url) &&
+    !!caminhoStorage &&
     !IMAGEM_LOCAL.test(url) &&
     !JA_OTIMIZADA.test(url)
   );
@@ -51,7 +53,17 @@ async function baixarImagemComoArquivo(url, nome) {
   let blob = null;
 
   if (caminhoStorage) {
-    blob = await getBlob(ref(storage, caminhoStorage));
+    try {
+      blob = await getBlob(ref(storage, caminhoStorage));
+    } catch (error) {
+      if (error?.code === "storage/retry-limit-exceeded") {
+        throw new Error(
+          "O Firebase Storage excedeu o tempo de download. Normalmente isso acontece quando o CORS do bucket não permite baixar arquivos pelo site. Aplique o arquivo firebase-storage-cors.json no bucket e tente novamente."
+        );
+      }
+
+      throw error;
+    }
   } else {
     let resposta = null;
 
@@ -492,7 +504,7 @@ export function renderOtimizarImagens() {
         <div>
           <h1>Otimizar imagens antigas</h1>
           <p>
-            Reenvia imagens antigas em versão comprimida e atualiza os links salvos no Firebase.
+            Reenvia imagens antigas do Firebase Storage em versão comprimida e atualiza os links salvos no Firestore.
           </p>
         </div>
 
@@ -508,8 +520,7 @@ export function renderOtimizarImagens() {
       </div>
 
       <p>
-        Essa ação pode demorar alguns minutos. Imagens de domínios que bloqueiam download pelo navegador,
-        como alguns links do Google Drive, serão listadas como erro e precisam ser reenviadas manualmente.
+        Essa ação pode demorar alguns minutos. Links do Google Drive e de outros domínios serão ignorados.
       </p>
 
       <p>

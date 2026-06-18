@@ -1,0 +1,13 @@
+[
+  {
+    "origin": [
+      "http://localhost:8000",
+      "http://127.0.0.1:8000",
+      "https://diario-lunar-dee91.web.app",
+      "https://diario-lunar-dee91.firebaseapp.com"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Authorization", "x-firebase-storage-version"],
+    "maxAgeSeconds": 3600
+  }
+]
