@@ -187,11 +187,6 @@ function criarBlocoConstelacao(grupoId, grupo) {
           ? `<img src="${imagem}" class="preview-capa" style="display:block; max-width:360px;">`
           : ""
       }
-
-      <div class="form-group">
-        <label>Descrição da constelação</label>
-        <textarea id="constelacao-${grupoId}-chamada" class="admin-textarea">${valorConstelacao(grupoId, "chamada")}</textarea>
-      </div>
     </div>
   `;
 }
@@ -271,7 +266,6 @@ async function salvarOraculo(onReload) {
     for (const [grupoId, grupo] of Object.entries(gruposBase)) {
       constelacoes[grupoId] = {
         nome: document.getElementById(`constelacao-${grupoId}-nome`).value.trim(),
-        chamada: document.getElementById(`constelacao-${grupoId}-chamada`).value.trim(),
         imagem: await resolverImagem(
           `constelacao-${grupoId}-arquivo`,
           `constelacao-${grupoId}-imagem`,
@@ -361,3 +355,4 @@ export async function renderOraculoAdmin(onReload) {
     </div>
   `;
 }
+

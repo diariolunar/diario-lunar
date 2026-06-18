@@ -430,6 +430,18 @@ function renderTransicaoSigno() {
 
   app.innerHTML = `
     <div class="quiz-lunar-card quiz-lunar-card-resultado">
+      <div class="quiz-lunar-constelacao-head">
+        <div>
+          <p class="quiz-lunar-tag">Sua Constelação Principal</p>
+
+          <h1>${grupo.nome}</h1>
+        </div>
+
+        <button id="continuarSignoBtn" class="btn btn-gradient">
+          Descobrir meu Signo Lunar
+        </button>
+      </div>
+
       ${
         grupo.imagem
           ? `
@@ -442,15 +454,6 @@ function renderTransicaoSigno() {
           : ""
       }
 
-      <p class="quiz-lunar-tag">Sua Constelação Principal</p>
-
-      <h1>${grupo.nome}</h1>
-
-      <p>${grupo.chamada}</p>
-
-      <button id="continuarSignoBtn" class="btn btn-gradient">
-        Descobrir meu Signo Lunar
-      </button>
     </div>
   `;
 
@@ -484,30 +487,34 @@ function renderResultado(signoFinal) {
   const signo = grupo.signos[signoFinal];
 
   app.innerHTML = `
-    <div class="quiz-lunar-card">
-      ${
-        signo.imagem
-          ? `
-            <img
-              src="${signo.imagem}"
-              alt="${signo.nome}"
-              class="quiz-lunar-image"
-            >
-          `
-          : ""
-      }
+    <div class="quiz-lunar-card quiz-lunar-card-resultado">
+      <div class="quiz-lunar-signo-layout">
+        ${
+          signo.imagem
+            ? `
+              <img
+                src="${signo.imagem}"
+                alt="${signo.nome}"
+                class="quiz-lunar-image quiz-lunar-signo-image"
+              >
+            `
+            : ""
+        }
 
-      <p class="quiz-lunar-tag">Resultado Lunar</p>
+        <div>
+          <p class="quiz-lunar-tag">Resultado Lunar</p>
 
-      <h1>${signo.nome}</h1>
+          <h1>${signo.nome}</h1>
 
-      <p>
-        Constelação: <b>${grupo.nome}</b>
-      </p>
+          <p>
+            Constelação: <b>${grupo.nome}</b>
+          </p>
 
-      <p><b>${signo.subtitulo}</b></p>
+          <p><b>${signo.subtitulo}</b></p>
 
-      <p>${signo.descricao}</p>
+          <p>${signo.descricao}</p>
+        </div>
+      </div>
 
       <div class="quiz-lunar-compat">
         ${renderListaCompatibilidades("Compatibilidade do signo", signo.compatibilidade)}
