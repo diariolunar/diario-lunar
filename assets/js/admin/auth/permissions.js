@@ -26,6 +26,10 @@ export function podePublicar(usuario) {
   return pode(usuario, "publicar");
 }
 
+export function podePublicarDireto(usuario) {
+  return pode(usuario, "publicarDireto") || podeRevisar(usuario);
+}
+
 export function podeEditar(usuario) {
   return pode(usuario, "editar");
 }

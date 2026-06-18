@@ -12,6 +12,7 @@ let fotoAdmUrl = "";
 function getPermissoes() {
   return {
     publicar: document.getElementById("permPublicar").checked,
+    publicarDireto: document.getElementById("permPublicarDireto").checked,
     editar: document.getElementById("permEditar").checked,
     excluir: document.getElementById("permExcluir").checked,
     editarOraculo: document.getElementById("permEditarOraculo").checked,
@@ -58,7 +59,7 @@ function iniciarUploadFoto() {
     preview.style.display = "block";
 
     box.innerText =
-      "Foto selecionada. Ela serÃ¡ enviada ao cadastrar.";
+      "Foto selecionada. Ela será enviada ao cadastrar.";
   };
 }
 
@@ -82,7 +83,7 @@ function iniciarCadastro(onSuccess) {
     const ativo = document.getElementById("ativoAdm").checked;
 
     if (!nome || !email || !user || !cargo || !nomenclatura || !senha) {
-      alert("Preencha todos os campos obrigatÃ³rios.");
+      alert("Preencha todos os campos obrigatórios.");
       return;
     }
 
@@ -131,7 +132,7 @@ function iniciarCadastro(onSuccess) {
       console.error(error);
 
       alert(
-        "Erro ao cadastrar ADM. Verifique se o e-mail jÃ¡ nÃ£o estÃ¡ cadastrado."
+        "Erro ao cadastrar ADM. Verifique se o e-mail já não está cadastrado."
       );
     }
 
@@ -154,8 +155,8 @@ export function renderCadastrarAdm(onSuccess) {
           <h1>Cadastrar ADM</h1>
 
           <p>
-            Cadastre um novo usuÃ¡rio administrativo
-            do DiÃ¡rio Lunar.
+            Cadastre um novo usuário administrativo
+            do Diário Lunar.
           </p>
         </div>
       </div>
@@ -199,7 +200,7 @@ export function renderCadastrarAdm(onSuccess) {
           <input
             id="senhaAdm"
             type="password"
-            placeholder="MÃ­nimo 6 caracteres"
+            placeholder="Mínimo 6 caracteres"
           >
         </div>
       </div>
@@ -211,7 +212,7 @@ export function renderCadastrarAdm(onSuccess) {
           <input
             id="cargoAdm"
             type="text"
-            placeholder="Ex: RepÃ³rter, Editor, Revisor"
+            placeholder="Ex: Repórter, Editor, Revisor"
           >
         </div>
 
@@ -227,12 +228,12 @@ export function renderCadastrarAdm(onSuccess) {
       </div>
 
       <div class="form-group">
-        <label>Bio pÃºblica</label>
+        <label>Bio pública</label>
 
         <textarea
           id="bioAdm"
           class="admin-textarea"
-          placeholder="Breve descriÃ§Ã£o pÃºblica do repÃ³rter/autor..."
+          placeholder="Breve descrição pública do repórter/autor..."
         ></textarea>
       </div>
 
@@ -270,7 +271,7 @@ export function renderCadastrarAdm(onSuccess) {
 
       <div class="form-grid">
         <div class="form-group">
-          <label>NÃ­vel de acesso</label>
+          <label>Nível de acesso</label>
 
           <select id="roleAdm">
             <option value="admin">Admin</option>
@@ -301,38 +302,43 @@ export function renderCadastrarAdm(onSuccess) {
       </div>
 
       <div class="form-group">
-        <label>Tipo de usuÃ¡rio</label>
+        <label>Tipo de usuário</label>
 
         <div class="permissions-grid">
           <label>
             <input id="reporterAdm" type="checkbox" checked>
-            Ã‰ repÃ³rter
+            É repórter
           </label>
 
           <label>
             <input id="ativoAdm" type="checkbox" checked>
-            UsuÃ¡rio ativo
+            Usuário ativo
           </label>
         </div>
       </div>
 
       <div class="form-group">
-        <label>PermissÃµes</label>
+        <label>Permissões</label>
 
         <div class="permissions-grid">
           <label>
             <input id="permPublicar" type="checkbox" checked>
-            Publicar matÃ©ria
+            Criar matéria
+          </label>
+
+          <label>
+            <input id="permPublicarDireto" type="checkbox">
+            Publicar direto sem revisão
           </label>
 
           <label>
             <input id="permEditar" type="checkbox" checked>
-            Editar matÃ©ria
+            Editar matéria
           </label>
 
           <label>
             <input id="permExcluir" type="checkbox">
-            Excluir matÃ©ria
+            Excluir matéria
           </label>
 
           <label>

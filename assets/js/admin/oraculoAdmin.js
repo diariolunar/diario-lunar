@@ -1,4 +1,4 @@
-import { db } from "../config/firebase.js";
+﻿import { db } from "../config/firebase.js";
 
 import {
   doc,
@@ -227,6 +227,22 @@ function criarBlocoSigno(signoId, nomePadrao) {
         <textarea id="signo-${signoId}-descricao" class="admin-textarea">${valorSigno(signoId, "descricao")}</textarea>
       </div>
 
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Virtudes, uma por linha</label>
+          <textarea id="signo-${signoId}-virtudes" class="admin-textarea">${
+            (configAtual.signos?.[signoId]?.virtudes || signosBase[signoId]?.virtudes || []).join("\n")
+          }</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Desafios, um por linha</label>
+          <textarea id="signo-${signoId}-desafios" class="admin-textarea">${
+            (configAtual.signos?.[signoId]?.desafios || signosBase[signoId]?.desafios || []).join("\n")
+          }</textarea>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Compatibilidades, uma por linha</label>
         <textarea id="signo-${signoId}-compatibilidade" class="admin-textarea">${
@@ -283,6 +299,18 @@ async function salvarOraculo(onReload) {
             `signo-${signoId}-imagem`,
             "oraculo/signos"
           ),
+          virtudes: document
+            .getElementById(`signo-${signoId}-virtudes`)
+            .value
+            .split("\n")
+            .map((item) => item.trim())
+            .filter(Boolean),
+          desafios: document
+            .getElementById(`signo-${signoId}-desafios`)
+            .value
+            .split("\n")
+            .map((item) => item.trim())
+            .filter(Boolean),
           compatibilidade: document
             .getElementById(`signo-${signoId}-compatibilidade`)
             .value
@@ -355,4 +383,5 @@ export async function renderOraculoAdmin(onReload) {
     </div>
   `;
 }
+
 

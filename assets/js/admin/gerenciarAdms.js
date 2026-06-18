@@ -1,4 +1,4 @@
-import {
+﻿import {
   listarAdmins,
   atualizarAdmin,
   excluirAdmin
@@ -327,6 +327,15 @@ function renderModalEditarAdm(adm, usuarioAtual) {
 
           <label>
             <input
+              id="editPermPublicarDireto"
+              type="checkbox"
+              ${getPermissao(adm, "publicarDireto") ? "checked" : ""}
+            >
+            Publicar direto sem revisão
+          </label>
+
+          <label>
+            <input
               id="editPermEditar"
               type="checkbox"
               ${getPermissao(adm, "editar") ? "checked" : ""}
@@ -470,6 +479,7 @@ async function abrirModalEditarAdm(id, usuarioAtual, onReload) {
       reporter,
       permissoes: {
         publicar: document.getElementById("editPermPublicar").checked,
+        publicarDireto: document.getElementById("editPermPublicarDireto").checked,
         editar: document.getElementById("editPermEditar").checked,
         excluir: document.getElementById("editPermExcluir").checked,
         revisar: document.getElementById("editPermRevisar").checked,
@@ -601,3 +611,5 @@ export async function renderGerenciarAdms(
     </div>
   `;
 }
+
+

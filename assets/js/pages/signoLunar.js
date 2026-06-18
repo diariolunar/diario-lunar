@@ -1,4 +1,4 @@
-import { renderNavbar } from "../components/navbar.js";
+﻿import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
 import { db } from "../config/firebase.js";
 
@@ -157,7 +157,7 @@ const perguntasConstelacao = [
       { texto: "Sentimentos e conexões profundas.", valor: "E" },
       { texto: "Instinto e intensidade.", valor: "C" },
       { texto: "Descobrir algo novo.", valor: "A" },
-      { texto: "Entender aquilo que ninguém vê.", valor: "M" },
+      { texto: "Entender aquilo que ninguém v.", valor: "M" },
       { texto: "Explorar emoções proibidas ou complexas.", valor: "S" }
     ]
   },
@@ -485,6 +485,8 @@ function renderListaCompatibilidades(titulo, itens) {
 function renderResultado(signoFinal) {
   const grupo = grupos[grupoFinal];
   const signo = grupo.signos[signoFinal];
+  const virtudes = signo.virtudes || [];
+  const desafios = signo.desafios || [];
 
   app.innerHTML = `
     <div class="quiz-lunar-card quiz-lunar-card-resultado">
@@ -501,7 +503,7 @@ function renderResultado(signoFinal) {
             : ""
         }
 
-        <div>
+        <div class="quiz-lunar-signo-info">
           <p class="quiz-lunar-tag">Resultado Lunar</p>
 
           <h1>${signo.nome}</h1>
@@ -513,11 +515,16 @@ function renderResultado(signoFinal) {
           <p><b>${signo.subtitulo}</b></p>
 
           <p>${signo.descricao}</p>
+
+          <div class="quiz-lunar-info-grid">
+            ${renderListaCompatibilidades("Virtudes", virtudes)}
+            ${renderListaCompatibilidades("Desafios", desafios)}
+            ${renderListaCompatibilidades("Compatibilidades", signo.compatibilidade)}
+          </div>
         </div>
       </div>
 
       <div class="quiz-lunar-compat">
-        ${renderListaCompatibilidades("Compatibilidade do signo", signo.compatibilidade)}
         ${renderListaCompatibilidades("Melhores combinações do Oráculo", compatibilidadesOraculo.melhores)}
         ${renderListaCompatibilidades("Combinações únicas", compatibilidadesOraculo.unicas)}
         ${renderListaCompatibilidades("Não combinam", compatibilidadesOraculo.naoCombinam)}
@@ -544,3 +551,4 @@ async function iniciarQuiz() {
 }
 
 iniciarQuiz();
+

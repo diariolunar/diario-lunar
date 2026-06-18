@@ -1,4 +1,4 @@
-import { iniciarEditor } from "./editorMateria.js";
+﻿import { iniciarEditor } from "./editorMateria.js";
 
 import {
   criarPost,
@@ -12,7 +12,7 @@ import {
 } from "../utils/upload.js";
 
 import {
-  podeRevisar
+  podePublicarDireto
 } from "./auth/permissions.js";
 
 let imagemCapaArquivo = null;
@@ -173,7 +173,7 @@ async function carregarHistorico() {
               <strong>${item.acao || "Alteração"}</strong>
 
               <p>
-                ${item.statusAnterior || "-"} → ${item.statusNovo || "-"}
+                ${item.statusAnterior || "-"} â†’ ${item.statusNovo || "-"}
               </p>
 
               <p>
@@ -550,7 +550,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
 
   const modoEdicao = !!postExistente;
   const historicoHtml = await carregarHistorico();
-  const usuarioPodeRevisar = podeRevisar(usuario);
+  const usuarioPodePublicarDireto = podePublicarDireto(usuario);
 
   setTimeout(() => {
     iniciarEditor({
@@ -571,8 +571,8 @@ export async function renderNovaMateria(usuario, postExistente = null) {
 
           <p>
             ${
-              usuarioPodeRevisar
-                ? "Você pode publicar diretamente por ser editor-chefe/revisor."
+              usuarioPodePublicarDireto
+                ? "Você pode publicar diretamente."
                 : "A matéria será enviada para revisão antes da publicação."
             }
           </p>
@@ -602,7 +602,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
           </button>
 
           ${
-            usuarioPodeRevisar
+            usuarioPodePublicarDireto
               ? `
                 <button class="btn" id="agendarBtn">
                   Agendar
@@ -837,3 +837,5 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     </div>
   `;
 }
+
+
