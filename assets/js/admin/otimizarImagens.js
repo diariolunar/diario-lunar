@@ -10,6 +10,7 @@ import {
 
 import {
   deleteObject,
+  getBlob,
   listAll,
   ref
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
@@ -46,13 +47,26 @@ function nomeArquivoSeguro(nome = "imagem") {
 }
 
 async function baixarImagemComoArquivo(url, nome) {
-  const resposta = await fetch(url, { mode: "cors" });
+  const caminhoStorage = extrairCaminhoStorage(url);
+  let blob = null;
 
-  if (!resposta.ok) {
-    throw new Error(`Falha ao baixar imagem (${resposta.status}).`);
+  if (caminhoStorage) {
+    blob = await getBlob(ref(storage, caminhoStorage));
+  } else {
+    let resposta = null;
+
+    try {
+      resposta = await fetch(url, { mode: "cors" });
+    } catch {
+      throw new Error("O domínio da imagem bloqueou o download pelo navegador. Reenvie essa imagem manualmente pelo ADM.");
+    }
+
+    if (!resposta.ok) {
+      throw new Error(`Falha ao baixar imagem (${resposta.status}).`);
+    }
+
+    blob = await resposta.blob();
   }
-
-  const blob = await resposta.blob();
 
   if (!blob.type.startsWith("image/")) {
     throw new Error("A URL não retornou uma imagem válida.");
