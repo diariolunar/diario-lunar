@@ -1,12 +1,18 @@
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
+import { db } from "../config/firebase.js";
+
+import {
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 document.getElementById("navbar").innerHTML = renderNavbar();
 document.getElementById("footer").innerHTML = renderFooter();
 
 const app = document.getElementById("quizSignoLunar");
 
-const grupos = {
+let grupos = {
   P: {
     nome: "Primordiais",
     chamada: "Os que nasceram para deixar marcas eternas no mundo.",
@@ -295,6 +301,40 @@ const compatibilidadesOraculo = {
   ]
 };
 
+async function carregarConfigAdmin() {
+  try {
+    const snap = await getDoc(doc(db, "oraculoLunar", "config"));
+
+    if (!snap.exists()) return;
+
+    const config = snap.data();
+
+    Object.entries(config.constelacoes || {}).forEach(([grupoId, dados]) => {
+      if (!grupos[grupoId]) return;
+
+      grupos[grupoId] = {
+        ...grupos[grupoId],
+        ...dados,
+        signos: grupos[grupoId].signos
+      };
+    });
+
+    Object.entries(config.signos || {}).forEach(([signoId, dados]) => {
+      Object.values(grupos).forEach((grupo) => {
+        if (!grupo.signos[signoId]) return;
+
+        grupo.signos[signoId] = {
+          ...grupo.signos[signoId],
+          ...dados
+        };
+      });
+    });
+
+  } catch (error) {
+    console.warn("Não foi possível carregar a configuração do Oráculo Lunar.", error);
+  }
+}
+
 let indicePergunta = 0;
 let pontuacaoConstelacao = {};
 let grupoFinal = "";
@@ -389,7 +429,19 @@ function renderTransicaoSigno() {
   const grupo = grupos[grupoFinal];
 
   app.innerHTML = `
-    <div class="quiz-lunar-card">
+    <div class="quiz-lunar-card quiz-lunar-card-resultado">
+      ${
+        grupo.imagem
+          ? `
+            <img
+              src="${grupo.imagem}"
+              alt="${grupo.nome}"
+              class="quiz-lunar-image"
+            >
+          `
+          : ""
+      }
+
       <p class="quiz-lunar-tag">Sua Constelação Principal</p>
 
       <h1>${grupo.nome}</h1>
@@ -433,6 +485,18 @@ function renderResultado(signoFinal) {
 
   app.innerHTML = `
     <div class="quiz-lunar-card">
+      ${
+        signo.imagem
+          ? `
+            <img
+              src="${signo.imagem}"
+              alt="${signo.nome}"
+              class="quiz-lunar-image"
+            >
+          `
+          : ""
+      }
+
       <p class="quiz-lunar-tag">Resultado Lunar</p>
 
       <h1>${signo.nome}</h1>
@@ -467,4 +531,9 @@ function renderResultado(signoFinal) {
   document.getElementById("refazerQuizBtn").onclick = renderInicio;
 }
 
-renderInicio();
+async function iniciarQuiz() {
+  await carregarConfigAdmin();
+  renderInicio();
+}
+
+iniciarQuiz();

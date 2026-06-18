@@ -467,6 +467,20 @@
   font-size: 18px;
 }
 
+.quiz-lunar-card-resultado {
+  max-width: 1100px;
+}
+
+.quiz-lunar-image {
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  display: block;
+  margin: 0 0 28px;
+  border-radius: 18px;
+  background: #05070d;
+}
+
 .quiz-lunar-opcoes {
   display: grid;
   gap: 14px;

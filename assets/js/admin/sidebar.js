@@ -103,6 +103,16 @@ export function renderSidebar(usuario = {}) {
             : ""
         }
 
+        ${
+          podePublicar(usuario) || podeEditar(usuario)
+            ? `
+              <button data-page="oraculoLunar">
+                Oráculo Lunar
+              </button>
+            `
+            : ""
+        }
+
         <button data-page="editarPerfil">
           Editar Perfil
         </button>

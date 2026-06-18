@@ -7,6 +7,7 @@ import { renderGerenciarAdms } from "./gerenciarAdms.js";
 import { renderComentariosAdmin } from "./comentariosAdmin.js";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
+import { renderOraculoAdmin } from "./oraculoAdmin.js";
 
 import {
   renderFormularioAudiobook,
@@ -295,6 +296,23 @@ async function abrirComentarios() {
   }
 }
 
+async function abrirOraculoLunar() {
+  try {
+    if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
+
+    mostrarCarregando("Carregando Oráculo Lunar...");
+
+    document.getElementById("adminPage").innerHTML =
+      await renderOraculoAdmin(abrirOraculoLunar);
+
+  } catch (error) {
+    mostrarErro(error, "Erro no Oráculo Lunar");
+  }
+}
+
 function abrirCadastrarAdm() {
   try {
     if (!podeGerenciarAdmins(usuarioAtual)) {
@@ -460,6 +478,11 @@ async function abrirPagina(pagina) {
 
   if (pagina === "comentarios") {
     await abrirComentarios();
+    return;
+  }
+
+  if (pagina === "oraculoLunar") {
+    await abrirOraculoLunar();
     return;
   }
 
