@@ -558,13 +558,6 @@
   margin-top: 26px;
 }
 
-.quiz-lunar-compat {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin-top: 26px;
-}
-
 .quiz-lunar-compat-card {
   border: 1px solid #e5e7eb;
   border-radius: 14px;

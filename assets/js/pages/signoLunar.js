@@ -276,31 +276,6 @@ const perguntasSigno = {
   }
 };
 
-const compatibilidadesOraculo = {
-  melhores: [
-    "Fênix Solar + Rosa Celestial",
-    "Dragão Astral + Borboleta Prismática",
-    "Bússola Errante + Estrela Pulsante",
-    "Pena Partida + Espelho Sombrio",
-    "Guardiã Celeste + Lobo da Névoa",
-    "Olho do Véu + Dragão Astral",
-    "Lua Sangrenta + Rosa Celestial",
-    "Adaga Escarlate + Demônio Carmesim"
-  ],
-  unicas: [
-    "Fênix Solar + Dragão Astral",
-    "Guardiã Celeste + Olho do Véu",
-    "Estrela Pulsante + Pena Partida",
-    "Rosa Celestial + Borboleta Prismática"
-  ],
-  naoCombinam: [
-    "Fênix Solar × Demônio Carmesim",
-    "Guardiã Celeste × Adaga Escarlate",
-    "Rosa Celestial × Espelho Sombrio",
-    "Lobo da Névoa × Lua Sangrenta"
-  ]
-};
-
 async function carregarConfigAdmin() {
   try {
     const snap = await getDoc(doc(db, "posts", "oraculo-lunar-config"));
@@ -522,12 +497,6 @@ function renderResultado(signoFinal) {
             ${renderListaCompatibilidades("Compatibilidades", signo.compatibilidade)}
           </div>
         </div>
-      </div>
-
-      <div class="quiz-lunar-compat">
-        ${renderListaCompatibilidades("Melhores combinações do Oráculo", compatibilidadesOraculo.melhores)}
-        ${renderListaCompatibilidades("Combinações únicas", compatibilidadesOraculo.unicas)}
-        ${renderListaCompatibilidades("Não combinam", compatibilidadesOraculo.naoCombinam)}
       </div>
 
       <div class="quiz-lunar-actions">
