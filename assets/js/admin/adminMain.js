@@ -36,7 +36,8 @@ import {
   podeExcluir,
   podeGerenciarAdmins,
   podeRevisar,
-  podeModerarComentarios
+  podeModerarComentarios,
+  podeEditarOraculo
 } from "./auth/permissions.js";
 
 const app = document.getElementById("adminApp");
@@ -298,7 +299,7 @@ async function abrirComentarios() {
 
 async function abrirOraculoLunar() {
   try {
-    if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual)) {
+    if (!podeEditarOraculo(usuarioAtual)) {
       mostrarSemPermissao();
       return;
     }

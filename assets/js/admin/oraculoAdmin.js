@@ -136,10 +136,20 @@ const signosBase = {
 
 let configAtual = {};
 
-async function carregarConfig() {
-  const snap = await getDoc(doc(db, "oraculoLunar", "config"));
+function getConfigRef() {
+  return doc(db, "posts", "oraculo-lunar-config");
+}
 
-  configAtual = snap.exists()
+async function carregarConfig() {
+  let snap = null;
+
+  try {
+    snap = await getDoc(getConfigRef());
+  } catch (error) {
+    console.warn("Não foi possível carregar a configuração do Oráculo Lunar.", error);
+  }
+
+  configAtual = snap?.exists()
     ? snap.data()
     : { constelacoes: {}, signos: {} };
 }
@@ -289,7 +299,11 @@ async function salvarOraculo(onReload) {
       }
     }
 
-    await setDoc(doc(db, "oraculoLunar", "config"), {
+    await setDoc(getConfigRef(), {
+      tipo: "oraculoLunarConfig",
+      status: "config",
+      titulo: "Configuração do Oráculo Lunar",
+      categoria: "Sistema",
       constelacoes,
       signos,
       atualizadoEm: new Date()

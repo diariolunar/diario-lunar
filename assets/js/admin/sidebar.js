@@ -4,7 +4,8 @@ import {
   podeExcluir,
   podeRevisar,
   podeModerarComentarios,
-  podeGerenciarAdmins
+  podeGerenciarAdmins,
+  podeEditarOraculo
 } from "./auth/permissions.js";
 
 export function renderSidebar(usuario = {}) {
@@ -104,7 +105,7 @@ export function renderSidebar(usuario = {}) {
         }
 
         ${
-          podePublicar(usuario) || podeEditar(usuario)
+          podeEditarOraculo(usuario)
             ? `
               <button data-page="oraculoLunar">
                 Oráculo Lunar

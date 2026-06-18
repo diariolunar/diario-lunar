@@ -1,4 +1,4 @@
-import {
+﻿import {
   criarAdminAuth
 } from "../services/adminsService.js";
 
@@ -14,6 +14,7 @@ function getPermissoes() {
     publicar: document.getElementById("permPublicar").checked,
     editar: document.getElementById("permEditar").checked,
     excluir: document.getElementById("permExcluir").checked,
+    editarOraculo: document.getElementById("permEditarOraculo").checked,
     gerenciarAdmins: document.getElementById("permGerenciarAdmins").checked
   };
 }
@@ -57,7 +58,7 @@ function iniciarUploadFoto() {
     preview.style.display = "block";
 
     box.innerText =
-      "Foto selecionada. Ela será enviada ao cadastrar.";
+      "Foto selecionada. Ela serÃ¡ enviada ao cadastrar.";
   };
 }
 
@@ -81,7 +82,7 @@ function iniciarCadastro(onSuccess) {
     const ativo = document.getElementById("ativoAdm").checked;
 
     if (!nome || !email || !user || !cargo || !nomenclatura || !senha) {
-      alert("Preencha todos os campos obrigatórios.");
+      alert("Preencha todos os campos obrigatÃ³rios.");
       return;
     }
 
@@ -130,7 +131,7 @@ function iniciarCadastro(onSuccess) {
       console.error(error);
 
       alert(
-        "Erro ao cadastrar ADM. Verifique se o e-mail já não está cadastrado."
+        "Erro ao cadastrar ADM. Verifique se o e-mail jÃ¡ nÃ£o estÃ¡ cadastrado."
       );
     }
 
@@ -153,8 +154,8 @@ export function renderCadastrarAdm(onSuccess) {
           <h1>Cadastrar ADM</h1>
 
           <p>
-            Cadastre um novo usuário administrativo
-            do Diário Lunar.
+            Cadastre um novo usuÃ¡rio administrativo
+            do DiÃ¡rio Lunar.
           </p>
         </div>
       </div>
@@ -198,7 +199,7 @@ export function renderCadastrarAdm(onSuccess) {
           <input
             id="senhaAdm"
             type="password"
-            placeholder="Mínimo 6 caracteres"
+            placeholder="MÃ­nimo 6 caracteres"
           >
         </div>
       </div>
@@ -210,7 +211,7 @@ export function renderCadastrarAdm(onSuccess) {
           <input
             id="cargoAdm"
             type="text"
-            placeholder="Ex: Repórter, Editor, Revisor"
+            placeholder="Ex: RepÃ³rter, Editor, Revisor"
           >
         </div>
 
@@ -226,12 +227,12 @@ export function renderCadastrarAdm(onSuccess) {
       </div>
 
       <div class="form-group">
-        <label>Bio pública</label>
+        <label>Bio pÃºblica</label>
 
         <textarea
           id="bioAdm"
           class="admin-textarea"
-          placeholder="Breve descrição pública do repórter/autor..."
+          placeholder="Breve descriÃ§Ã£o pÃºblica do repÃ³rter/autor..."
         ></textarea>
       </div>
 
@@ -269,7 +270,7 @@ export function renderCadastrarAdm(onSuccess) {
 
       <div class="form-grid">
         <div class="form-group">
-          <label>Nível de acesso</label>
+          <label>NÃ­vel de acesso</label>
 
           <select id="roleAdm">
             <option value="admin">Admin</option>
@@ -300,43 +301,48 @@ export function renderCadastrarAdm(onSuccess) {
       </div>
 
       <div class="form-group">
-        <label>Tipo de usuário</label>
+        <label>Tipo de usuÃ¡rio</label>
 
         <div class="permissions-grid">
           <label>
             <input id="reporterAdm" type="checkbox" checked>
-            É repórter
+            Ã‰ repÃ³rter
           </label>
 
           <label>
             <input id="ativoAdm" type="checkbox" checked>
-            Usuário ativo
+            UsuÃ¡rio ativo
           </label>
         </div>
       </div>
 
       <div class="form-group">
-        <label>Permissões</label>
+        <label>PermissÃµes</label>
 
         <div class="permissions-grid">
           <label>
             <input id="permPublicar" type="checkbox" checked>
-            Publicar matéria
+            Publicar matÃ©ria
           </label>
 
           <label>
             <input id="permEditar" type="checkbox" checked>
-            Editar matéria
+            Editar matÃ©ria
           </label>
 
           <label>
             <input id="permExcluir" type="checkbox">
-            Excluir matéria
+            Excluir matÃ©ria
           </label>
 
           <label>
             <input id="permGerenciarAdmins" type="checkbox">
             Gerenciar ADMs
+          </label>
+
+          <label>
+            <input id="permEditarOraculo" type="checkbox">
+            Editar Oráculo Lunar
           </label>
         </div>
       </div>
@@ -348,3 +354,4 @@ export function renderCadastrarAdm(onSuccess) {
     </div>
   `;
 }
+

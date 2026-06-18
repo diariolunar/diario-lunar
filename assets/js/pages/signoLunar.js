@@ -303,7 +303,7 @@ const compatibilidadesOraculo = {
 
 async function carregarConfigAdmin() {
   try {
-    const snap = await getDoc(doc(db, "oraculoLunar", "config"));
+    const snap = await getDoc(doc(db, "posts", "oraculo-lunar-config"));
 
     if (!snap.exists()) return;
 

@@ -380,6 +380,15 @@ function renderModalEditarAdm(adm, usuarioAtual) {
             Gerenciar ADMs
           </label>
 
+          <label>
+            <input
+              id="editPermEditarOraculo"
+              type="checkbox"
+              ${getPermissao(adm, "editarOraculo") ? "checked" : ""}
+            >
+            Editar Oráculo Lunar
+          </label>
+
         </div>
 
       </div>
@@ -465,6 +474,7 @@ async function abrirModalEditarAdm(id, usuarioAtual, onReload) {
         excluir: document.getElementById("editPermExcluir").checked,
         revisar: document.getElementById("editPermRevisar").checked,
         moderarComentarios: document.getElementById("editPermModerarComentarios").checked,
+        editarOraculo: document.getElementById("editPermEditarOraculo").checked,
         gerenciarAdmins: document.getElementById("editPermGerenciarAdmins").checked
       }
     };
