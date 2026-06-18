@@ -1,4 +1,4 @@
-﻿import { db, storage } from "../config/firebase.js";
+﻿import { auth, db, storage } from "../config/firebase.js";
 
 import {
   collection,
@@ -27,6 +27,32 @@ const PASTAS_STORAGE = [
   "oraculo/constelacoes",
   "oraculo/signos"
 ];
+
+async function garantirAdminAutenticado({ exigeGerenciamento = false } = {}) {
+  const usuarioAuth = auth.currentUser;
+
+  if (!usuarioAuth) {
+    throw new Error("Sua sessao do Firebase expirou. Saia do ADM, entre novamente e tente outra vez.");
+  }
+
+  await usuarioAuth.getIdToken(true);
+
+  const admSnap = await getDoc(doc(db, "admins", usuarioAuth.uid));
+
+  if (!admSnap.exists() || admSnap.data().ativo === false) {
+    throw new Error("Seu usuario nao esta ativo como ADM.");
+  }
+
+  const adm = admSnap.data();
+
+  if (
+    exigeGerenciamento &&
+    adm.role !== "superadmin" &&
+    adm.permissoes?.gerenciarAdmins !== true
+  ) {
+    throw new Error("Apenas superadmins ou ADMs com permissao de gerenciar admins podem apagar imagens.");
+  }
+}
 
 function ehUrlOtimizavel(url) {
   const caminhoStorage = extrairCaminhoStorage(url);
@@ -249,6 +275,17 @@ async function limparImagensOrfas() {
 
   botao.disabled = true;
   botao.innerText = "Limpando...";
+
+  try {
+    await garantirAdminAutenticado({ exigeGerenciamento: true });
+  } catch (error) {
+    escreverLog(`! ${error.message}`);
+    alert(error.message);
+    botao.disabled = false;
+    botao.innerText = "Limpar imagens órfãs";
+    return;
+  }
+
   escreverLog("Mapeando imagens ainda em uso...");
 
   const usados = await coletarCaminhosEmUso();
@@ -478,6 +515,16 @@ async function iniciarOtimizacao() {
   botao.innerText = "Otimizando...";
   log.textContent = "";
   atualizarResumo(resumo);
+
+  try {
+    await garantirAdminAutenticado();
+  } catch (error) {
+    escreverLog(`! ${error.message}`);
+    alert(error.message);
+    botao.disabled = false;
+    botao.innerText = "Otimizar imagens antigas";
+    return;
+  }
 
   escreverLog("Iniciando otimização das imagens antigas...");
 

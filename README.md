@@ -18,3 +18,13 @@ gcloud storage buckets describe gs://diario-lunar-dee91.firebasestorage.app --fo
 ```
 
 Se o ADM for publicado em outro dominio, adicione esse dominio na lista `origin` do `firebase-storage-cors.json` e rode o comando de atualizacao novamente.
+
+## Firebase Storage Rules
+
+As regras do Storage ficam em `storage.rules`. Elas permitem leitura publica, uploads de imagens por ADMs ativos e delete apenas para superadmins ou ADMs com permissao `gerenciarAdmins`.
+
+Para publicar:
+
+```powershell
+firebase deploy --only storage --project diario-lunar-dee91
+```

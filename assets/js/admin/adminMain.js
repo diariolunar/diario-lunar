@@ -23,11 +23,12 @@ import {
 
 import {
   fazerLogin,
-  fazerLogout
+  fazerLogout,
+  carregarAdminAtual,
+  observarAdminAuth
 } from "./auth/login.js";
 
 import {
-  pegarSessao,
   limparSessao
 } from "./auth/session.js";
 
@@ -45,6 +46,18 @@ const app = document.getElementById("adminApp");
 
 let usuarioAtual = null;
 let tipoListaAtual = "todas";
+let primeiraSincroniaAuth = true;
+
+function renderCarregandoInicial() {
+  app.innerHTML = `
+    <section class="admin-login">
+      <div class="admin-login-card">
+        <img src="/assets/images/logo-vertical.png">
+        <p>Carregando sessao...</p>
+      </div>
+    </section>
+  `;
+}
 
 function mostrarCarregando(texto = "Carregando...") {
   document.getElementById("adminPage").innerHTML = `
@@ -75,6 +88,31 @@ ${error?.message || error || "Erro desconhecido"}
 function atualizarUsuarioPainel(novoUsuario) {
   usuarioAtual = novoUsuario;
   renderPainel(usuarioAtual);
+}
+
+function atualizarSidebar(usuario) {
+  const sidebar = document.querySelector(".admin-sidebar");
+
+  if (!sidebar) return;
+
+  sidebar.outerHTML = renderSidebar(usuario);
+  ativarMenu();
+  ativarLogout();
+}
+
+async function sincronizarUsuarioAtual() {
+  const usuario = await carregarAdminAtual();
+
+  if (!usuario) {
+    usuarioAtual = null;
+    renderLogin();
+    return null;
+  }
+
+  usuarioAtual = usuario;
+  atualizarSidebar(usuario);
+
+  return usuario;
 }
 
 function renderLogin() {
@@ -529,6 +567,10 @@ function ativarMenu() {
     .querySelectorAll("[data-page]")
     .forEach((botao) => {
       botao.onclick = async () => {
+        const usuario = await sincronizarUsuarioAtual();
+
+        if (!usuario) return;
+
         const pagina = botao.dataset.page;
         await abrirPagina(pagina);
       };
@@ -567,10 +609,18 @@ function renderPainel(usuario) {
   abrirDashboard();
 }
 
-const sessao = pegarSessao();
+renderCarregandoInicial();
 
-if (sessao) {
-  renderPainel(sessao);
-} else {
-  renderLogin();
-}
+observarAdminAuth((usuario) => {
+  if (usuario) {
+    renderPainel(usuario);
+    primeiraSincroniaAuth = false;
+    return;
+  }
+
+  if (primeiraSincroniaAuth || usuarioAtual) {
+    primeiraSincroniaAuth = false;
+    usuarioAtual = null;
+    renderLogin();
+  }
+});

@@ -157,7 +157,7 @@ const perguntasConstelacao = [
       { texto: "Sentimentos e conexões profundas.", valor: "E" },
       { texto: "Instinto e intensidade.", valor: "C" },
       { texto: "Descobrir algo novo.", valor: "A" },
-      { texto: "Entender aquilo que ninguém v.", valor: "M" },
+      { texto: "Entender aquilo que ninguém vê.", valor: "M" },
       { texto: "Explorar emoções proibidas ou complexas.", valor: "S" }
     ]
   },
