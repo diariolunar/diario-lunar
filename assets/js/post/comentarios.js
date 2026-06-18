@@ -1,4 +1,4 @@
-import { db } from "../config/firebase.js";
+﻿import { db } from "../config/firebase.js";
 
 import {
   doc,
@@ -6,8 +6,16 @@ import {
   collection,
   addDoc,
   getDocs,
-  deleteDoc
+  deleteDoc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+function normalizarUsuario(usuario) {
+  return usuario
+    .trim()
+    .toLowerCase()
+    .replaceAll(" ", "");
+}
 
 function pegarUsuario() {
   const inputUsuario = document.getElementById("usuarioWattpad");
@@ -19,11 +27,19 @@ function pegarUsuario() {
     return null;
   }
 
-  localStorage.setItem("usuarioWattpad", usuario);
+  const usuarioNormalizado = normalizarUsuario(usuario);
 
-  return usuario
-    .toLowerCase()
-    .replaceAll(" ", "");
+  localStorage.setItem("usuarioWattpad", usuarioNormalizado);
+  inputUsuario.value = usuarioNormalizado;
+
+  return usuarioNormalizado;
+}
+
+function escaparHtml(valor) {
+  const div = document.createElement("div");
+  div.innerText = valor || "";
+
+  return div.innerHTML;
 }
 
 async function comentar(postId) {
@@ -93,7 +109,8 @@ async function carregarComentarios(postId) {
     if (usuarioAtual && c.usuario === usuarioAtual) {
       botaoExcluir = `
         <button
-          onclick="apagarComentario('${item.id}', '${postId}')"
+          type="button"
+          data-apagar-comentario="${item.id}"
           class="btn"
           style="margin-top:8px;"
         >
@@ -102,13 +119,16 @@ async function carregarComentarios(postId) {
       `;
     }
 
+    const usuario = escaparHtml(c.usuario || "usuario");
+    const texto = escaparHtml(c.texto || "");
+
     div.innerHTML = `
       <strong style="color: var(--roxo);">
-        @${c.usuario}
+        @${usuario}
       </strong>
 
       <p style="margin:8px 0 0;">
-        ${c.texto}
+        ${texto}
       </p>
 
       ${botaoExcluir}
@@ -134,9 +154,14 @@ export function iniciarComentarios(postId) {
       return;
     }
 
-    localStorage.setItem("usuarioWattpad", usuario);
+    const usuarioNormalizado = normalizarUsuario(usuario);
+
+    localStorage.setItem("usuarioWattpad", usuarioNormalizado);
+    inputUsuario.value = usuarioNormalizado;
 
     alert("Usuário salvo!");
+
+    window.dispatchEvent(new CustomEvent("usuarioWattpadAtualizado"));
 
     carregarComentarios(postId);
   };
@@ -145,15 +170,33 @@ export function iniciarComentarios(postId) {
     comentar(postId);
   };
 
-  window.apagarComentario = async function (comentarioId, postIdAtual) {
-    const confirmar = confirm("Deseja apagar este comentário?");
+  document.getElementById("listaComentarios").onclick = async (event) => {
+    const botao = event.target.closest("[data-apagar-comentario]");
+
+    if (!botao) return;
+
+    const comentarioId = botao.dataset.apagarComentario;
+    const confirmar = confirm("Deseja apagar este comentario?");
 
     if (!confirmar) return;
 
-    await deleteDoc(doc(db, "comentarios", comentarioId));
+    botao.disabled = true;
 
-    carregarComentarios(postIdAtual);
+    try {
+      await deleteDoc(doc(db, "comentarios", comentarioId));
+    } catch (error) {
+      console.warn("Nao foi possivel excluir o comentario. Ocultando.", error);
+
+      await updateDoc(doc(db, "comentarios", comentarioId), {
+        status: "oculto",
+        apagadoPeloUsuario: true,
+        atualizadoEm: new Date()
+      });
+    }
+
+    await carregarComentarios(postId);
   };
 
   carregarComentarios(postId);
 }
+

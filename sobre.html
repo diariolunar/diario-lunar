@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Sobre - Diario Lunar</title>
+
+  <meta
+    name="description"
+    content="Conheca o Diario Lunar, um espaco de literatura, comunidade e historias da cena Lunar."
+  >
+
+  <link rel="icon" href="/assets/images/favicon.png">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/public.css">
+</head>
+
+<body>
+  <div id="navbar"></div>
+
+  <main class="container" style="padding:50px 20px;">
+    <section class="card" style="max-width:900px; margin:0 auto; padding:34px;">
+      <h1>Sobre o Diario Lunar</h1>
+
+      <p>
+        O Diario Lunar e um espaco dedicado a literatura, comunidade,
+        entrevistas, resenhas, autores e historias que merecem circular.
+      </p>
+
+      <p>
+        A proposta e reunir materias, destaques e conteudos especiais
+        com carinho editorial, valorizando vozes criativas e aproximando
+        leitores, escritores e projetos culturais.
+      </p>
+
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module">
+    import { renderNavbar } from "./assets/js/components/navbar.js";
+    import { renderFooter } from "./assets/js/components/footer.js";
+
+    document.getElementById("navbar").innerHTML = renderNavbar();
+    document.getElementById("footer").innerHTML = renderFooter();
+  </script>
+</body>
+</html>

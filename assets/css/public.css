@@ -426,3 +426,120 @@
   font-weight: bold;
   font-size: 14px;
 }
+
+.horoscopo-topo {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: end;
+}
+
+.horoscopo-topo h1 {
+  font-size: 52px;
+  margin: 12px 0;
+}
+
+.quiz-lunar-card {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: var(--sombra);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 38px;
+}
+
+.quiz-lunar-tag {
+  color: var(--azul);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.quiz-lunar-card h1 {
+  font-size: 42px;
+  line-height: 1.12;
+  margin: 14px 0 18px;
+}
+
+.quiz-lunar-card p {
+  color: #334155;
+  line-height: 1.7;
+  font-size: 18px;
+}
+
+.quiz-lunar-opcoes {
+  display: grid;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.quiz-lunar-opcao {
+  width: 100%;
+  border: 1px solid #d8dce5;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 16px;
+  padding: 18px;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.quiz-lunar-opcao:hover {
+  border-color: var(--roxo);
+  background: #f5f3ff;
+  transform: translateY(-1px);
+}
+
+.quiz-lunar-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+.quiz-lunar-compat {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.quiz-lunar-compat-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.quiz-lunar-compat-card h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.quiz-lunar-compat-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.quiz-lunar-compat-card li {
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+@media (max-width: 750px) {
+  .horoscopo-topo {
+    grid-template-columns: 1fr;
+  }
+
+  .horoscopo-topo h1,
+  .quiz-lunar-card h1 {
+    font-size: 34px;
+  }
+
+  .quiz-lunar-card {
+    padding: 26px;
+  }
+}

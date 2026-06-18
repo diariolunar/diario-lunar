@@ -1,4 +1,4 @@
-export function renderNavbar() {
+﻿export function renderNavbar() {
   return `
     <header style="
       background: #ffffff;
@@ -65,6 +65,10 @@ export function renderNavbar() {
                 Destaques Lunar
               </a>
 
+              <a href="/horoscopo.html">
+                Horóscopo
+              </a>
+
             </div>
 
           </div>
@@ -73,7 +77,11 @@ export function renderNavbar() {
             Audiobooks
           </a>
 
-          <a class="nav-link-lunar" href="/sugestao.html">
+          <a class="nav-link-lunar" href="/horoscopo.html">
+            Horóscopo
+          </a>
+
+          <a class="nav-link-lunar" href="/contato.html">
             Sugestão de Pauta
           </a>
 
@@ -228,3 +236,4 @@ export function renderNavbar() {
     </header>
   `;
 }
+

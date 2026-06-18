@@ -38,6 +38,16 @@
   </url>
 
   <url>
+    <loc>https://novo-jornal-lunar.vercel.app/horoscopo.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://novo-jornal-lunar.vercel.app/signo-lunar.html</loc>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
     <loc>https://novo-jornal-lunar.vercel.app/categoria.html?tipo=Literatura</loc>
     <priority>0.7</priority>
   </url>

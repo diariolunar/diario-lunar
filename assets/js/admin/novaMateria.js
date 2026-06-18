@@ -640,6 +640,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
             <option value="Resenhas" ${postExistente?.categoria === "Resenhas" ? "selected" : ""}>Resenhas</option>
             <option value="Entrevistas" ${postExistente?.categoria === "Entrevistas" ? "selected" : ""}>Entrevistas</option>
             <option value="Destaques Lunar" ${postExistente?.categoria === "Destaques Lunar" ? "selected" : ""}>Destaques Lunar</option>
+            <option value="Horóscopo" ${postExistente?.categoria === "Horóscopo" ? "selected" : ""}>Horóscopo</option>
           </select>
         </div>
       </div>

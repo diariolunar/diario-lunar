@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Politica de Privacidade - Diario Lunar</title>
+
+  <meta
+    name="description"
+    content="Politica de privacidade do Diario Lunar sobre contatos, newsletter, comentarios e interacoes."
+  >
+
+  <link rel="icon" href="/assets/images/favicon.png">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/public.css">
+</head>
+
+<body>
+  <div id="navbar"></div>
+
+  <main class="container" style="padding:50px 20px;">
+    <section class="card" style="max-width:900px; margin:0 auto; padding:34px;">
+      <h1>Politica de Privacidade</h1>
+
+      <p>
+        O Diario Lunar coleta apenas as informacoes necessarias para
+        operar o site, como mensagens de contato, inscricoes na newsletter,
+        comentarios e interacoes publicas em materias e audiobooks.
+      </p>
+
+      <p>
+        Comentarios e curtidas podem ficar vinculados ao usuario informado
+        no campo de interacao para permitir moderacao, relatorios internos
+        e controle de duplicidade.
+      </p>
+
+      <p>
+        Dados enviados pelo formulario de contato ou newsletter sao usados
+        somente para comunicacao editorial e nao devem ser vendidos ou
+        compartilhados para fins comerciais externos.
+      </p>
+
+      <p>
+        Para solicitar remocao de dados ou tirar duvidas, entre em contato
+        pelo e-mail oficial do projeto.
+      </p>
+
+      <a href="mailto:diariolunar47@gmail.com" class="btn btn-gradient">
+        Entrar em contato
+      </a>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script type="module">
+    import { renderNavbar } from "./assets/js/components/navbar.js";
+    import { renderFooter } from "./assets/js/components/footer.js";
+
+    document.getElementById("navbar").innerHTML = renderNavbar();
+    document.getElementById("footer").innerHTML = renderFooter();
+  </script>
+</body>
+</html>

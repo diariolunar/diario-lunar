@@ -7,7 +7,9 @@ import {
   increment,
   collection,
   addDoc,
-  getDocs
+  getDocs,
+  setDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 import { renderNavbar } from "../components/navbar.js";
@@ -21,20 +23,49 @@ const container = document.getElementById("audiobookDetalhe");
 const params = new URLSearchParams(window.location.search);
 const audiobookId = params.get("id");
 
-function getClientId() {
-  let clientId = localStorage.getItem("diarioLunarClientId");
+function normalizarUsuario(usuario) {
+  return usuario
+    .trim()
+    .toLowerCase()
+    .replaceAll(" ", "");
+}
 
-  if (!clientId) {
-    clientId =
-      "user_" +
-      Date.now() +
-      "_" +
-      Math.random().toString(36).substring(2, 12);
+function escaparHtml(valor) {
+  const div = document.createElement("div");
+  div.innerText = valor || "";
 
-    localStorage.setItem("diarioLunarClientId", clientId);
+  return div.innerHTML;
+}
+
+function pegarUsuarioAudiobook() {
+  const inputUsuario = document.getElementById("comentarioUsuario");
+  const usuarioSalvo = localStorage.getItem("usuarioWattpad") || "";
+  const usuario = normalizarUsuario(inputUsuario?.value || usuarioSalvo);
+
+  if (!usuario) {
+    alert("Preencha seu nome/user antes.");
+    inputUsuario?.focus();
+    return null;
   }
 
-  return clientId;
+  localStorage.setItem("usuarioWattpad", usuario);
+
+  if (inputUsuario) {
+    inputUsuario.value = usuario;
+  }
+
+  return usuario;
+}
+
+function getLikeId() {
+  const usuario = pegarUsuarioAudiobook();
+
+  if (!usuario) return null;
+
+  return {
+    id: `audiobook_${audiobookId}_${encodeURIComponent(usuario)}`,
+    usuario
+  };
 }
 
 function extrairIdDrive(url) {
@@ -149,8 +180,8 @@ async function carregarComentarios() {
   box.innerHTML = comentarios.length
     ? comentarios.map((comentario) => `
         <div class="comentario">
-          <strong>@${comentario.usuario || "usuario"}</strong>
-          <p>${comentario.texto || ""}</p>
+          <strong>@${escaparHtml(comentario.usuario || "usuario")}</strong>
+          <p>${escaparHtml(comentario.texto || "")}</p>
           <small>${formatarData(comentario.data)}</small>
         </div>
       `).join("")
@@ -162,7 +193,7 @@ async function carregarComentarios() {
 }
 
 async function enviarComentario() {
-  const usuario = document.getElementById("comentarioUsuario").value.trim();
+  const usuario = pegarUsuarioAudiobook();
   const texto = document.getElementById("comentarioTexto").value.trim();
 
   if (!usuario || !texto) {
@@ -192,8 +223,13 @@ async function iniciarCurtida(audio) {
 
   if (!botao || !contador) return;
 
-  const likeKey = `audiobook_like_${audiobookId}_${getClientId()}`;
-  let curtido = localStorage.getItem(likeKey) === "true";
+  const usuarioSalvo = normalizarUsuario(localStorage.getItem("usuarioWattpad") || "");
+  const likeInicialRef = usuarioSalvo
+    ? doc(db, "likes", `audiobook_${audiobookId}_${encodeURIComponent(usuarioSalvo)}`)
+    : null;
+  let curtido = likeInicialRef
+    ? (await getDoc(likeInicialRef)).exists()
+    : false;
 
   function atualizarVisual() {
     botao.innerHTML = curtido ? "💜 Curtido" : "🤍 Curtir";
@@ -207,24 +243,41 @@ async function iniciarCurtida(audio) {
 
     try {
       const audioRef = doc(db, "audiobooks", audiobookId);
+      const likeAtual = getLikeId();
+
+      if (!likeAtual) {
+        botao.disabled = false;
+        return;
+      }
+
+      const likeRef = doc(db, "likes", likeAtual.id);
+      curtido = (await getDoc(likeRef)).exists();
 
       if (curtido) {
+        await deleteDoc(likeRef);
+
         await updateDoc(audioRef, {
           curtidas: increment(-1)
         });
 
         audio.curtidas = Math.max((audio.curtidas || 0) - 1, 0);
         curtido = false;
-        localStorage.removeItem(likeKey);
 
       } else {
+        await setDoc(likeRef, {
+          postId: `audiobook_${audiobookId}`,
+          audiobookId,
+          usuario: likeAtual.usuario,
+          tipo: "audiobook",
+          data: new Date()
+        });
+
         await updateDoc(audioRef, {
           curtidas: increment(1)
         });
 
         audio.curtidas = (audio.curtidas || 0) + 1;
         curtido = true;
-        localStorage.setItem(likeKey, "true");
       }
 
       atualizarVisual();
@@ -492,6 +545,12 @@ async function carregarAudiobook() {
 
   document.getElementById("enviarComentarioAudiobookBtn").onclick =
     enviarComentario;
+
+  const usuarioSalvo = localStorage.getItem("usuarioWattpad");
+
+  if (usuarioSalvo) {
+    document.getElementById("comentarioUsuario").value = usuarioSalvo;
+  }
 
   await iniciarCurtida(audio);
   await carregarComentarios();

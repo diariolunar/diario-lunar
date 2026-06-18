@@ -1,4 +1,4 @@
-import {
+﻿import {
   listarComentarios,
   atualizarComentario,
   excluirComentario
@@ -8,8 +8,28 @@ import {
   listarPosts
 } from "../services/postsService.js";
 
+import {
+  listarCurtidas
+} from "../services/likesService.js";
+
+import { db } from "../config/firebase.js";
+
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
 let comentariosGlobais = [];
+let curtidasGlobais = [];
 let postsGlobais = [];
+let audiobooksGlobais = [];
+
+function escaparHtml(valor) {
+  const div = document.createElement("div");
+  div.innerText = valor || "";
+
+  return div.innerHTML;
+}
 
 function formatarData(data) {
   if (!data) return "Sem data";
@@ -49,6 +69,18 @@ function getDataComentario(comentario) {
   return null;
 }
 
+function getDataCurtida(curtida) {
+  if (curtida.data?.toDate) {
+    return curtida.data.toDate();
+  }
+
+  if (curtida.data) {
+    return new Date(curtida.data);
+  }
+
+  return null;
+}
+
 function statusComentario(comentario) {
   if (comentario.status === "oculto") {
     return `<span class="status-rascunho">Oculto</span>`;
@@ -57,19 +89,58 @@ function statusComentario(comentario) {
   return `<span class="status-publicado">Visível</span>`;
 }
 
-function criarCardComentario(comentario, post) {
+async function listarAudiobooksComentarios() {
+  const snap = await getDocs(collection(db, "audiobooks"));
+
+  let audiobooks = [];
+
+  snap.forEach((item) => {
+    audiobooks.push({
+      id: item.id,
+      ...item.data()
+    });
+  });
+
+  return audiobooks;
+}
+
+function getConteudoComentario(comentario) {
+  if (comentario.tipo === "audiobook" || comentario.postId?.startsWith("audiobook_")) {
+    const audiobookId = comentario.audiobookId || comentario.postId.replace("audiobook_", "");
+    const audiobook = audiobooksGlobais.find((item) => item.id === audiobookId);
+
+    return {
+      tipo: "Audiobook",
+      titulo: audiobook?.titulo || "Audiobook nao encontrado"
+    };
+  }
+
+  const post = postsGlobais.find((item) => item.id === comentario.postId);
+
+  return {
+    tipo: "Materia",
+    titulo: post?.titulo || "Materia nao encontrada"
+  };
+}
+
+function criarCardComentario(comentario, conteudo) {
+  const usuario = escaparHtml(comentario.usuario || "usuario");
+  const texto = escaparHtml(comentario.texto || "");
+  const tipo = escaparHtml(conteudo.tipo);
+  const titulo = escaparHtml(conteudo.titulo);
+
   return `
     <div class="comentario-admin-card">
 
       <div>
-        <strong>@${comentario.usuario || "usuario"}</strong>
+        <strong>@${usuario}</strong>
 
         <p class="comentario-admin-texto">
-          ${comentario.texto || ""}
+          ${texto}
         </p>
 
         <p class="comentario-admin-meta">
-          Matéria: <b>${post?.titulo || "Matéria não encontrada"}</b>
+          ${tipo}: <b>${titulo}</b>
         </p>
 
         <p class="comentario-admin-meta">
@@ -88,7 +159,7 @@ function criarCardComentario(comentario, post) {
         >
           ${
             comentario.status === "oculto"
-              ? "Tornar visível"
+              ? "Tornar visivel"
               : "Ocultar"
           }
         </button>
@@ -104,7 +175,6 @@ function criarCardComentario(comentario, post) {
     </div>
   `;
 }
-
 function filtrarComentariosPorPeriodo() {
   const inicioValor = document.getElementById("comentariosDataInicio")?.value || "";
   const fimValor = document.getElementById("comentariosDataFim")?.value || "";
@@ -127,6 +197,50 @@ function filtrarComentariosPorPeriodo() {
 
     return true;
   });
+}
+
+function filtrarCurtidasPorPeriodo() {
+  const inicioValor = document.getElementById("comentariosDataInicio")?.value || "";
+  const fimValor = document.getElementById("comentariosDataFim")?.value || "";
+
+  const inicio = inicioValor
+    ? new Date(inicioValor + "T00:00:00")
+    : null;
+
+  const fim = fimValor
+    ? new Date(fimValor + "T23:59:59")
+    : null;
+
+  return curtidasGlobais.filter((curtida) => {
+    const dataCurtida = getDataCurtida(curtida);
+
+    if (!dataCurtida) return false;
+
+    if (inicio && dataCurtida < inicio) return false;
+    if (fim && dataCurtida > fim) return false;
+
+    return true;
+  });
+}
+
+function contarPorUsuario(itens) {
+  const mapaUsuarios = {};
+
+  itens.forEach((item) => {
+    const usuario = item.usuario;
+
+    if (!usuario) return;
+    if (/^user_\d+_[a-z0-9]+$/i.test(usuario)) return;
+
+    if (!mapaUsuarios[usuario]) {
+      mapaUsuarios[usuario] = 0;
+    }
+
+    mapaUsuarios[usuario]++;
+  });
+
+  return Object.entries(mapaUsuarios)
+    .sort((a, b) => b[1] - a[1]);
 }
 
 function gerarResumoTexto(comentariosFiltrados) {
@@ -154,11 +268,11 @@ function gerarResumoTexto(comentariosFiltrados) {
       : "Período: todos os comentários";
 
   if (usuariosOrdenados.length === 0) {
-    return `📊 Resumo de interações\n${periodoTexto}\n\nNenhuma interação encontrada nesse período.`;
+    return `Resumo de interações\n${periodoTexto}\n\nNenhuma interação encontrada nesse período.`;
   }
 
   return [
-    "📊 Resumo de interações",
+    "Resumo de interações",
     periodoTexto,
     "",
     ...usuariosOrdenados.map(([usuario, total]) => {
@@ -173,8 +287,15 @@ function renderizarComentariosFiltrados() {
   const listaBox = document.getElementById("comentariosListaAdmin");
   const resumoBox = document.getElementById("resumoComentariosTexto");
   const totalBox = document.getElementById("totalComentariosFiltrados");
+  const resumoCurtidasBox = document.getElementById("resumoCurtidasUsuarios");
 
   const comentariosFiltrados = filtrarComentariosPorPeriodo();
+  const curtidasFiltradas = filtrarCurtidasPorPeriodo()
+    .filter((curtida) => {
+      if (!curtida.usuario) return false;
+
+      return !/^user_\d+_[a-z0-9]+$/i.test(curtida.usuario);
+    });
 
   comentariosFiltrados.sort((a, b) => {
     const dataA = getDataComentario(a)?.getTime() || 0;
@@ -189,16 +310,49 @@ function renderizarComentariosFiltrados() {
   }
 
   if (resumoBox) {
+    if (totalBox) {
+      totalBox.innerText =
+        `${comentariosFiltrados.length} comentario(s) e ${curtidasFiltradas.length} curtida(s) encontrado(s) no filtro.`;
+    }
+
     resumoBox.value = gerarResumoTexto(comentariosFiltrados);
+
+    const curtidasPorUsuario = contarPorUsuario(curtidasFiltradas);
+    const resumoCurtidas = curtidasPorUsuario.length
+      ? curtidasPorUsuario.map(([usuario, total]) => {
+          const palavra = total === 1 ? "curtida" : "curtidas";
+
+          return `${usuario} - ${total} ${palavra}`;
+        }).join("\n")
+      : "Nenhuma curtida encontrada.";
+
+    resumoBox.value += `\n\nCurtidas por usuario:\n${resumoCurtidas}`;
+  }
+
+  if (resumoCurtidasBox) {
+    const curtidasPorUsuario = contarPorUsuario(curtidasFiltradas);
+
+    resumoCurtidasBox.innerHTML = curtidasPorUsuario.length
+      ? curtidasPorUsuario.map(([usuario, total]) => `
+          <tr>
+            <td>@${escaparHtml(usuario)}</td>
+            <td>${total}</td>
+          </tr>
+        `).join("")
+      : `
+        <tr>
+          <td colspan="2">Nenhuma curtida encontrada nesse periodo.</td>
+        </tr>
+      `;
   }
 
   if (!listaBox) return;
 
   listaBox.innerHTML = comentariosFiltrados.length
     ? comentariosFiltrados.map((comentario) => {
-        const post = postsGlobais.find((p) => p.id === comentario.postId);
+        const conteudo = getConteudoComentario(comentario);
 
-        return criarCardComentario(comentario, post);
+        return criarCardComentario(comentario, conteudo);
       }).join("")
     : "<p>Nenhum comentário encontrado nesse período.</p>";
 }
@@ -291,7 +445,9 @@ function ativarFiltrosComentarios(onReload) {
 
 export async function renderComentariosAdmin(onReload) {
   comentariosGlobais = await listarComentarios();
+  curtidasGlobais = await listarCurtidas();
   postsGlobais = await listarPosts();
+  audiobooksGlobais = await listarAudiobooksComentarios();
 
   comentariosGlobais.sort((a, b) => {
     const dataA = getDataComentario(a)?.getTime() || 0;
@@ -368,6 +524,21 @@ export async function renderComentariosAdmin(onReload) {
           readonly
           style="min-height:180px;"
         ></textarea>
+
+        <h2 style="margin-top:25px;">Curtidas por usuario</h2>
+
+        <div style="overflow-x:auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Curtidas</th>
+              </tr>
+            </thead>
+
+            <tbody id="resumoCurtidasUsuarios"></tbody>
+          </table>
+        </div>
       </div>
 
       <div
@@ -378,3 +549,4 @@ export async function renderComentariosAdmin(onReload) {
     </div>
   `;
 }
+

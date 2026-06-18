@@ -521,6 +521,32 @@
   gap: 16px;
 }
 
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  color: #374151;
+  font-weight: 700;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: 0;
+}
+
 .comentario-admin-card {
   border: 1px solid #e5e7eb;
   border-radius: 18px;
