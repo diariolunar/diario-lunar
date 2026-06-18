@@ -336,6 +336,9 @@ async function carregarAudiobook() {
         <img
           src="${capa}"
           alt="${audio.titulo || "Audiobook"}"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
           onerror="this.src='/assets/images/footer.png'"
         >
       </div>

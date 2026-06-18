@@ -120,7 +120,13 @@ function renderCardPost(post) {
 
   return `
     <a href="/post.html?id=${post.id}" class="card post-card" style="text-decoration:none; color:inherit;">
-      <img src="${post.imagem || "/assets/images/footer.png"}">
+      <img
+        src="${post.imagem || "/assets/images/footer.png"}"
+        alt="${post.titulo || "Matéria"}"
+        loading="lazy"
+        decoding="async"
+        onerror="this.src='/assets/images/footer.png'"
+      >
 
       <div class="post-card-content">
         <small>${post.categoria || "Matéria"}</small>
@@ -202,7 +208,13 @@ async function carregarAutor() {
 
   perfilBox.innerHTML = `
     <div class="autor-publico-card autor-publico-card-completo">
-      <img src="${autor.fotoUrl || "/assets/images/logo-vertical.png"}">
+      <img
+        src="${autor.fotoUrl || "/assets/images/logo-vertical.png"}"
+        alt="${autor.nome || "Membro da equipe"}"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      >
 
       <div>
         <p style="color:var(--azul); font-weight:bold;">✦ Perfil Lunar</p>

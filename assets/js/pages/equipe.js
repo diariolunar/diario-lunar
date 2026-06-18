@@ -21,6 +21,8 @@ function criarCardEquipe(adm) {
       <img
         src="${adm.fotoUrl || "/assets/images/logo-vertical.png"}"
         alt="${adm.nome || "Membro da equipe"}"
+        loading="lazy"
+        decoding="async"
       >
 
       <div class="equipe-card-content">

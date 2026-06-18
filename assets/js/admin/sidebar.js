@@ -128,6 +128,10 @@ export function renderSidebar(usuario = {}) {
               <button data-page="gerenciarAdms">
                 Gerenciar ADMs
               </button>
+
+              <button data-page="otimizarImagens">
+                Otimizar Imagens
+              </button>
             `
             : ""
         }

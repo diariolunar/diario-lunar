@@ -490,12 +490,12 @@
 
 .quiz-lunar-image {
   width: 100%;
-  max-height: 520px;
-  object-fit: contain;
+  height: auto;
+  max-height: none;
   display: block;
   margin: 0;
   border-radius: 18px;
-  background: #05070d;
+  background: transparent;
 }
 
 .quiz-lunar-signo-layout {

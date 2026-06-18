@@ -424,6 +424,9 @@ function renderTransicaoSigno() {
               src="${grupo.imagem}"
               alt="${grupo.nome}"
               class="quiz-lunar-image"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
             >
           `
           : ""
@@ -473,6 +476,9 @@ function renderResultado(signoFinal) {
                 src="${signo.imagem}"
                 alt="${signo.nome}"
                 class="quiz-lunar-image quiz-lunar-signo-image"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
               >
             `
             : ""

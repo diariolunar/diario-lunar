@@ -31,7 +31,7 @@ function precisaComprimir(arquivo) {
   return true;
 }
 
-async function comprimirImagem(arquivo, maxWidth = 1800, qualidade = 0.82) {
+async function comprimirImagem(arquivo, maxWidth = 1600, qualidade = 0.78) {
   if (!precisaComprimir(arquivo)) {
     return arquivo;
   }
@@ -111,7 +111,10 @@ export async function uploadArquivo(arquivo, pasta = "uploads") {
   const caminho = `${pasta}/${nomeArquivo}`;
   const storageRef = ref(storage, caminho);
 
-  await uploadBytes(storageRef, arquivoFinal);
+  await uploadBytes(storageRef, arquivoFinal, {
+    cacheControl: "public,max-age=31536000,immutable",
+    contentType: arquivoFinal.type
+  });
 
   return await getDownloadURL(storageRef);
 }
