@@ -8,6 +8,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  query,
+  where,
   setDoc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -147,17 +149,16 @@ async function carregarComentarios() {
 
   if (!box) return;
 
-  const snap = await getDocs(collection(db, "comentarios"));
+  const snap = await getDocs(
+    query(collection(db, "comentarios"), where("postId", "==", `audiobook_${audiobookId}`))
+  );
 
   let comentarios = [];
 
   snap.forEach((item) => {
     const comentario = item.data();
 
-    if (
-      comentario.postId === `audiobook_${audiobookId}` &&
-      comentarioVisivel(comentario)
-    ) {
+    if (comentarioVisivel(comentario)) {
       comentarios.push({
         id: item.id,
         ...comentario

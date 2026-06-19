@@ -6,6 +6,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  query,
+  where,
   deleteDoc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -89,7 +91,9 @@ async function carregarComentarios(postId) {
     .toLowerCase()
     .replaceAll(" ", "");
 
-  const snapshot = await getDocs(collection(db, "comentarios"));
+  const snapshot = await getDocs(
+    query(collection(db, "comentarios"), where("postId", "==", postId))
+  );
   const container = document.getElementById("listaComentarios");
 
   container.innerHTML = "";

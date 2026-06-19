@@ -4,7 +4,9 @@ import {
   doc,
   getDoc,
   collection,
-  getDocs
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 import {
@@ -81,23 +83,13 @@ function mostrarMateriaNaoEncontrada() {
 }
 
 async function buscarReporter(userAutor) {
-  const snapshot = await getDocs(collection(db, "admins"));
+  if (!userAutor) return null;
 
-  let reporter = null;
+  const snapshot = await getDocs(
+    query(collection(db, "admins"), where("user", "==", userAutor))
+  );
 
-  snapshot.forEach((item) => {
-    const adm = item.data();
-
-    if (
-      adm.user &&
-      userAutor &&
-      adm.user.toLowerCase() === userAutor.toLowerCase()
-    ) {
-      reporter = adm;
-    }
-  });
-
-  return reporter;
+  return snapshot.docs[0]?.data() || null;
 }
 
 export async function carregarPost(postId) {
