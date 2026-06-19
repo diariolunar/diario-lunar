@@ -1,286 +1,84 @@
 import { uploadImagemEditor } from "../editor/uploadImagemEditor.js";
 
-let selecaoSalva = null;
-let imagemSelecionada = null;
+const EDITOR_ID = "editorArea";
 
-function salvarSelecao() {
-  const selecao = window.getSelection();
-
-  if (selecao.rangeCount > 0) {
-    selecaoSalva = selecao.getRangeAt(0);
-  }
+function tinyDisponivel() {
+  return typeof window.tinymce !== "undefined";
 }
 
-function restaurarSelecao() {
-  if (!selecaoSalva) return;
+function getEditor() {
+  if (!tinyDisponivel()) return null;
 
-  const selecao = window.getSelection();
-
-  selecao.removeAllRanges();
-  selecao.addRange(selecaoSalva);
+  return window.tinymce.get(EDITOR_ID);
 }
 
-function normalizarUrl(url) {
-  if (!url) return "";
-
-  if (
-    url.startsWith("http://") ||
-    url.startsWith("https://") ||
-    url.startsWith("mailto:")
-  ) {
-    return url;
-  }
-
-  return "https://" + url;
+function normalizarConteudo(html) {
+  return (html || "").trim();
 }
 
-function removerControlesImagem() {
-  const antigo = document.getElementById("imageEditorControls");
-
-  if (antigo) {
-    antigo.remove();
-  }
-}
-
-function criarControlesImagem(img) {
-  removerControlesImagem();
-
-  imagemSelecionada = img;
-
-  const controles = document.createElement("div");
-  controles.id = "imageEditorControls";
-  controles.className = "image-editor-controls";
-
-  controles.innerHTML = `
-    <button type="button" data-img-size="25">25%</button>
-    <button type="button" data-img-size="50">50%</button>
-    <button type="button" data-img-size="75">75%</button>
-    <button type="button" data-img-size="100">100%</button>
-    <button type="button" data-img-align="left">Esq.</button>
-    <button type="button" data-img-align="center">Centro</button>
-    <button type="button" data-img-align="right">Dir.</button>
-    <button type="button" data-img-move="up">↑</button>
-    <button type="button" data-img-move="down">↓</button>
-    <button type="button" data-img-delete="true">Excluir</button>
-  `;
-
-  img.insertAdjacentElement("beforebegin", controles);
-
-  controles.querySelectorAll("[data-img-size]").forEach((btn) => {
-    btn.onclick = () => {
-      const size = btn.dataset.imgSize;
-      imagemSelecionada.style.width = size + "%";
-      imagemSelecionada.style.maxWidth = "100%";
-      imagemSelecionada.style.height = "auto";
-    };
+async function subirImagem(blobInfo) {
+  const arquivo = blobInfo.blob();
+  const nome = blobInfo.filename() || "imagem-editor.jpg";
+  const file = new File([arquivo], nome, {
+    type: arquivo.type,
+    lastModified: Date.now()
   });
 
-  controles.querySelectorAll("[data-img-align]").forEach((btn) => {
-    btn.onclick = () => {
-      const align = btn.dataset.imgAlign;
+  const url = await uploadImagemEditor(file);
 
-      imagemSelecionada.style.display = "block";
+  if (!url) {
+    throw new Error("Não foi possível enviar a imagem.");
+  }
 
-      if (align === "left") {
-        imagemSelecionada.style.marginLeft = "0";
-        imagemSelecionada.style.marginRight = "auto";
-      }
-
-      if (align === "center") {
-        imagemSelecionada.style.marginLeft = "auto";
-        imagemSelecionada.style.marginRight = "auto";
-      }
-
-      if (align === "right") {
-        imagemSelecionada.style.marginLeft = "auto";
-        imagemSelecionada.style.marginRight = "0";
-      }
-    };
-  });
-
-  const btnUp = controles.querySelector("[data-img-move='up']");
-  const btnDown = controles.querySelector("[data-img-move='down']");
-  const btnDelete = controles.querySelector("[data-img-delete]");
-
-  btnUp.onclick = () => {
-    const bloco = imagemSelecionada;
-    const anterior = bloco.previousElementSibling;
-
-    if (anterior && anterior.id !== "imageEditorControls") {
-      anterior.insertAdjacentElement("beforebegin", bloco);
-      bloco.insertAdjacentElement("beforebegin", controles);
-    }
-  };
-
-  btnDown.onclick = () => {
-    const bloco = imagemSelecionada;
-    const proximo = bloco.nextElementSibling;
-
-    if (proximo) {
-      proximo.insertAdjacentElement("afterend", bloco);
-      bloco.insertAdjacentElement("beforebegin", controles);
-    }
-  };
-
-  btnDelete.onclick = () => {
-    const confirmar = confirm("Deseja remover esta imagem?");
-
-    if (!confirmar) return;
-
-    imagemSelecionada.remove();
-    controles.remove();
-    imagemSelecionada = null;
-  };
+  return url;
 }
 
-function prepararImagensEditaveis() {
-  const editor = document.getElementById("editorArea");
-
-  if (!editor) return;
-
-  editor.querySelectorAll("img").forEach((img) => {
-    img.classList.add("editor-image-content");
-
-    img.onclick = (event) => {
-      event.stopPropagation();
-      criarControlesImagem(img);
-    };
-  });
-
-  editor.onclick = (event) => {
-    if (
-      event.target.tagName !== "IMG" &&
-      !event.target.closest("#imageEditorControls")
-    ) {
-      removerControlesImagem();
-    }
-  };
+function registrarAtalhos(editor) {
+  editor.addShortcut("meta+alt+1", "Título 1", () => editor.execCommand("FormatBlock", false, "h1"));
+  editor.addShortcut("meta+alt+2", "Título 2", () => editor.execCommand("FormatBlock", false, "h2"));
+  editor.addShortcut("meta+alt+3", "Título 3", () => editor.execCommand("FormatBlock", false, "h3"));
+  editor.addShortcut("meta+shift+7", "Lista numerada", () => editor.execCommand("InsertOrderedList"));
+  editor.addShortcut("meta+shift+8", "Lista com marcadores", () => editor.execCommand("InsertUnorderedList"));
+  editor.addShortcut("meta+shift+c", "Centralizar", () => editor.execCommand("JustifyCenter"));
+  editor.addShortcut("meta+shift+l", "Alinhar à esquerda", () => editor.execCommand("JustifyLeft"));
+  editor.addShortcut("meta+shift+r", "Alinhar à direita", () => editor.execCommand("JustifyRight"));
+  editor.addShortcut("meta+shift+j", "Justificar", () => editor.execCommand("JustifyFull"));
+  editor.addShortcut("meta+shift+q", "Citação", () => editor.execCommand("mceBlockQuote"));
+  editor.addShortcut("meta+shift+k", "Inserir link", () => editor.execCommand("mceLink"));
+  editor.addShortcut("meta+shift+t", "Inserir tabela", () => editor.execCommand("mceInsertTable", false, { rows: 3, columns: 3 }));
+  editor.addShortcut("meta+shift+e", "Emoji", () => editor.execCommand("mceEmoticons"));
+  editor.addShortcut("meta+shift+s", "Caracteres especiais", () => editor.execCommand("mceShowCharmap"));
 }
 
-function executarComando(comando) {
-  const editor = document.getElementById("editorArea");
+export function getConteudoEditor() {
+  const editor = getEditor();
 
-  if (!editor) return;
+  if (editor) {
+    return normalizarConteudo(editor.getContent());
+  }
 
-  editor.focus();
+  return normalizarConteudo(document.getElementById(EDITOR_ID)?.value || "");
+}
 
-  if (comando === "createLink") {
-    salvarSelecao();
+export function setConteudoEditor(html = "") {
+  const editor = getEditor();
 
-    const urlDigitada = prompt("Digite o link completo:");
-
-    if (!urlDigitada) return;
-
-    const url = normalizarUrl(urlDigitada.trim());
-
-    restaurarSelecao();
-
-    const selecao = window.getSelection();
-
-    if (!selecao || selecao.toString().trim() === "") {
-      document.execCommand(
-        "insertHTML",
-        false,
-        `<a href="${url}" target="_blank">${url}</a>`
-      );
-
-      return;
-    }
-
-    document.execCommand("createLink", false, url);
-
-    const links = editor.querySelectorAll(`a[href="${url}"]`);
-
-    links.forEach((link) => {
-      link.setAttribute("target", "_blank");
-    });
-
+  if (editor) {
+    editor.setContent(html || "");
     return;
   }
 
-  if (comando === "blockquote") {
-    document.execCommand("formatBlock", false, "blockquote");
-    return;
+  const area = document.getElementById(EDITOR_ID);
+
+  if (area) {
+    area.value = html || "";
   }
-
-  if (comando === "separator") {
-    document.execCommand("insertHTML", false, "<hr><p><br></p>");
-    return;
-  }
-
-  document.execCommand(comando, false, null);
-}
-
-async function inserirImagem() {
-  const input = document.createElement("input");
-
-  input.type = "file";
-  input.accept = "image/*";
-
-  input.onchange = async () => {
-    const arquivo = input.files[0];
-
-    if (!arquivo) return;
-
-    const editor = document.getElementById("editorArea");
-
-    if (!editor) return;
-
-    const loading = document.createElement("div");
-    loading.className = "editor-image-loading";
-    loading.innerText = "Enviando imagem...";
-
-    editor.appendChild(loading);
-
-    const url = await uploadImagemEditor(arquivo);
-
-    loading.remove();
-
-    if (!url) return;
-
-    restaurarSelecao();
-
-    document.execCommand(
-      "insertHTML",
-      false,
-      `<img src="${url}" class="editor-image-content" style="width:100%; max-width:100%; height:auto;"><p><br></p>`
-    );
-
-    prepararImagensEditaveis();
-  };
-
-  input.click();
 }
 
 export function iniciarEditor({ onPreview } = {}) {
-  const editor = document.getElementById("editorArea");
+  const area = document.getElementById(EDITOR_ID);
 
-  if (!editor) return;
-
-  editor.addEventListener("mouseup", salvarSelecao);
-  editor.addEventListener("keyup", salvarSelecao);
-  editor.addEventListener("focus", salvarSelecao);
-  editor.addEventListener("input", () => {
-    salvarSelecao();
-    prepararImagensEditaveis();
-  });
-
-  document
-    .querySelectorAll("[data-editor]")
-    .forEach((botao) => {
-      botao.onclick = () => {
-        executarComando(botao.dataset.editor);
-      };
-    });
-
-  const botaoImagem = document.getElementById("inserirImagemBtn");
-
-  if (botaoImagem) {
-    botaoImagem.onclick = () => {
-      salvarSelecao();
-      inserirImagem();
-    };
-  }
+  if (!area) return;
 
   const previewBtn = document.getElementById("previewMateriaBtn");
 
@@ -288,5 +86,95 @@ export function iniciarEditor({ onPreview } = {}) {
     previewBtn.onclick = onPreview;
   }
 
-  prepararImagensEditaveis();
+  if (!tinyDisponivel()) {
+    area.style.minHeight = "420px";
+    return;
+  }
+
+  const editorExistente = getEditor();
+
+  if (editorExistente) {
+    editorExistente.remove();
+  }
+
+  window.tinymce.init({
+    selector: `#${EDITOR_ID}`,
+    height: 620,
+    menubar: "file edit insert view format table tools help",
+    plugins: [
+      "advlist",
+      "autolink",
+      "charmap",
+      "code",
+      "emoticons",
+      "fullscreen",
+      "image",
+      "link",
+      "lists",
+      "media",
+      "preview",
+      "searchreplace",
+      "table",
+      "visualblocks",
+      "wordcount"
+    ].join(" "),
+    toolbar: [
+      "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough",
+      "forecolor backcolor | alignleft aligncenter alignright alignjustify",
+      "bullist numlist outdent indent | link image media table",
+      "charmap emoticons blockquote hr | removeformat code fullscreen preview"
+    ].join(" | "),
+    font_family_formats: [
+      "Arial=arial,helvetica,sans-serif",
+      "Georgia=georgia,palatino,serif",
+      "Times New Roman=times new roman,times,serif",
+      "Verdana=verdana,geneva,sans-serif",
+      "Courier New=courier new,courier,monospace"
+    ].join(";"),
+    font_size_formats: "12px 14px 16px 18px 20px 24px 28px 32px 36px 42px 48px",
+    block_formats: "Parágrafo=p; Título 1=h1; Título 2=h2; Título 3=h3; Citação=blockquote",
+    branding: false,
+    promotion: false,
+    convert_urls: false,
+    image_caption: true,
+    image_advtab: true,
+    automatic_uploads: true,
+    file_picker_types: "image",
+    images_upload_handler: subirImagem,
+    content_style: `
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        color: #111827;
+        line-height: 1.75;
+        font-size: 16px;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+      blockquote {
+        border-left: 4px solid #7c3aed;
+        margin: 18px 0;
+        padding: 10px 18px;
+        color: #334155;
+        background: #f8fafc;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      table td,
+      table th {
+        border: 1px solid #d1d5db;
+        padding: 8px;
+      }
+    `,
+    setup(editor) {
+      registrarAtalhos(editor);
+
+      editor.on("init", () => {
+        editor.setContent(area.value || "");
+      });
+    }
+  });
 }
