@@ -9,6 +9,7 @@ import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderOraculoAdmin } from "./oraculoAdmin.js";
 import { renderOtimizarImagens } from "./otimizarImagens.js";
+import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 
 import {
@@ -41,7 +42,8 @@ import {
   podeGerenciarAdmins,
   podeRevisar,
   podeModerarComentarios,
-  podeEditarOraculo
+  podeEditarOraculo,
+  podeAcessarRelatorios
 } from "./auth/permissions.js";
 
 const app = document.getElementById("adminApp");
@@ -388,6 +390,23 @@ async function abrirOraculoLunar() {
   }
 }
 
+async function abrirRelatorios() {
+  try {
+    if (!podeAcessarRelatorios(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
+
+    mostrarCarregando("Carregando relatórios...");
+
+    document.getElementById("adminPage").innerHTML =
+      await renderRelatoriosAdmin();
+
+  } catch (error) {
+    mostrarErro(error, "Erro nos relatórios");
+  }
+}
+
 function abrirCadastrarAdm() {
   try {
     if (!podeGerenciarAdmins(usuarioAtual)) {
@@ -575,6 +594,11 @@ async function abrirPagina(pagina) {
 
   if (pagina === "oraculoLunar") {
     await abrirOraculoLunar();
+    return;
+  }
+
+  if (pagina === "relatorios") {
+    await abrirRelatorios();
     return;
   }
 

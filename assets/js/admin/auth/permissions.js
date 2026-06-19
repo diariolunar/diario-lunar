@@ -53,3 +53,20 @@ export function podeGerenciarAdmins(usuario) {
 export function podeEditarOraculo(usuario) {
   return pode(usuario, "editarOraculo") || isSuperAdmin(usuario);
 }
+
+export function podeAcessarRelatorios(usuario) {
+  if (isSuperAdmin(usuario)) {
+    return true;
+  }
+
+  const identificacao = [
+    usuario?.cargo,
+    usuario?.nomenclatura,
+    usuario?.role
+  ].join(" ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  return /editor[\s-]+chefe/.test(identificacao);
+}
