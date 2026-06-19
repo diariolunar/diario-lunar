@@ -1,4 +1,4 @@
-import {
+﻿import {
   buscarPost,
   atualizarPost,
   registrarHistoricoPost,
@@ -37,7 +37,7 @@ async function carregarHistoricoSeguro(postId) {
   try {
     return await listarHistoricoPost(postId);
   } catch (error) {
-    console.error("Erro ao carregar histórico da revisão:", error);
+    console.error("Erro ao carregar histÃ³rico da revisÃ£o:", error);
     return [];
   }
 }
@@ -51,7 +51,11 @@ function travarBotoes(travar) {
 }
 
 async function aprovarMateria(post, usuarioAtual, onFinalizar) {
-  const confirmar = confirm("Deseja aprovar e publicar esta matéria?");
+  const confirmar = await window.confirmarModal({
+        titulo: "Aprovar matéria",
+        mensagem: "Deseja aprovar e publicar esta matéria?",
+        textoConfirmar: "Aprovar e publicar"
+      });
 
   if (!confirmar) return;
 
@@ -66,19 +70,19 @@ async function aprovarMateria(post, usuarioAtual, onFinalizar) {
 
     await registrarHistoricoPost({
       postId: post.id,
-      acao: "Matéria aprovada",
+      acao: "MatÃ©ria aprovada",
       usuario: usuarioAtual,
       statusAnterior: post.status || "em_revisao",
       statusNovo: "publicado"
     });
 
-    alert("Matéria aprovada e publicada.");
+    alert("MatÃ©ria aprovada e publicada.");
 
     await onFinalizar("publicadas");
 
   } catch (error) {
     console.error(error);
-    alert("Erro ao aprovar matéria.");
+    alert("Erro ao aprovar matÃ©ria.");
     travarBotoes(false);
   }
 }
@@ -109,20 +113,20 @@ async function agendarMateria(post, usuarioAtual, onFinalizar) {
 
     await registrarHistoricoPost({
       postId: post.id,
-      acao: "Matéria agendada na revisão",
+      acao: "MatÃ©ria agendada na revisÃ£o",
       usuario: usuarioAtual,
       statusAnterior: post.status || "em_revisao",
       statusNovo: "agendado",
       observacao: `Agendada para ${data}`
     });
 
-    alert("Matéria agendada.");
+    alert("MatÃ©ria agendada.");
 
     await onFinalizar("publicadas");
 
   } catch (error) {
     console.error(error);
-    alert("Erro ao agendar matéria.");
+    alert("Erro ao agendar matÃ©ria.");
     travarBotoes(false);
   }
 }
@@ -131,7 +135,7 @@ async function reprovarMateria(post, usuarioAtual, onFinalizar) {
   const motivo = document.getElementById("motivoRevisao").value.trim();
 
   if (!motivo) {
-    alert("Informe o motivo da reprovação.");
+    alert("Informe o motivo da reprovaÃ§Ã£o.");
     return;
   }
 
@@ -146,35 +150,35 @@ async function reprovarMateria(post, usuarioAtual, onFinalizar) {
 
     await registrarHistoricoPost({
       postId: post.id,
-      acao: "Matéria reprovada",
+      acao: "MatÃ©ria reprovada",
       usuario: usuarioAtual,
       statusAnterior: post.status || "em_revisao",
       statusNovo: "reprovado",
       observacao: motivo
     });
 
-    alert("Matéria reprovada.");
+    alert("MatÃ©ria reprovada.");
 
     await onFinalizar("rascunhos");
 
   } catch (error) {
     console.error(error);
-    alert("Erro ao reprovar matéria.");
+    alert("Erro ao reprovar matÃ©ria.");
     travarBotoes(false);
   }
 }
 
 function renderHistorico(historico) {
   if (!historico.length) {
-    return "<p>Nenhum histórico encontrado.</p>";
+    return "<p>Nenhum histÃ³rico encontrado.</p>";
   }
 
   return historico.map((item) => `
     <div class="historico-item">
-      <strong>${item.acao || "Alteração"}</strong>
+      <strong>${item.acao || "AlteraÃ§Ã£o"}</strong>
 
       <p>
-        ${item.statusAnterior || "-"} → ${item.statusNovo || "-"}
+        ${item.statusAnterior || "-"} â†’ ${item.statusNovo || "-"}
       </p>
 
       <p>
@@ -183,7 +187,7 @@ function renderHistorico(historico) {
 
       ${
         item.observacao
-          ? `<p><b>Observação:</b> ${item.observacao}</p>`
+          ? `<p><b>ObservaÃ§Ã£o:</b> ${item.observacao}</p>`
           : ""
       }
     </div>
@@ -200,8 +204,8 @@ export async function renderRevisarMateria(
   if (!post) {
     return `
       <div class="admin-card">
-        <h1>Matéria não encontrada</h1>
-        <p>Não foi possível carregar esta matéria para revisão.</p>
+        <h1>MatÃ©ria nÃ£o encontrada</h1>
+        <p>NÃ£o foi possÃ­vel carregar esta matÃ©ria para revisÃ£o.</p>
       </div>
     `;
   }
@@ -240,10 +244,10 @@ export async function renderRevisarMateria(
       <div class="admin-header-flex">
 
         <div>
-          <h1>Revisar Matéria</h1>
+          <h1>Revisar MatÃ©ria</h1>
 
           <p>
-            Analise a matéria abaixo antes de aprovar, agendar ou reprovar.
+            Analise a matÃ©ria abaixo antes de aprovar, agendar ou reprovar.
           </p>
         </div>
 
@@ -277,15 +281,15 @@ export async function renderRevisarMateria(
           >
 
           <p class="revisao-categoria">
-            ${post.categoria || "Matéria"}
+            ${post.categoria || "MatÃ©ria"}
           </p>
 
           <h1>
-            ${post.titulo || "Sem título"}
+            ${post.titulo || "Sem tÃ­tulo"}
           </h1>
 
           <p class="revisao-meta">
-            Autor: @${post.autor || "diario_lunar"} ·
+            Autor: @${post.autor || "diario_lunar"} Â·
             Data: ${formatarDataPost(post.data)}
           </p>
 
@@ -298,7 +302,7 @@ export async function renderRevisarMateria(
         <aside class="revisao-side">
 
           <div class="admin-card">
-            <h2>Decisão editorial</h2>
+            <h2>DecisÃ£o editorial</h2>
 
             <p>
               Para reprovar, informe claramente o motivo para que o autor saiba o que ajustar.
@@ -307,12 +311,12 @@ export async function renderRevisarMateria(
             <textarea
               id="motivoRevisao"
               class="admin-textarea"
-              placeholder="Motivo da reprovação..."
+              placeholder="Motivo da reprovaÃ§Ã£o..."
             >${post.motivoReprovacao || ""}</textarea>
           </div>
 
           <div class="admin-card">
-            <h2>Histórico</h2>
+            <h2>HistÃ³rico</h2>
 
             <div class="historico-box">
               ${renderHistorico(historico)}
@@ -326,3 +330,4 @@ export async function renderRevisarMateria(
     </div>
   `;
 }
+

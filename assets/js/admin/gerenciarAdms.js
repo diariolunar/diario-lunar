@@ -547,8 +547,11 @@ async function ativarAcoes(usuarioAtual, onReload) {
           return;
         }
 
-        const confirmar =
-          confirm("Deseja excluir este ADM da lista administrativa?");
+        const confirmar = await window.confirmarModal({
+              titulo: "Excluir ADM",
+              mensagem: "Deseja excluir este ADM da lista administrativa?",
+              textoConfirmar: "Excluir"
+            });
 
         if (!confirmar) return;
 
@@ -611,5 +614,6 @@ export async function renderGerenciarAdms(
     </div>
   `;
 }
+
 
 

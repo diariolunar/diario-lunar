@@ -508,8 +508,12 @@ function iniciarBotoesSalvar(usuario) {
   }
 
   if (botaoCancelar) {
-    botaoCancelar.onclick = () => {
-      const confirmar = confirm("Deseja cancelar e sair sem salvar agora?");
+    botaoCancelar.onclick = async () => {
+      const confirmar = await window.confirmarModal({
+            titulo: "Cancelar edição",
+            mensagem: "Deseja cancelar e sair sem salvar agora?",
+            textoConfirmar: "Sair sem salvar"
+          });
 
       if (!confirmar) return;
 
@@ -790,6 +794,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     </div>
   `;
 }
+
 
 
 

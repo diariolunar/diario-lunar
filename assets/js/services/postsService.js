@@ -7,6 +7,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  getCountFromServer,
   query,
   where,
   deleteDoc,
@@ -68,6 +69,14 @@ export async function listarPostsPorStatus(statuses = []) {
   });
 
   return posts;
+}
+
+export async function contarPostsPorStatus(status) {
+  const snap = await getCountFromServer(
+    query(collection(db, "posts"), where("status", "==", status))
+  );
+
+  return snap.data().count || 0;
 }
 
 export async function excluirPost(id) {

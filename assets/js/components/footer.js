@@ -1,4 +1,7 @@
-import { cadastrarNewsletter } from "../services/newsletterService.js";
+﻿import { cadastrarNewsletter } from "../services/newsletterService.js";
+import { instalarModaisGlobais } from "../utils/modal.js";
+
+instalarModaisGlobais();
 
 window.salvarNewsletter = async function () {
   const input = document.getElementById("newsletterEmail");
@@ -37,8 +40,8 @@ export function renderFooter() {
         >
 
         <p>
-          O Diário Lunar é um espaço dedicado à literatura,
-          à comunidade e às histórias que merecem ser contadas.
+          O DiÃ¡rio Lunar Ã© um espaÃ§o dedicado Ã  literatura,
+          Ã  comunidade e Ã s histÃ³rias que merecem ser contadas.
         </p>
 
         <a
@@ -64,7 +67,7 @@ export function renderFooter() {
         <h3>Receba novidades lunares</h3>
 
         <p>
-          Fique por dentro das matérias,
+          Fique por dentro das matÃ©rias,
           destaques e novidades da comunidade.
         </p>
 
@@ -87,7 +90,7 @@ export function renderFooter() {
         <h3>Institucional</h3>
 
         <a href="/sobre.html">
-          Sobre o Diário Lunar
+          Sobre o DiÃ¡rio Lunar
         </a>
 
         <a href="/equipe.html">
@@ -95,14 +98,15 @@ export function renderFooter() {
         </a>
 
         <a href="/contato.html">
-          Sugestão de pauta
+          SugestÃ£o de pauta
         </a>
 
         <a href="/privacidade.html">
-          Política de Privacidade
+          PolÃ­tica de Privacidade
         </a>
       </div>
 
     </footer>
   `;
 }
+

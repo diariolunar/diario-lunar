@@ -260,9 +260,11 @@ async function listarArquivosRecursivo(pasta) {
 }
 
 async function limparImagensOrfas() {
-  const confirmar = confirm(
-    "Deseja apagar do Storage as imagens que não estão mais sendo usadas no Firestore? Essa ação não pode ser desfeita."
-  );
+  const confirmar = await window.confirmarModal({
+        titulo: "Limpar imagens órfãs",
+        mensagem: "Deseja apagar do Storage as imagens que não estão mais sendo usadas no Firestore? Essa ação não pode ser desfeita.",
+        textoConfirmar: "Apagar órfãs"
+      });
 
   if (!confirmar) return;
 
@@ -586,6 +588,7 @@ export function renderOtimizarImagens() {
     </div>
   `;
 }
+
 
 
 

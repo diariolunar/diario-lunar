@@ -1,4 +1,4 @@
-import { db } from "../config/firebase.js";
+﻿import { db } from "../config/firebase.js";
 
 import {
   collection,
@@ -113,7 +113,7 @@ function montarDadosAudiobook(status) {
 
 function validarAudiobook(dados, status) {
   if (!dados.titulo) {
-    alert("Preencha o título do audiobook.");
+    alert("Preencha o tÃ­tulo do audiobook.");
     return false;
   }
 
@@ -121,7 +121,7 @@ function validarAudiobook(dados, status) {
     const temCapa = !!dados.capa || !!capaArquivo;
 
     if (!dados.autor || !dados.narrador || !temCapa || !dados.audioUrl) {
-      alert("Para publicar, preencha autor, quem gravou o áudio, capa e link do áudio.");
+      alert("Para publicar, preencha autor, quem gravou o Ã¡udio, capa e link do Ã¡udio.");
       return false;
     }
   }
@@ -217,7 +217,7 @@ function iniciarUploadCapaAudiobook() {
     preview.style.display = "block";
 
     uploadBox.innerText =
-      "Imagem selecionada. Ela será enviada ao salvar.";
+      "Imagem selecionada. Ela serÃ¡ enviada ao salvar.";
   };
 }
 
@@ -240,7 +240,11 @@ function iniciarBotoesFormulario(audiobookAtual, onFinalizar) {
 
   if (botaoCancelar) {
     botaoCancelar.onclick = async () => {
-      const confirmar = confirm("Deseja cancelar e sair sem salvar?");
+      const confirmar = await window.confirmarModal({
+            titulo: "Cancelar ediÃ§Ã£o",
+            mensagem: "Deseja cancelar e sair sem salvar?",
+            textoConfirmar: "Sair sem salvar"
+          });
 
       if (!confirmar) return;
 
@@ -271,7 +275,7 @@ export async function renderFormularioAudiobook(
           </h1>
 
           <p>
-            Cadastre ou edite uma produção em áudio do Diário Lunar.
+            Cadastre ou edite uma produÃ§Ã£o em Ã¡udio do DiÃ¡rio Lunar.
           </p>
         </div>
 
@@ -292,12 +296,12 @@ export async function renderFormularioAudiobook(
 
       <div class="form-grid">
         <div class="form-group">
-          <label>Título</label>
+          <label>TÃ­tulo</label>
 
           <input
             id="tituloAudiobook"
             type="text"
-            placeholder="Digite o título do audiobook"
+            placeholder="Digite o tÃ­tulo do audiobook"
             value="${audiobookAtual?.titulo || ""}"
           >
         </div>
@@ -331,7 +335,7 @@ export async function renderFormularioAudiobook(
           <input
             id="narradorAudiobook"
             type="text"
-            placeholder="Nome de quem gravou/narrou o áudio"
+            placeholder="Nome de quem gravou/narrou o Ã¡udio"
             value="${audiobookAtual?.narrador || ""}"
           >
         </div>
@@ -349,28 +353,28 @@ export async function renderFormularioAudiobook(
         </div>
 
         <div class="form-group">
-          <label>Link do áudio</label>
+          <label>Link do Ã¡udio</label>
 
           <input
             id="audioAudiobook"
             type="text"
-            placeholder="Cole aqui o link do áudio do Google Drive"
+            placeholder="Cole aqui o link do Ã¡udio do Google Drive"
             value="${audiobookAtual?.audioUrl || ""}"
           >
 
           <small>
-            O arquivo precisa estar como “Qualquer pessoa com o link pode visualizar”.
+            O arquivo precisa estar como â€œQualquer pessoa com o link pode visualizarâ€.
           </small>
         </div>
       </div>
 
       <div class="form-group">
-        <label>Descrição</label>
+        <label>DescriÃ§Ã£o</label>
 
         <textarea
           id="descricaoAudiobook"
           class="admin-textarea"
-          placeholder="Descrição curta do audiobook..."
+          placeholder="DescriÃ§Ã£o curta do audiobook..."
         >${audiobookAtual?.descricao || ""}</textarea>
       </div>
 
@@ -389,7 +393,7 @@ export async function renderFormularioAudiobook(
         </div>
 
         <small>
-          A capa será enviada para o Firebase Storage. Audiobooks antigos com capa do Drive continuam funcionando.
+          A capa serÃ¡ enviada para o Firebase Storage. Audiobooks antigos com capa do Drive continuam funcionando.
         </small>
 
         <img
@@ -417,15 +421,15 @@ function criarCardAudiobookAdmin(audio) {
         </small>
 
         <h3>
-          ${audio.titulo || "Sem título"}
+          ${audio.titulo || "Sem tÃ­tulo"}
         </h3>
 
         <p>
-          Autor: ${audio.autor || "Não informado"}
+          Autor: ${audio.autor || "NÃ£o informado"}
         </p>
 
         <p>
-          Gravado por: ${audio.narrador || "Não informado"}
+          Gravado por: ${audio.narrador || "NÃ£o informado"}
         </p>
 
         <p>
@@ -524,7 +528,7 @@ function iniciarAcoesLista(onEditar, onReload) {
         const audiobook = await buscarAudiobook(id);
 
         if (!audiobook) {
-          alert("Audiobook não encontrado.");
+          alert("Audiobook nÃ£o encontrado.");
           return;
         }
 
@@ -556,13 +560,17 @@ function iniciarAcoesLista(onEditar, onReload) {
       botao.onclick = async () => {
         const id = botao.dataset.excluirAudiobook;
 
-        const confirmar = confirm("Deseja realmente excluir este audiobook?");
+        const confirmar = await window.confirmarModal({
+              titulo: "Excluir audiobook",
+              mensagem: "Deseja realmente excluir este audiobook?",
+              textoConfirmar: "Excluir"
+            });
 
         if (!confirmar) return;
 
         await deleteDoc(doc(db, "audiobooks", id));
 
-        alert("Audiobook excluído.");
+        alert("Audiobook excluÃ­do.");
 
         await onReload();
       };
@@ -604,3 +612,4 @@ export async function renderListarAudiobooks(onEditar, onReload) {
     </div>
   `;
 }
+

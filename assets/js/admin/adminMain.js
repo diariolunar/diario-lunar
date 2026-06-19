@@ -1,4 +1,4 @@
-import { renderSidebar } from "./sidebar.js";
+﻿import { renderSidebar } from "./sidebar.js";
 import { renderDashboard } from "./dashboard.js";
 import { renderNovaMateria } from "./novaMateria.js";
 import { renderListarMaterias } from "./listarMaterias.js";
@@ -9,6 +9,7 @@ import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderOraculoAdmin } from "./oraculoAdmin.js";
 import { renderOtimizarImagens } from "./otimizarImagens.js";
+import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 
 import {
   renderFormularioAudiobook,
@@ -17,6 +18,7 @@ import {
 
 import {
   buscarPost,
+  contarPostsPorStatus,
   excluirPost,
   publicarAgendadosVencidos
 } from "../services/postsService.js";
@@ -47,6 +49,8 @@ const app = document.getElementById("adminApp");
 let usuarioAtual = null;
 let tipoListaAtual = "todas";
 let primeiraSincroniaAuth = true;
+
+instalarModaisGlobais();
 
 function renderCarregandoInicial() {
   app.innerHTML = `
@@ -121,7 +125,7 @@ function renderLogin() {
       <div class="admin-login-card">
         <img src="/assets/images/logo-vertical.png">
 
-        <h1>Entrar na Área ADM</h1>
+        <h1>Entrar na Ãrea ADM</h1>
 
         <p>Digite suas credenciais para acessar.</p>
 
@@ -175,7 +179,7 @@ function mostrarSemPermissao() {
   document.getElementById("adminPage").innerHTML = `
     <div class="admin-card">
       <h1>Acesso negado</h1>
-      <p>Você não tem permissão para acessar esta área.</p>
+      <p>VocÃª nÃ£o tem permissÃ£o para acessar esta Ã¡rea.</p>
     </div>
   `;
 }
@@ -189,9 +193,40 @@ async function abrirDashboard() {
     document.getElementById("adminPage").innerHTML =
       await renderDashboard(usuarioAtual);
 
+    await notificarMateriasParaRevisao(usuarioAtual);
+
   } catch (error) {
     mostrarErro(error, "Erro no dashboard");
   }
+}
+
+async function notificarMateriasParaRevisao(usuario) {
+  const marcacao = [
+    usuario?.cargo,
+    usuario?.nomenclatura,
+    usuario?.role
+  ].join(" ").toLowerCase();
+  const editorChefe = marcacao.includes("editor-chefe") || marcacao.includes("editor chefe");
+
+  if (!podeRevisar(usuario) && !editorChefe) return;
+
+  const chave = `notificacao_revisao_${usuario.id || usuario.email || "adm"}`;
+
+  if (sessionStorage.getItem(chave)) return;
+
+  const total = await contarPostsPorStatus("em_revisao");
+
+  if (total <= 0) return;
+
+  sessionStorage.setItem(chave, "true");
+
+  await mostrarModal({
+    titulo: "MatÃ©rias aguardando revisÃ£o",
+    mensagem: total === 1
+      ? "Existe 1 matÃ©ria aguardando revisÃ£o no painel."
+      : `Existem ${total} matÃ©rias aguardando revisÃ£o no painel.`,
+    textoBotao: "Ver painel"
+  });
 }
 
 async function abrirNovaMateria(postExistente = null) {
@@ -234,7 +269,7 @@ async function abrirListarMaterias(tipo = "todas") {
       return;
     }
 
-    mostrarCarregando("Carregando matérias...");
+    mostrarCarregando("Carregando matÃ©rias...");
 
     await publicarAgendadosVencidos(usuarioAtual);
 
@@ -249,7 +284,7 @@ async function abrirListarMaterias(tipo = "todas") {
     ativarAcoesMaterias();
 
   } catch (error) {
-    mostrarErro(error, "Erro ao listar matérias");
+    mostrarErro(error, "Erro ao listar matÃ©rias");
   }
 }
 
@@ -260,7 +295,7 @@ async function abrirRevisarMateria(postId) {
       return;
     }
 
-    mostrarCarregando("Carregando revisão...");
+    mostrarCarregando("Carregando revisÃ£o...");
 
     const html = await renderRevisarMateria(
       postId,
@@ -271,7 +306,7 @@ async function abrirRevisarMateria(postId) {
     document.getElementById("adminPage").innerHTML = html;
 
   } catch (error) {
-    mostrarErro(error, "Erro ao abrir revisão");
+    mostrarErro(error, "Erro ao abrir revisÃ£o");
   }
 }
 
@@ -291,7 +326,7 @@ async function abrirFormularioAudiobook(audiobookAtual = null) {
       );
 
   } catch (error) {
-    mostrarErro(error, "Erro ao abrir formulário de audiobook");
+    mostrarErro(error, "Erro ao abrir formulÃ¡rio de audiobook");
   }
 }
 
@@ -326,13 +361,13 @@ async function abrirComentarios() {
       return;
     }
 
-    mostrarCarregando("Carregando comentários...");
+    mostrarCarregando("Carregando comentÃ¡rios...");
 
     document.getElementById("adminPage").innerHTML =
       await renderComentariosAdmin(abrirComentarios);
 
   } catch (error) {
-    mostrarErro(error, "Erro nos comentários");
+    mostrarErro(error, "Erro nos comentÃ¡rios");
   }
 }
 
@@ -343,13 +378,13 @@ async function abrirOraculoLunar() {
       return;
     }
 
-    mostrarCarregando("Carregando Oráculo Lunar...");
+    mostrarCarregando("Carregando OrÃ¡culo Lunar...");
 
     document.getElementById("adminPage").innerHTML =
       await renderOraculoAdmin(abrirOraculoLunar);
 
   } catch (error) {
-    mostrarErro(error, "Erro no Oráculo Lunar");
+    mostrarErro(error, "Erro no OrÃ¡culo Lunar");
   }
 }
 
@@ -433,14 +468,14 @@ async function ativarAcoesMaterias() {
           const post = await buscarPost(id);
 
           if (!post) {
-            alert("Matéria não encontrada.");
+            alert("MatÃ©ria nÃ£o encontrada.");
             return;
           }
 
           await abrirNovaMateria(post);
 
         } catch (error) {
-          mostrarErro(error, "Erro ao editar matéria");
+          mostrarErro(error, "Erro ao editar matÃ©ria");
         }
       };
     });
@@ -466,20 +501,22 @@ async function ativarAcoesMaterias() {
 
           const id = botao.dataset.excluir;
 
-          const confirmar = confirm(
-            "Deseja realmente excluir esta matéria?"
-          );
+          const confirmar = await window.confirmarModal({
+                titulo: "Excluir matéria",
+                mensagem: "Deseja realmente excluir esta matéria?",
+                textoConfirmar: "Excluir"
+              });
 
           if (!confirmar) return;
 
           await excluirPost(id);
 
-          alert("Matéria excluída com sucesso.");
+          alert("MatÃ©ria excluÃ­da com sucesso.");
 
           await abrirListarMaterias(tipoListaAtual);
 
         } catch (error) {
-          mostrarErro(error, "Erro ao excluir matéria");
+          mostrarErro(error, "Erro ao excluir matÃ©ria");
         }
       };
     });
@@ -624,3 +661,5 @@ observarAdminAuth((usuario) => {
     renderLogin();
   }
 });
+
+

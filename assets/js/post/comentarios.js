@@ -180,7 +180,11 @@ export function iniciarComentarios(postId) {
     if (!botao) return;
 
     const comentarioId = botao.dataset.apagarComentario;
-    const confirmar = confirm("Deseja apagar este comentario?");
+    const confirmar = await window.confirmarModal({
+          titulo: "Apagar comentário",
+          mensagem: "Deseja apagar este comentário?",
+          textoConfirmar: "Apagar"
+        });
 
     if (!confirmar) return;
 
@@ -203,4 +207,5 @@ export function iniciarComentarios(postId) {
 
   carregarComentarios(postId);
 }
+
 
