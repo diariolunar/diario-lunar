@@ -401,7 +401,11 @@ async function ativarAcoes(onReload) {
       botao.onclick = async () => {
         const id = botao.dataset.excluirComentario;
 
-        const confirmar = confirm("Deseja excluir este comentário?");
+        const confirmar = await window.confirmarModal({
+              titulo: "Excluir comentário",
+              mensagem: "Deseja excluir este comentário?",
+              textoConfirmar: "Excluir"
+            });
 
         if (!confirmar) return;
 
@@ -549,4 +553,3 @@ export async function renderComentariosAdmin(onReload) {
     </div>
   `;
 }
-

@@ -2,6 +2,7 @@ import { db } from "../config/firebase.js";
 
 import {
   collection,
+  getCountFromServer,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
@@ -45,7 +46,7 @@ function statusInfo(status) {
 
 export async function renderDashboard(usuario) {
   const postsSnap = await getDocs(collection(db, "posts"));
-  const comentariosSnap = await getDocs(collection(db, "comentarios"));
+  const comentariosSnap = await getCountFromServer(collection(db, "comentarios"));
 
   let publicadas = [];
   let rascunhos = [];
@@ -182,7 +183,7 @@ export async function renderDashboard(usuario) {
 
       <div class="metric-card">
         <span>💬</span>
-        <h2>${comentariosSnap.size}</h2>
+        <h2>${comentariosSnap.data().count}</h2>
         <p>Comentários</p>
       </div>
     </div>

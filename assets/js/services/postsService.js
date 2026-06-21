@@ -7,6 +7,9 @@ import {
   doc,
   getDoc,
   getDocs,
+  getCountFromServer,
+  query,
+  where,
   deleteDoc,
   increment
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -45,6 +48,35 @@ export async function listarPosts() {
   });
 
   return posts;
+}
+
+export async function listarPostsPorStatus(statuses = []) {
+  if (!statuses.length) {
+    return await listarPosts();
+  }
+
+  const snap = await getDocs(
+    query(collection(db, "posts"), where("status", "in", statuses))
+  );
+
+  let posts = [];
+
+  snap.forEach((item) => {
+    posts.push({
+      id: item.id,
+      ...item.data()
+    });
+  });
+
+  return posts;
+}
+
+export async function contarPostsPorStatus(status) {
+  const snap = await getCountFromServer(
+    query(collection(db, "posts"), where("status", "==", status))
+  );
+
+  return snap.data().count || 0;
 }
 
 export async function excluirPost(id) {
@@ -114,7 +146,13 @@ export async function listarHistoricoPost(postId) {
 }
 
 export async function publicarAgendadosVencidos(usuario = null) {
-  const posts = await listarPosts();
+  const snap = await getDocs(
+    query(collection(db, "posts"), where("status", "==", "agendado"))
+  );
+  const posts = snap.docs.map((item) => ({
+    id: item.id,
+    ...item.data()
+  }));
   const agora = Date.now();
 
   for (const post of posts) {

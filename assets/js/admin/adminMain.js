@@ -1,4 +1,4 @@
-import { renderSidebar } from "./sidebar.js";
+﻿import { renderSidebar } from "./sidebar.js";
 import { renderDashboard } from "./dashboard.js";
 import { renderNovaMateria } from "./novaMateria.js";
 import { renderListarMaterias } from "./listarMaterias.js";
@@ -9,6 +9,8 @@ import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderOraculoAdmin } from "./oraculoAdmin.js";
 import { renderOtimizarImagens } from "./otimizarImagens.js";
+import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
+import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 
 import {
   renderFormularioAudiobook,
@@ -17,6 +19,7 @@ import {
 
 import {
   buscarPost,
+  contarPostsPorStatus,
   excluirPost,
   publicarAgendadosVencidos
 } from "../services/postsService.js";
@@ -39,7 +42,8 @@ import {
   podeGerenciarAdmins,
   podeRevisar,
   podeModerarComentarios,
-  podeEditarOraculo
+  podeEditarOraculo,
+  podeAcessarRelatorios
 } from "./auth/permissions.js";
 
 const app = document.getElementById("adminApp");
@@ -47,6 +51,8 @@ const app = document.getElementById("adminApp");
 let usuarioAtual = null;
 let tipoListaAtual = "todas";
 let primeiraSincroniaAuth = true;
+
+instalarModaisGlobais();
 
 function renderCarregandoInicial() {
   app.innerHTML = `
@@ -189,9 +195,40 @@ async function abrirDashboard() {
     document.getElementById("adminPage").innerHTML =
       await renderDashboard(usuarioAtual);
 
+    await notificarMateriasParaRevisao(usuarioAtual);
+
   } catch (error) {
     mostrarErro(error, "Erro no dashboard");
   }
+}
+
+async function notificarMateriasParaRevisao(usuario) {
+  const marcacao = [
+    usuario?.cargo,
+    usuario?.nomenclatura,
+    usuario?.role
+  ].join(" ").toLowerCase();
+  const editorChefe = marcacao.includes("editor-chefe") || marcacao.includes("editor chefe");
+
+  if (!podeRevisar(usuario) && !editorChefe) return;
+
+  const chave = `notificacao_revisao_${usuario.id || usuario.email || "adm"}`;
+
+  if (sessionStorage.getItem(chave)) return;
+
+  const total = await contarPostsPorStatus("em_revisao");
+
+  if (total <= 0) return;
+
+  sessionStorage.setItem(chave, "true");
+
+  await mostrarModal({
+    titulo: "Matérias aguardando revisão",
+    mensagem: total === 1
+      ? "Existe 1 matéria aguardando revisão no painel."
+      : `Existem ${total} matérias aguardando revisão no painel.`,
+    textoBotao: "Ver painel"
+  });
 }
 
 async function abrirNovaMateria(postExistente = null) {
@@ -353,6 +390,23 @@ async function abrirOraculoLunar() {
   }
 }
 
+async function abrirRelatorios() {
+  try {
+    if (!podeAcessarRelatorios(usuarioAtual)) {
+      mostrarSemPermissao();
+      return;
+    }
+
+    mostrarCarregando("Carregando relatórios...");
+
+    document.getElementById("adminPage").innerHTML =
+      await renderRelatoriosAdmin();
+
+  } catch (error) {
+    mostrarErro(error, "Erro nos relatórios");
+  }
+}
+
 function abrirCadastrarAdm() {
   try {
     if (!podeGerenciarAdmins(usuarioAtual)) {
@@ -466,15 +520,17 @@ async function ativarAcoesMaterias() {
 
           const id = botao.dataset.excluir;
 
-          const confirmar = confirm(
-            "Deseja realmente excluir esta matéria?"
-          );
+          const confirmar = await window.confirmarModal({
+                titulo: "Excluir matéria",
+                mensagem: "Deseja realmente excluir esta matéria?",
+                textoConfirmar: "Excluir"
+              });
 
           if (!confirmar) return;
 
           await excluirPost(id);
 
-          alert("Matéria excluída com sucesso.");
+            alert("Matéria excluída com sucesso.");
 
           await abrirListarMaterias(tipoListaAtual);
 
@@ -538,6 +594,11 @@ async function abrirPagina(pagina) {
 
   if (pagina === "oraculoLunar") {
     await abrirOraculoLunar();
+    return;
+  }
+
+  if (pagina === "relatorios") {
+    await abrirRelatorios();
     return;
   }
 

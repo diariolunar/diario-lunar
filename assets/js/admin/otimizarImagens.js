@@ -260,9 +260,11 @@ async function listarArquivosRecursivo(pasta) {
 }
 
 async function limparImagensOrfas() {
-  const confirmar = confirm(
-    "Deseja apagar do Storage as imagens que não estão mais sendo usadas no Firestore? Essa ação não pode ser desfeita."
-  );
+  const confirmar = await window.confirmarModal({
+        titulo: "Limpar imagens órfãs",
+        mensagem: "Deseja apagar do Storage as imagens que não estão mais sendo usadas no Firestore? Essa ação não pode ser desfeita.",
+        textoConfirmar: "Apagar órfãs"
+      });
 
   if (!confirmar) return;
 
@@ -342,7 +344,7 @@ async function processarItem({ rotulo, url, pasta, nome, salvar }, resumo) {
     await salvar(resultado.url);
 
     resumo.otimizadas++;
-    escreverLog(`âœ“ Otimizada: ${rotulo}`);
+    escreverLog(`✓ Otimizada: ${rotulo}`);
     atualizarResumo(resumo);
 
   } catch (error) {
@@ -586,7 +588,3 @@ export function renderOtimizarImagens() {
     </div>
   `;
 }
-
-
-
-

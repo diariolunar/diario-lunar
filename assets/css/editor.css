@@ -58,6 +58,18 @@
   outline: 2px solid #ddd6fe;
 }
 
+.tox-tinymce {
+  border-radius: 18px !important;
+  border-color: #d1d5db !important;
+  box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+}
+
+.tox .tox-toolbar,
+.tox .tox-toolbar__overflow,
+.tox .tox-toolbar__primary {
+  background: #ffffff !important;
+}
+
 .editor-area blockquote,
 .post-content blockquote {
   border-left: 5px solid var(--roxo);
@@ -76,6 +88,26 @@
   background: linear-gradient(90deg, var(--azul), var(--roxo));
   margin: 35px 0;
   border-radius: 999px;
+}
+
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.post-content th,
+.post-content td {
+  border: 1px solid #d1d5db;
+  padding: 10px;
+  vertical-align: top;
+}
+
+.post-content th {
+  background: #f8fafc;
+  font-weight: 800;
 }
 
 .editor-image-content,

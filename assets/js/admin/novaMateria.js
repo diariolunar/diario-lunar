@@ -1,4 +1,7 @@
-﻿import { iniciarEditor } from "./editorMateria.js";
+﻿import {
+  getConteudoEditor,
+  iniciarEditor
+} from "./editorMateria.js";
 
 import {
   criarPost,
@@ -126,6 +129,13 @@ function escaparHtml(valor) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function escaparTextarea(valor) {
+  return (valor || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 function buscarIdAutor(user, postExistente, usuario) {
@@ -263,7 +273,7 @@ function montarDadosMateria(status, usuario) {
   return {
     titulo: document.getElementById("tituloMateria").value.trim(),
     categoria: document.getElementById("categoriaMateria").value,
-    conteudo: document.getElementById("editorArea").innerHTML.trim(),
+    conteudo: getConteudoEditor(),
     imagem: imagemCapaUrl,
     autor: autores[0] || usuario.user || usuario.email || "diario_lunar",
     autores,
@@ -333,7 +343,7 @@ async function carregarHistorico() {
               <strong>${item.acao || "Alteração"}</strong>
 
               <p>
-                ${item.statusAnterior || "-"} â†’ ${item.statusNovo || "-"}
+                ${item.statusAnterior || "-"} → ${item.statusNovo || "-"}
               </p>
 
               <p>
@@ -662,8 +672,12 @@ function iniciarBotoesSalvar(usuario) {
   }
 
   if (botaoCancelar) {
-    botaoCancelar.onclick = () => {
-      const confirmar = confirm("Deseja cancelar e sair sem salvar agora?");
+    botaoCancelar.onclick = async () => {
+      const confirmar = await window.confirmarModal({
+            titulo: "Cancelar edição",
+            mensagem: "Deseja cancelar e sair sem salvar agora?",
+            textoConfirmar: "Sair sem salvar"
+          });
 
       if (!confirmar) return;
 
@@ -944,67 +958,10 @@ export async function renderNovaMateria(usuario, postExistente = null) {
       <div class="form-group editor-wrapper">
         <label>Conteúdo da matéria</label>
 
-        <div class="editor-toolbar">
-
-          <button type="button" data-editor="bold" title="Negrito">
-            <i class="fa-solid fa-bold"></i>
-          </button>
-
-          <button type="button" data-editor="italic" title="Itálico">
-            <i class="fa-solid fa-italic"></i>
-          </button>
-
-          <button type="button" data-editor="underline" title="Sublinhado">
-            <i class="fa-solid fa-underline"></i>
-          </button>
-
-          <button type="button" data-editor="justifyLeft" title="Esquerda">
-            <i class="fa-solid fa-align-left"></i>
-          </button>
-
-          <button type="button" data-editor="justifyCenter" title="Centro">
-            <i class="fa-solid fa-align-center"></i>
-          </button>
-
-          <button type="button" data-editor="justifyRight" title="Direita">
-            <i class="fa-solid fa-align-right"></i>
-          </button>
-
-          <button type="button" data-editor="justifyFull" title="Justificado">
-            <i class="fa-solid fa-align-justify"></i>
-          </button>
-
-          <button type="button" data-editor="insertUnorderedList" title="Lista">
-            <i class="fa-solid fa-list-ul"></i>
-          </button>
-
-          <button type="button" data-editor="insertOrderedList" title="Lista numerada">
-            <i class="fa-solid fa-list-ol"></i>
-          </button>
-
-          <button type="button" data-editor="createLink" title="Link">
-            <i class="fa-solid fa-link"></i>
-          </button>
-
-          <button type="button" data-editor="blockquote" title="Citação">
-            <i class="fa-solid fa-quote-left"></i>
-          </button>
-
-          <button type="button" data-editor="separator" title="Separador">
-            <i class="fa-solid fa-minus"></i>
-          </button>
-
-          <button type="button" id="inserirImagemBtn" title="Imagem">
-            <i class="fa-solid fa-image"></i>
-          </button>
-
-        </div>
-
-        <div
+        <textarea
           id="editorArea"
           class="editor-area"
-          contenteditable="true"
-        >${postExistente?.conteudo || ""}</div>
+        >${escaparTextarea(postExistente?.conteudo || "")}</textarea>
       </div>
 
       <div class="admin-card" style="margin-top:25px;">
@@ -1075,5 +1032,3 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     </div>
   `;
 }
-
-

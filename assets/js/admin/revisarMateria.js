@@ -1,4 +1,4 @@
-import {
+﻿import {
   buscarPost,
   atualizarPost,
   registrarHistoricoPost,
@@ -56,7 +56,11 @@ function travarBotoes(travar) {
 }
 
 async function aprovarMateria(post, usuarioAtual, onFinalizar) {
-  const confirmar = confirm("Deseja aprovar e publicar esta matéria?");
+  const confirmar = await window.confirmarModal({
+        titulo: "Aprovar matéria",
+        mensagem: "Deseja aprovar e publicar esta matéria?",
+        textoConfirmar: "Aprovar e publicar"
+      });
 
   if (!confirmar) return;
 

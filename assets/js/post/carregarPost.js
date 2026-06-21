@@ -4,7 +4,9 @@ import {
   doc,
   getDoc,
   collection,
-  getDocs
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 import {
@@ -95,25 +97,46 @@ function escaparHtml(valor) {
 }
 
 async function buscarReporteres(post) {
-  const snapshot = await getDocs(collection(db, "admins"));
   const porId = new Map();
   const porUser = new Map();
+  const autores = obterAutoresPost(post, "diario_lunar");
+  const autorIds = obterAutorIdsPost(post);
+  const idsUnicos = [...new Set(autorIds.filter(Boolean))];
 
-  snapshot.forEach((item) => {
-    const adm = {
-      id: item.id,
-      ...item.data()
-    };
+  await Promise.all(idsUnicos.map(async (id) => {
+    const item = await getDoc(doc(db, "admins", id));
 
+    if (!item.exists()) return;
+
+    const adm = { id: item.id, ...item.data() };
     porId.set(item.id, adm);
 
     if (adm.user) {
       porUser.set(adm.user.toLowerCase(), adm);
     }
-  });
+  }));
 
-  const autores = obterAutoresPost(post, "diario_lunar");
-  const autorIds = obterAutorIdsPost(post);
+  const usersSemCadastro = autores.filter((user, index) => (
+    !porId.has(autorIds[index])
+  ));
+
+  if (usersSemCadastro.length) {
+    const snapshot = await getDocs(
+      query(
+        collection(db, "admins"),
+        where("user", "in", usersSemCadastro.slice(0, 30))
+      )
+    );
+
+    snapshot.forEach((item) => {
+      const adm = { id: item.id, ...item.data() };
+      porId.set(item.id, adm);
+
+      if (adm.user) {
+        porUser.set(adm.user.toLowerCase(), adm);
+      }
+    });
+  }
 
   return autores.map((user, index) => ({
     user,

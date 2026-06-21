@@ -1,4 +1,4 @@
-import { db } from "../config/firebase.js";
+﻿import { db } from "../config/firebase.js";
 
 import {
   collection,
@@ -240,7 +240,11 @@ function iniciarBotoesFormulario(audiobookAtual, onFinalizar) {
 
   if (botaoCancelar) {
     botaoCancelar.onclick = async () => {
-      const confirmar = confirm("Deseja cancelar e sair sem salvar?");
+      const confirmar = await window.confirmarModal({
+            titulo: "Cancelar edição",
+            mensagem: "Deseja cancelar e sair sem salvar?",
+            textoConfirmar: "Sair sem salvar"
+          });
 
       if (!confirmar) return;
 
@@ -556,7 +560,11 @@ function iniciarAcoesLista(onEditar, onReload) {
       botao.onclick = async () => {
         const id = botao.dataset.excluirAudiobook;
 
-        const confirmar = confirm("Deseja realmente excluir este audiobook?");
+        const confirmar = await window.confirmarModal({
+              titulo: "Excluir audiobook",
+              mensagem: "Deseja realmente excluir este audiobook?",
+              textoConfirmar: "Excluir"
+            });
 
         if (!confirmar) return;
 

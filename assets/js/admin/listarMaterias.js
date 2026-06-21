@@ -1,5 +1,6 @@
 import {
   listarPosts,
+  listarPostsPorStatus,
   atualizarPost,
   registrarHistoricoPost
 } from "../services/postsService.js";
@@ -120,6 +121,17 @@ function tituloDaPagina(tipo) {
   };
 
   return mapa[tipo] || mapa.todas;
+}
+
+function statusParaTipo(tipo) {
+  const mapa = {
+    publicadas: ["publicado", "agendado"],
+    publicas: ["publicado", "agendado"],
+    rascunhos: ["rascunho", "reprovado"],
+    revisao: ["em_revisao"]
+  };
+
+  return mapa[tipo] || [];
 }
 
 function criarCard(post, usuarioAtual) {
@@ -277,7 +289,7 @@ export async function renderListarMaterias(
   onReload = null,
   tipo = "todas"
 ) {
-  const posts = await listarPosts();
+  const posts = await listarPostsPorStatus(statusParaTipo(tipo));
 
   let lista = filtrarPorTipo(posts, tipo);
 

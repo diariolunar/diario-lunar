@@ -1,4 +1,7 @@
-import { cadastrarNewsletter } from "../services/newsletterService.js";
+﻿import { cadastrarNewsletter } from "../services/newsletterService.js";
+import { instalarModaisGlobais } from "../utils/modal.js";
+
+instalarModaisGlobais();
 
 window.salvarNewsletter = async function () {
   const input = document.getElementById("newsletterEmail");

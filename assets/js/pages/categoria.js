@@ -2,7 +2,9 @@ import { db } from "../config/firebase.js";
 
 import {
   collection,
-  getDocs
+  getDocs,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 import { renderNavbar } from "../components/navbar.js";
@@ -155,7 +157,9 @@ async function carregarCategoria() {
 
   container.innerHTML = "<p>Carregando matérias...</p>";
 
-  const snapshot = await getDocs(collection(db, "posts"));
+  const snapshot = await getDocs(
+    query(collection(db, "posts"), where("status", "in", ["publicado", "agendado"]))
+  );
 
   let posts = [];
 
