@@ -5,6 +5,11 @@ import {
   listarHistoricoPost
 } from "../services/postsService.js";
 
+import {
+  formatarAutoresPost,
+  postEhCollab
+} from "../utils/autores.js";
+
 function formatarData(data) {
   if (!data) return "Sem data";
 
@@ -285,7 +290,8 @@ export async function renderRevisarMateria(
           </h1>
 
           <p class="revisao-meta">
-            Autor: @${post.autor || "diario_lunar"} ·
+            ${postEhCollab(post) ? "Collab" : "Autor"}:
+            ${formatarAutoresPost(post)} ·
             Data: ${formatarDataPost(post.data)}
           </p>
 

@@ -16,6 +16,11 @@ import {
   limparResumoSeo
 } from "../utils/seo.js";
 
+import {
+  obterAutorIdsPost,
+  obterAutoresPost
+} from "../utils/autores.js";
+
 function formatarData(data) {
   if (!data) return "";
 
@@ -80,24 +85,96 @@ function mostrarMateriaNaoEncontrada() {
   });
 }
 
-async function buscarReporter(userAutor) {
-  const snapshot = await getDocs(collection(db, "admins"));
+function escaparHtml(valor) {
+  return String(valor || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
-  let reporter = null;
+async function buscarReporteres(post) {
+  const snapshot = await getDocs(collection(db, "admins"));
+  const porId = new Map();
+  const porUser = new Map();
 
   snapshot.forEach((item) => {
-    const adm = item.data();
+    const adm = {
+      id: item.id,
+      ...item.data()
+    };
 
-    if (
-      adm.user &&
-      userAutor &&
-      adm.user.toLowerCase() === userAutor.toLowerCase()
-    ) {
-      reporter = adm;
+    porId.set(item.id, adm);
+
+    if (adm.user) {
+      porUser.set(adm.user.toLowerCase(), adm);
     }
   });
 
-  return reporter;
+  const autores = obterAutoresPost(post, "diario_lunar");
+  const autorIds = obterAutorIdsPost(post);
+
+  return autores.map((user, index) => ({
+    user,
+    reporter: porId.get(autorIds[index]) || porUser.get(user.toLowerCase()) || null
+  }));
+}
+
+function formatarIdentificacaoReporter(reporter) {
+  if (!reporter || reporter.reporter === false || reporter.ativo === false) {
+    return "";
+  }
+
+  const partes = [];
+
+  if (reporter.nomenclatura) {
+    partes.push(`(${reporter.nomenclatura})`);
+  }
+
+  if (reporter.cargo) {
+    partes.push(reporter.cargo);
+  }
+
+  return partes.join(" · ");
+}
+
+function renderAutoresPost(reporteres) {
+  const container = document.getElementById("autoresPost");
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <span class="autores-prefixo">Por</span>
+
+    <div class="autores-lista">
+      ${reporteres.map(({ user, reporter }) => {
+        const identificacao = formatarIdentificacaoReporter(reporter);
+        const foto = reporter?.fotoUrl || "/assets/images/logo-vertical.png";
+
+        return `
+          <a
+            class="autor-link"
+            href="/autor.html?user=${encodeURIComponent(user)}"
+          >
+            <img
+              src="${escaparHtml(foto)}"
+              alt="${escaparHtml(reporter?.nome || user)}"
+            >
+
+            <span class="autor-texto">
+              <strong>@${escaparHtml(user)}</strong>
+              ${
+                identificacao
+                  ? `<span>${escaparHtml(identificacao)}</span>`
+                  : ""
+              }
+            </span>
+          </a>
+        `;
+      }).join("")}
+    </div>
+  `;
 }
 
 export async function carregarPost(postId) {
@@ -140,38 +217,8 @@ export async function carregarPost(postId) {
     tipo: "article"
   });
 
-  const autorUser = post.autor || "diario_lunar";
-  const reporter = await buscarReporter(autorUser);
-
-  document.getElementById("autorUser").innerText = "@" + autorUser;
-
-  const autorLink = document.getElementById("autorLink");
-
-  if (autorLink) {
-    autorLink.href = `/autor.html?user=${encodeURIComponent(autorUser)}`;
-  }
-
-  if (reporter && reporter.reporter !== false) {
-    document.getElementById("fotoReporter").src =
-      reporter.fotoUrl || "/assets/images/logo-vertical.png";
-
-    let identificacao = "";
-
-    if (reporter.nomenclatura) {
-      identificacao += `(${reporter.nomenclatura})`;
-    }
-
-    if (reporter.cargo) {
-      identificacao += reporter.nomenclatura
-        ? ` · ${reporter.cargo}`
-        : reporter.cargo;
-    }
-
-    document.getElementById("autorNomenclatura").innerText = identificacao;
-  } else {
-    document.getElementById("fotoReporter").src = "/assets/images/logo-vertical.png";
-    document.getElementById("autorNomenclatura").innerText = "";
-  }
+  const reporteres = await buscarReporteres(post);
+  renderAutoresPost(reporteres);
 
   const dataFormatada = formatarData(post.data);
 

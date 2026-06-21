@@ -10,6 +10,11 @@ import {
   podeRevisar
 } from "./auth/permissions.js";
 
+import {
+  formatarAutoresPost,
+  postEhCollab
+} from "../utils/autores.js";
+
 function formatarData(data) {
   if (!data) {
     return "Sem data";
@@ -134,6 +139,11 @@ function criarCard(post, usuarioAtual) {
 
         <p>
           Data: ${formatarData(post.data)}
+        </p>
+
+        <p>
+          ${postEhCollab(post) ? "Collab" : "Autor"}:
+          ${formatarAutoresPost(post)}
         </p>
 
         <div class="materia-admin-meta">

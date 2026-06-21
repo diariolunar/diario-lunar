@@ -12,6 +12,10 @@ import {
   aplicarSeo
 } from "../utils/seo.js";
 
+import {
+  postTemAutor
+} from "../utils/autores.js";
+
 document.getElementById("navbar").innerHTML = renderNavbar();
 document.getElementById("footer").innerHTML = renderFooter();
 
@@ -246,10 +250,7 @@ async function carregarAutor() {
 
     if (!postEstaPublico(post)) return;
 
-    if (
-      post.autor &&
-      post.autor.toLowerCase() === autor.user.toLowerCase()
-    ) {
+    if (postTemAutor(post, autor)) {
       posts.push({
         id: item.id,
         ...post,

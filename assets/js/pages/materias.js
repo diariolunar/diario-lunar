@@ -8,6 +8,10 @@ import {
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
 
+import {
+  obterAutoresPost
+} from "../utils/autores.js";
+
 document.getElementById("navbar").innerHTML = renderNavbar();
 document.getElementById("footer").innerHTML = renderFooter();
 
@@ -157,6 +161,8 @@ function aplicarFiltros() {
       ${post.titulo || ""}
       ${post.categoria || ""}
       ${post.autor || ""}
+      ${obterAutoresPost(post).join(" ")}
+      ${post.collab ? "collab" : ""}
       ${limparTexto(post.conteudo || "")}
     `);
 

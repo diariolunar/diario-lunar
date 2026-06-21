@@ -15,9 +15,21 @@ import {
   podePublicarDireto
 } from "./auth/permissions.js";
 
+import {
+  listarAdmins
+} from "../services/adminsService.js";
+
+import {
+  formatarAutoresPost,
+  obterAutoresPost,
+  postEhCollab
+} from "../utils/autores.js";
+
 let imagemCapaArquivo = null;
 let imagemCapaUrl = "";
 let postAtual = null;
+let reporteresDisponiveis = [];
+let autorPadraoMateria = null;
 
 let cropImagemOriginal = null;
 let cropImagemObj = null;
@@ -107,13 +119,156 @@ function conteudoTemTextoOuImagem(conteudo) {
   return texto.length > 0 || temImagem;
 }
 
+function escaparHtml(valor) {
+  return String(valor || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function buscarIdAutor(user, postExistente, usuario) {
+  const autores = obterAutoresPost(postExistente);
+  const indice = autores.findIndex(
+    (autor) => autor.toLowerCase() === String(user || "").toLowerCase()
+  );
+
+  if (indice >= 0 && postExistente?.autorIds?.[indice]) {
+    return postExistente.autorIds[indice];
+  }
+
+  const reporter = reporteresDisponiveis.find(
+    (item) => item.user.toLowerCase() === String(user || "").toLowerCase()
+  );
+
+  if (reporter?.id) {
+    return reporter.id;
+  }
+
+  if (
+    usuario?.id &&
+    String(usuario.user || "").toLowerCase() === String(user || "").toLowerCase()
+  ) {
+    return usuario.id;
+  }
+
+  return "";
+}
+
+function obterReporteresSelecionados() {
+  return Array.from(
+    document.querySelectorAll("[data-reporter-collab]:checked")
+  ).map((campo) => ({
+    id: campo.dataset.reporterId || "",
+    user: campo.dataset.reporterUser || ""
+  })).filter((reporter) => reporter.user);
+}
+
+function formatarQuantidadeReporteres(quantidade) {
+  return quantidade === 1
+    ? "1 repórter selecionado"
+    : `${quantidade} repórteres selecionados`;
+}
+
+function atualizarResumoAutores() {
+  const resumo = document.getElementById("resumoAutoresMateria");
+
+  if (!resumo || !autorPadraoMateria) return;
+
+  const collabAtiva = document.getElementById("collabMateria")?.checked;
+  const selecionados = collabAtiva
+    ? obterReporteresSelecionados()
+    : [autorPadraoMateria];
+
+  resumo.value = selecionados.length
+    ? selecionados.map((reporter) => `@${reporter.user}`).join(", ")
+    : "Nenhum repórter selecionado";
+
+  const contador = document.getElementById("collabReporteresContador");
+
+  if (contador) {
+    contador.innerText = formatarQuantidadeReporteres(selecionados.length);
+  }
+}
+
+function iniciarSeletorCollab() {
+  const campoCollab = document.getElementById("collabMateria");
+  const grupoReporteres = document.getElementById("collabReporteresGrupo");
+
+  if (!campoCollab || !grupoReporteres) return;
+
+  const atualizarEstado = () => {
+    grupoReporteres.hidden = !campoCollab.checked;
+    atualizarResumoAutores();
+  };
+
+  campoCollab.onchange = atualizarEstado;
+
+  document.querySelectorAll("[data-reporter-collab]")
+    .forEach((campo) => {
+      campo.onchange = atualizarResumoAutores;
+    });
+
+  atualizarEstado();
+}
+
+function renderReporteresCollab(autoresSelecionados) {
+  if (!reporteresDisponiveis.length) {
+    return `<p class="collab-vazio">Nenhum repórter ativo disponível.</p>`;
+  }
+
+  const selecionados = new Set(
+    autoresSelecionados.map((autor) => autor.toLowerCase())
+  );
+
+  return reporteresDisponiveis.map((reporter) => {
+    const user = escaparHtml(reporter.user);
+    const nome = escaparHtml(reporter.nome || reporter.user);
+    const foto = escaparHtml(
+      reporter.fotoUrl || "/assets/images/logo-vertical.png"
+    );
+
+    return `
+      <label class="collab-reporter-option">
+        <input
+          type="checkbox"
+          data-reporter-collab
+          data-reporter-id="${escaparHtml(reporter.id)}"
+          data-reporter-user="${user}"
+          ${selecionados.has(reporter.user.toLowerCase()) ? "checked" : ""}
+        >
+
+        <img src="${foto}" alt="">
+
+        <span>
+          <strong>${nome}</strong>
+          <small>@${user}</small>
+        </span>
+      </label>
+    `;
+  }).join("");
+}
+
 function montarDadosMateria(status, usuario) {
+  const collab = document.getElementById("collabMateria")?.checked === true;
+  const reporteres = collab
+    ? obterReporteresSelecionados()
+    : [autorPadraoMateria];
+  const autores = reporteres.map((reporter) => reporter.user);
+  const autorIds = reporteres
+    .map((reporter) => reporter.id)
+    .filter(Boolean);
+
   return {
     titulo: document.getElementById("tituloMateria").value.trim(),
     categoria: document.getElementById("categoriaMateria").value,
     conteudo: document.getElementById("editorArea").innerHTML.trim(),
     imagem: imagemCapaUrl,
-    autor: postAtual?.autor || usuario.user || usuario.email || "diario_lunar",
+    autor: autores[0] || usuario.user || usuario.email || "diario_lunar",
+    autores,
+    autorIds,
+    collab,
     data: pegarDataPublicacao(),
     status,
     destaque: document.getElementById("destaqueMateria").checked,
@@ -124,6 +279,11 @@ function montarDadosMateria(status, usuario) {
 function validarMateria(dados, status) {
   if (!dados.titulo) {
     alert("Preencha o título da matéria.");
+    return false;
+  }
+
+  if (dados.collab && dados.autores.length < 2) {
+    alert("Selecione pelo menos dois repórteres para uma matéria em collab.");
     return false;
   }
 
@@ -228,6 +388,10 @@ function abrirPreview(status = "em_revisao") {
       </p>
 
       <h1>${dados.titulo || "Sem título"}</h1>
+
+      <p class="preview-autores">
+        Por ${formatarAutoresPost(dados)}
+      </p>
 
       <div class="preview-article-content">
         ${dados.conteudo || ""}
@@ -548,9 +712,52 @@ export async function renderNovaMateria(usuario, postExistente = null) {
   imagemCapaArquivo = null;
   imagemCapaUrl = postExistente?.imagem || "";
 
+  const autorPadraoUser =
+    postExistente?.autor || usuario.user || usuario.email || "diario_lunar";
+  const autoresSelecionados = obterAutoresPost(
+    postExistente,
+    autorPadraoUser
+  );
+  const todosAdmins = await listarAdmins();
+
+  reporteresDisponiveis = todosAdmins
+    .filter((adm) => (
+      adm.ativo !== false &&
+      adm.reporter !== false &&
+      adm.user
+    ))
+    .sort((a, b) => (
+      a.nome || a.user
+    ).localeCompare(b.nome || b.user, "pt-BR"));
+
+  autoresSelecionados.forEach((user) => {
+    const jaDisponivel = reporteresDisponiveis.some(
+      (reporter) => reporter.user.toLowerCase() === user.toLowerCase()
+    );
+
+    if (jaDisponivel) return;
+
+    const cadastro = todosAdmins.find(
+      (adm) => String(adm.user || "").toLowerCase() === user.toLowerCase()
+    );
+
+    reporteresDisponiveis.push({
+      id: cadastro?.id || buscarIdAutor(user, postExistente, usuario),
+      user,
+      nome: cadastro?.nome || user,
+      fotoUrl: cadastro?.fotoUrl || ""
+    });
+  });
+
+  autorPadraoMateria = {
+    id: buscarIdAutor(autorPadraoUser, postExistente, usuario),
+    user: autorPadraoUser
+  };
+
   const modoEdicao = !!postExistente;
   const historicoHtml = await carregarHistorico();
   const usuarioPodePublicarDireto = podePublicarDireto(usuario);
+  const collabInicial = postEhCollab(postExistente || {});
 
   setTimeout(() => {
     iniciarEditor({
@@ -560,6 +767,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     iniciarUploadCapa();
     iniciarCropBotoes();
     iniciarBotoesSalvar(usuario);
+    iniciarSeletorCollab();
   }, 100);
 
   return `
@@ -657,11 +865,15 @@ export async function renderNovaMateria(usuario, postExistente = null) {
         </div>
 
         <div class="form-group">
-          <label>Autor</label>
+          <label>Autoria</label>
 
           <input
+            id="resumoAutoresMateria"
             disabled
-            value="@${postExistente?.autor || usuario.user || usuario.email || "diario_lunar"}"
+            value="${escaparHtml(formatarAutoresPost(
+              postExistente || { autor: autorPadraoUser },
+              autorPadraoUser
+            ))}"
           >
         </div>
       </div>
@@ -678,6 +890,32 @@ export async function renderNovaMateria(usuario, postExistente = null) {
             >
             Definir como destaque
           </label>
+
+          <label>
+            <input
+              id="collabMateria"
+              type="checkbox"
+              ${collabInicial ? "checked" : ""}
+            >
+            Marcar como collab
+          </label>
+        </div>
+      </div>
+
+      <div
+        id="collabReporteresGrupo"
+        class="form-group collab-reporteres"
+        ${collabInicial ? "" : "hidden"}
+      >
+        <div class="collab-reporteres-header">
+          <label>Repórteres da collab</label>
+          <span id="collabReporteresContador">
+            ${formatarQuantidadeReporteres(autoresSelecionados.length)}
+          </span>
+        </div>
+
+        <div class="collab-reporteres-lista">
+          ${renderReporteresCollab(autoresSelecionados)}
         </div>
       </div>
 
