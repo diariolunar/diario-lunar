@@ -27,6 +27,7 @@ import {
 import {
   fazerLogin,
   fazerLogout,
+  enviarRecuperacaoSenha,
   carregarAdminAtual,
   observarAdminAuth
 } from "./auth/login.js";
@@ -148,6 +149,14 @@ function renderLogin() {
         >
 
         <button
+          id="recuperarSenhaBtn"
+          class="login-recuperar-senha"
+          type="button"
+        >
+          Esqueci minha senha
+        </button>
+
+        <button
           id="loginBtn"
           class="btn btn-gradient"
         >
@@ -162,19 +171,57 @@ function renderLogin() {
     </section>
   `;
 
-  document.getElementById("loginBtn").onclick = async () => {
-    const email = document.getElementById("loginEmail").value.trim();
-    const senha = document.getElementById("loginSenha").value.trim();
+  const emailInput = document.getElementById("loginEmail");
+  const senhaInput = document.getElementById("loginSenha");
+  const loginBtn = document.getElementById("loginBtn");
+  const recuperarSenhaBtn = document.getElementById("recuperarSenhaBtn");
+  const loginErro = document.getElementById("loginErro");
+
+  loginBtn.onclick = async () => {
+    const email = emailInput.value.trim();
+    const senha = senhaInput.value.trim();
 
     const resultado = await fazerLogin(email, senha);
 
     if (!resultado.sucesso) {
-      document.getElementById("loginErro").innerText = resultado.mensagem;
+      loginErro.innerText = resultado.mensagem;
       return;
     }
 
     renderPainel(resultado.usuario);
   };
+
+  recuperarSenhaBtn.onclick = async () => {
+    recuperarSenhaBtn.disabled = true;
+    recuperarSenhaBtn.innerText = "Enviando...";
+    loginErro.innerText = "";
+
+    const resultado = await enviarRecuperacaoSenha(emailInput.value);
+
+    recuperarSenhaBtn.disabled = false;
+    recuperarSenhaBtn.innerText = "Esqueci minha senha";
+
+    if (!resultado.sucesso) {
+      loginErro.innerText = resultado.mensagem;
+      emailInput.focus();
+      return;
+    }
+
+    await mostrarModal({
+      titulo: "Recuperação de senha",
+      mensagem: resultado.mensagem,
+      tipo: "success",
+      textoBotao: "Entendi"
+    });
+  };
+
+  [emailInput, senhaInput].forEach((input) => {
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        loginBtn.click();
+      }
+    });
+  });
 }
 
 function mostrarSemPermissao() {

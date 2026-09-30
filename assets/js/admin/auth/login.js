@@ -3,6 +3,7 @@ from "../../config/firebase.js";
 
 import {
   onAuthStateChanged,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut
 }
@@ -115,6 +116,53 @@ export async function fazerLogin(email, senha) {
     return {
       sucesso: false,
       mensagem: "E-mail ou senha invalidos."
+    };
+  }
+}
+
+export async function enviarRecuperacaoSenha(email) {
+  const emailNormalizado = String(email || "").trim().toLowerCase();
+
+  if (!emailNormalizado) {
+    return {
+      sucesso: false,
+      mensagem: "Digite seu e-mail para recuperar a senha."
+    };
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, emailNormalizado);
+
+    return {
+      sucesso: true,
+      mensagem: "Se esse e-mail estiver cadastrado, você receberá um link para criar uma nova senha."
+    };
+  } catch (error) {
+    if (error?.code === "auth/invalid-email") {
+      return {
+        sucesso: false,
+        mensagem: "Digite um endereço de e-mail válido."
+      };
+    }
+
+    if (error?.code === "auth/too-many-requests") {
+      return {
+        sucesso: false,
+        mensagem: "Muitas tentativas foram feitas. Aguarde alguns minutos e tente novamente."
+      };
+    }
+
+    if (error?.code === "auth/network-request-failed") {
+      return {
+        sucesso: false,
+        mensagem: "Não foi possível conectar ao serviço. Verifique sua internet e tente novamente."
+      };
+    }
+
+    // A resposta genérica evita revelar quais e-mails possuem conta no painel.
+    return {
+      sucesso: true,
+      mensagem: "Se esse e-mail estiver cadastrado, você receberá um link para criar uma nova senha."
     };
   }
 }

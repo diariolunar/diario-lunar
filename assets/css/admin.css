@@ -161,6 +161,29 @@
   margin-top: 20px;
 }
 
+.admin-login-card .login-recuperar-senha {
+  width: auto;
+  display: block;
+  margin: 10px 0 0 auto;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--roxo);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.admin-login-card .login-recuperar-senha:hover,
+.admin-login-card .login-recuperar-senha:focus-visible {
+  text-decoration: underline;
+}
+
+.admin-login-card .login-recuperar-senha:disabled {
+  color: var(--cinza);
+  cursor: wait;
+}
+
 .login-erro {
   color: #ef4444;
   font-weight: bold;
