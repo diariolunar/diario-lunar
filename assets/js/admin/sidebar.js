@@ -5,7 +5,6 @@ import {
   podeRevisar,
   podeModerarComentarios,
   podeGerenciarAdmins,
-  podeEditarOraculo,
   podeAcessarRelatorios
 } from "./auth/permissions.js";
 
@@ -110,16 +109,6 @@ export function renderSidebar(usuario = {}) {
             ? `
               <button data-page="relatorios">
                 Relatórios
-              </button>
-            `
-            : ""
-        }
-
-        ${
-          podeEditarOraculo(usuario)
-            ? `
-              <button data-page="oraculoLunar">
-                Oráculo Lunar
               </button>
             `
             : ""

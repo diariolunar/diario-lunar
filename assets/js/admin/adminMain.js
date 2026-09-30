@@ -7,7 +7,6 @@ import { renderGerenciarAdms } from "./gerenciarAdms.js";
 import { renderComentariosAdmin } from "./comentariosAdmin.js";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
-import { renderOraculoAdmin } from "./oraculoAdmin.js";
 import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 
@@ -42,7 +41,6 @@ import {
   podeGerenciarAdmins,
   podeRevisar,
   podeModerarComentarios,
-  podeEditarOraculo,
   podeAcessarRelatorios
 } from "./auth/permissions.js";
 
@@ -419,23 +417,6 @@ async function abrirComentarios() {
   }
 }
 
-async function abrirOraculoLunar() {
-  try {
-    if (!podeEditarOraculo(usuarioAtual)) {
-      mostrarSemPermissao();
-      return;
-    }
-
-    mostrarCarregando("Carregando Oráculo Lunar...");
-
-    document.getElementById("adminPage").innerHTML =
-      await renderOraculoAdmin(abrirOraculoLunar);
-
-  } catch (error) {
-    mostrarErro(error, "Erro no Oráculo Lunar");
-  }
-}
-
 async function abrirRelatorios() {
   try {
     if (!podeAcessarRelatorios(usuarioAtual)) {
@@ -620,11 +601,6 @@ async function abrirPagina(pagina) {
 
   if (pagina === "comentarios") {
     await abrirComentarios();
-    return;
-  }
-
-  if (pagina === "oraculoLunar") {
-    await abrirOraculoLunar();
     return;
   }
 

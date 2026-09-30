@@ -50,10 +50,6 @@ export function podeGerenciarAdmins(usuario) {
   return pode(usuario, "gerenciarAdmins") || isSuperAdmin(usuario);
 }
 
-export function podeEditarOraculo(usuario) {
-  return pode(usuario, "editarOraculo") || isSuperAdmin(usuario);
-}
-
 export function podeAcessarRelatorios(usuario) {
   if (isSuperAdmin(usuario)) {
     return true;

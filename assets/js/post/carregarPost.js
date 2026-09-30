@@ -18,6 +18,8 @@ import {
   limparResumoSeo
 } from "../utils/seo.js";
 
+import { ehConteudoHoroscopo } from "../utils/posts.js";
+
 import {
   obterAutorIdsPost,
   obterAutoresPost
@@ -219,7 +221,7 @@ export async function carregarPost(postId) {
     ...postSnap.data()
   };
 
-  if (!postEstaPublico(post)) {
+  if (!postEstaPublico(post) || ehConteudoHoroscopo(post)) {
     mostrarMateriaNaoEncontrada();
     return null;
   }

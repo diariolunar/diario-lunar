@@ -9,6 +9,7 @@ import {
 
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
+import { ehConteudoHoroscopo } from "../utils/posts.js";
 
 import {
   aplicarSeo
@@ -252,7 +253,7 @@ async function carregarAutor() {
   postsSnap.forEach((item) => {
     const post = item.data();
 
-    if (!postEstaPublico(post)) return;
+    if (!postEstaPublico(post) || ehConteudoHoroscopo(post)) return;
 
     if (postTemAutor(post, autor)) {
       posts.push({

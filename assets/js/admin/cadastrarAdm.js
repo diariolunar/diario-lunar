@@ -15,7 +15,6 @@ function getPermissoes() {
     publicarDireto: document.getElementById("permPublicarDireto").checked,
     editar: document.getElementById("permEditar").checked,
     excluir: document.getElementById("permExcluir").checked,
-    editarOraculo: document.getElementById("permEditarOraculo").checked,
     gerenciarAdmins: document.getElementById("permGerenciarAdmins").checked
   };
 }
@@ -346,10 +345,6 @@ export function renderCadastrarAdm(onSuccess) {
             Gerenciar ADMs
           </label>
 
-          <label>
-            <input id="permEditarOraculo" type="checkbox">
-            Editar Oráculo Lunar
-          </label>
         </div>
       </div>
 

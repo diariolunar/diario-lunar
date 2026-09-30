@@ -9,6 +9,7 @@ import {
 
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
+import { ehConteudoHoroscopo } from "../utils/posts.js";
 
 document.getElementById("navbar").innerHTML = renderNavbar();
 document.getElementById("footer").innerHTML = renderFooter();
@@ -20,6 +21,10 @@ const tipo =
   params.get("categoria") ||
   params.get("cat") ||
   "Literatura";
+
+if (ehConteudoHoroscopo({ categoria: tipo })) {
+  window.location.replace("/materias.html");
+}
 
 document.getElementById("nomeCategoria").innerText = tipo;
 
@@ -166,7 +171,7 @@ async function carregarCategoria() {
   snapshot.forEach((docItem) => {
     const post = docItem.data();
 
-    if (!postEstaPublico(post)) {
+    if (!postEstaPublico(post) || ehConteudoHoroscopo(post)) {
       return;
     }
 

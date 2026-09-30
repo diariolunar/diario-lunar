@@ -9,6 +9,7 @@ import {
 
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
+import { ehConteudoHoroscopo } from "../utils/posts.js";
 
 document.getElementById("navbar").innerHTML = renderNavbar();
 document.getElementById("footer").innerHTML = renderFooter();
@@ -133,7 +134,7 @@ async function carregarHome() {
   snapshot.forEach((docItem) => {
     const post = docItem.data();
 
-    if (!postEstaPublico(post)) {
+    if (!postEstaPublico(post) || ehConteudoHoroscopo(post)) {
       return;
     }
 

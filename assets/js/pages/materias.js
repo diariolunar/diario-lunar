@@ -9,6 +9,7 @@ import {
 
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
+import { ehConteudoHoroscopo } from "../utils/posts.js";
 
 import {
   obterAutoresPost
@@ -222,7 +223,7 @@ async function carregarMaterias() {
   snap.forEach((d) => {
     const post = d.data();
 
-    if (!postEstaPublico(post)) {
+    if (!postEstaPublico(post) || ehConteudoHoroscopo(post)) {
       return;
     }
 

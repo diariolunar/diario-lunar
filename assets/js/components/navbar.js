@@ -65,20 +65,12 @@
                 Destaques Lunar
               </a>
 
-              <a href="/horoscopo.html">
-                Horóscopo
-              </a>
-
             </div>
 
           </div>
 
           <a class="nav-link-lunar" href="/audiobooks.html">
             Audiobooks
-          </a>
-
-          <a class="nav-link-lunar" href="/horoscopo.html">
-            Horóscopo
           </a>
 
           <a class="nav-link-lunar" href="/contato.html">

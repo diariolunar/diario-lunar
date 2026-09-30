@@ -15,12 +15,14 @@ from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
 import {
   collection,
+  deleteField,
   getDocs,
   doc,
   getDoc,
   setDoc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  writeBatch
 }
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
@@ -131,4 +133,25 @@ export async function excluirAdmin(id) {
   return await deleteDoc(
     doc(db, "admins", id)
   );
+}
+
+export async function removerPermissaoOraculoLegada() {
+  const snapshot = await getDocs(collection(db, "admins"));
+  const batch = writeBatch(db);
+  let alteracoes = 0;
+
+  snapshot.forEach((item) => {
+    if (item.data().permissoes?.editarOraculo === undefined) return;
+
+    batch.update(item.ref, {
+      "permissoes.editarOraculo": deleteField()
+    });
+    alteracoes += 1;
+  });
+
+  if (alteracoes > 0) {
+    await batch.commit();
+  }
+
+  return alteracoes;
 }
