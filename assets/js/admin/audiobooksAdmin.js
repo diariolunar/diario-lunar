@@ -393,7 +393,7 @@ export async function renderFormularioAudiobook(
         </div>
 
         <small>
-          A capa será enviada para o Firebase Storage. Audiobooks antigos com capa do Drive continuam funcionando.
+          A capa será comprimida e enviada para o serviço de imagens. Audiobooks antigos com capa do Drive continuam funcionando.
         </small>
 
         <img

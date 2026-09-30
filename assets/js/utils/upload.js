@@ -1,10 +1,4 @@
-import { storage } from "../config/firebase.js";
-
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
+import { cloudinaryConfig } from "../config/cloudinary.js";
 
 function gerarNomeArquivo(arquivo) {
   const extensaoOriginal =
@@ -103,18 +97,40 @@ export async function uploadArquivo(arquivo, pasta = "uploads") {
 
   const arquivoFinal = await comprimirImagem(arquivo);
 
-  if (arquivoFinal.size > 20 * 1024 * 1024) {
+  if (arquivoFinal.size > 10 * 1024 * 1024) {
     throw new Error("A imagem é muito pesada. Tente enviar uma imagem menor.");
   }
 
   const nomeArquivo = gerarNomeArquivo(arquivoFinal);
-  const caminho = `${pasta}/${nomeArquivo}`;
-  const storageRef = ref(storage, caminho);
+  const publicId = nomeArquivo.replace(/\.[^/.]+$/, "");
+  const dados = new FormData();
 
-  await uploadBytes(storageRef, arquivoFinal, {
-    cacheControl: "public,max-age=31536000,immutable",
-    contentType: arquivoFinal.type
-  });
+  dados.append("file", arquivoFinal);
+  dados.append("upload_preset", cloudinaryConfig.uploadPreset);
+  dados.append("folder", pasta);
+  dados.append("public_id", publicId);
 
-  return await getDownloadURL(storageRef);
+  let resposta;
+
+  try {
+    resposta = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
+      {
+        method: "POST",
+        body: dados
+      }
+    );
+  } catch {
+    throw new Error("Não foi possível conectar ao serviço de imagens.");
+  }
+
+  const resultado = await resposta.json().catch(() => ({}));
+
+  if (!resposta.ok || !resultado.secure_url) {
+    throw new Error(
+      resultado?.error?.message || "O serviço de imagens recusou o upload."
+    );
+  }
+
+  return resultado.secure_url;
 }

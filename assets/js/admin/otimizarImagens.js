@@ -542,49 +542,26 @@ async function iniciarOtimizacao() {
 }
 
 export function renderOtimizarImagens() {
-  setTimeout(() => {
-    document.getElementById("otimizarImagensBtn").onclick = iniciarOtimizacao;
-    document.getElementById("limparImagensOrfasBtn").onclick = limparImagensOrfas;
-  }, 50);
-
   return `
     <div class="admin-card">
       <div class="admin-header-flex">
         <div>
-          <h1>Otimizar imagens antigas</h1>
+          <h1>Armazenamento de imagens</h1>
           <p>
-            Reenvia imagens antigas do Firebase Storage em versão comprimida e atualiza os links salvos no Firestore.
+            Novas imagens são comprimidas no navegador e enviadas para o Cloudinary.
           </p>
         </div>
-
-        <div class="editor-actions-top">
-          <button id="otimizarImagensBtn" class="btn btn-gradient">
-            Otimizar imagens antigas
-          </button>
-
-          <button id="limparImagensOrfasBtn" class="btn">
-            Limpar imagens órfãs
-          </button>
-        </div>
       </div>
 
       <p>
-        Essa ação pode demorar alguns minutos. Links do Google Drive e de outros domínios serão ignorados.
+        O Firebase Storage antigo está indisponível. Para substituir uma capa quebrada,
+        abra a matéria ou o audiobook no painel, escolha uma nova imagem e salve.
       </p>
 
       <p>
-        A limpeza apaga do Storage apenas arquivos das pastas usadas pelo site que não aparecem mais em
-        matérias, audiobooks, perfis, Oráculo ou imagens internas de matérias.
+        Os textos e demais dados continuam salvos normalmente no Firestore. Somente os
+        arquivos de imagem usam o novo serviço.
       </p>
-
-      <div id="otimizarImagensResumo" style="margin:18px 0;">
-        <b>0</b> otimizada(s) · <b>0</b> pulada(s) · <b>0</b> erro(s)
-      </div>
-
-      <pre
-        id="otimizarImagensLog"
-        style="min-height:260px; max-height:420px; overflow:auto; white-space:pre-wrap; background:#f8fafc; border:1px solid #e5e7eb; padding:16px; border-radius:12px;"
-      ></pre>
     </div>
   `;
 }
