@@ -3,4 +3,4 @@ Allow: /
 
 Disallow: /admin.html
 
-Sitemap: https://novo-jornal-lunar.vercel.app/sitemap.xml
+Sitemap: https://diario-lunar.vercel.app/sitemap.xml
