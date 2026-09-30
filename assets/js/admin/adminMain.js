@@ -8,7 +8,6 @@ import { renderComentariosAdmin } from "./comentariosAdmin.js";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderOraculoAdmin } from "./oraculoAdmin.js";
-import { renderOtimizarImagens } from "./otimizarImagens.js";
 import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 
@@ -504,21 +503,6 @@ function abrirEditarPerfil() {
   }
 }
 
-function abrirOtimizarImagens() {
-  try {
-    if (!podeGerenciarAdmins(usuarioAtual)) {
-      mostrarSemPermissao();
-      return;
-    }
-
-    document.getElementById("adminPage").innerHTML =
-      renderOtimizarImagens();
-
-  } catch (error) {
-    mostrarErro(error, "Erro ao abrir otimizador de imagens");
-  }
-}
-
 async function ativarAcoesMaterias() {
   document
     .querySelectorAll("[data-editar]")
@@ -656,11 +640,6 @@ async function abrirPagina(pagina) {
 
   if (pagina === "gerenciarAdms") {
     await abrirGerenciarAdms();
-    return;
-  }
-
-  if (pagina === "otimizarImagens") {
-    abrirOtimizarImagens();
     return;
   }
 
