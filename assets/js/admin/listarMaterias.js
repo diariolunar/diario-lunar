@@ -23,10 +23,10 @@ function formatarData(data) {
 
   try {
     if (data.toDate) {
-      return data.toDate().toLocaleDateString("pt-BR");
+      return data.toDate().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
     }
 
-    return new Date(data).toLocaleDateString("pt-BR");
+    return new Date(data).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
   } catch {
     return "Sem data";
   }

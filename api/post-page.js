@@ -82,7 +82,11 @@ function renderizarPagina(post, postId, urlPublica) {
   const data = post.data ? new Date(post.data) : null;
   const dataValida = data && !Number.isNaN(data.getTime());
   const dataFormatada = dataValida
-    ? data.toLocaleDateString("pt-BR", { timeZone: "America/Fortaleza" })
+    ? data.toLocaleString("pt-BR", {
+        timeZone: "America/Fortaleza",
+        dateStyle: "long",
+        timeStyle: "short"
+      })
     : "";
   const schema = JSON.stringify({
     "@context": "https://schema.org",

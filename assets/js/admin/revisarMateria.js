@@ -29,10 +29,16 @@ function formatarDataPost(data) {
 
   try {
     if (data.toDate) {
-      return data.toDate().toLocaleDateString("pt-BR");
+      return data.toDate().toLocaleString("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short"
+      });
     }
 
-    return new Date(data).toLocaleDateString("pt-BR");
+    return new Date(data).toLocaleString("pt-BR", {
+      dateStyle: "short",
+      timeStyle: "short"
+    });
   } catch {
     return "Sem data";
   }
@@ -93,11 +99,20 @@ async function aprovarMateria(post, usuarioAtual, onFinalizar) {
 }
 
 async function agendarMateria(post, usuarioAtual, onFinalizar) {
-  const dataAtual = post.data?.toDate
-    ? post.data.toDate().toISOString().split("T")[0]
+  const dataBase = post.data?.toDate
+    ? post.data.toDate()
     : post.data
-      ? new Date(post.data).toISOString().split("T")[0]
-      : "";
+      ? new Date(post.data)
+      : new Date();
+  const dataAtual = [
+    dataBase.getFullYear(),
+    String(dataBase.getMonth() + 1).padStart(2, "0"),
+    String(dataBase.getDate()).padStart(2, "0")
+  ].join("-");
+  const horaAtual = [
+    String(dataBase.getHours()).padStart(2, "0"),
+    String(dataBase.getMinutes()).padStart(2, "0")
+  ].join(":");
 
   const data = prompt(
     "Informe a data de agendamento no formato AAAA-MM-DD:",
@@ -106,12 +121,22 @@ async function agendarMateria(post, usuarioAtual, onFinalizar) {
 
   if (!data) return;
 
+  const hora = prompt(
+    "Informe a hora de agendamento no formato HH:MM:",
+    horaAtual
+  );
+
+  if (!hora || !/^([01]\d|2[0-3]):[0-5]\d$/.test(hora)) {
+    alert("Informe uma hora válida no formato HH:MM.");
+    return;
+  }
+
   travarBotoes(true);
 
   try {
     await atualizarPost(post.id, {
       status: "agendado",
-      data: new Date(data + "T12:00:00"),
+      data: new Date(`${data}T${hora}:00`),
       motivoReprovacao: "",
       atualizadoEm: new Date()
     });
@@ -122,7 +147,7 @@ async function agendarMateria(post, usuarioAtual, onFinalizar) {
       usuario: usuarioAtual,
       statusAnterior: post.status || "em_revisao",
       statusNovo: "agendado",
-      observacao: `Agendada para ${data}`
+      observacao: `Agendada para ${data} às ${hora}`
     });
 
     alert("Matéria agendada.");

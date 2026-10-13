@@ -73,9 +73,10 @@ function navegarDepoisDeSalvar(status) {
 
 function pegarDataPublicacao() {
   const campoData = document.getElementById("dataMateria");
+  const campoHora = document.getElementById("horaMateria");
 
   if (campoData.value) {
-    return new Date(campoData.value + "T12:00:00");
+    return new Date(`${campoData.value}T${campoHora.value || "00:00"}:00`);
   }
 
   return new Date();
@@ -85,11 +86,26 @@ function formatarDataInput(data) {
   if (!data) return "";
 
   try {
-    if (data.toDate) {
-      return data.toDate().toISOString().split("T")[0];
-    }
+    const valor = data.toDate ? data.toDate() : new Date(data);
+    const ano = valor.getFullYear();
+    const mes = String(valor.getMonth() + 1).padStart(2, "0");
+    const dia = String(valor.getDate()).padStart(2, "0");
 
-    return new Date(data).toISOString().split("T")[0];
+    return `${ano}-${mes}-${dia}`;
+  } catch {
+    return "";
+  }
+}
+
+function formatarHoraInput(data) {
+  if (!data) return "";
+
+  try {
+    const valor = data.toDate ? data.toDate() : new Date(data);
+    const hora = String(valor.getHours()).padStart(2, "0");
+    const minuto = String(valor.getMinutes()).padStart(2, "0");
+
+    return `${hora}:${minuto}`;
   } catch {
     return "";
   }
@@ -710,9 +726,10 @@ function iniciarBotoesSalvar(usuario) {
   if (botaoAgendar) {
     botaoAgendar.onclick = async () => {
       const data = document.getElementById("dataMateria").value;
+      const hora = document.getElementById("horaMateria").value;
 
-      if (!data) {
-        alert("Escolha uma data para agendar.");
+      if (!data || !hora) {
+        alert("Escolha a data e a hora para agendar.");
         return;
       }
 
@@ -772,6 +789,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
   const historicoHtml = await carregarHistorico();
   const usuarioPodePublicarDireto = podePublicarDireto(usuario);
   const collabInicial = postEhCollab(postExistente || {});
+  const dataInicial = postExistente?.data || new Date();
 
   setTimeout(() => {
     iniciarEditor({
@@ -873,10 +891,23 @@ export async function renderNovaMateria(usuario, postExistente = null) {
           <input
             id="dataMateria"
             type="date"
-            value="${formatarDataInput(postExistente?.data)}"
+            value="${formatarDataInput(dataInicial)}"
           >
         </div>
 
+        <div class="form-group">
+          <label>Hora da publicação/agendamento</label>
+
+          <input
+            id="horaMateria"
+            type="time"
+            step="60"
+            value="${formatarHoraInput(dataInicial)}"
+          >
+        </div>
+      </div>
+
+      <div class="form-grid">
         <div class="form-group">
           <label>Autoria</label>
 
