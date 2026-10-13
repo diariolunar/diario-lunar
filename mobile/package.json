@@ -5,7 +5,7 @@
   "description": "Aplicativo Android do Diario Lunar",
   "scripts": {
     "sync": "cap sync android",
-    "assets": "capacitor-assets generate --android",
+    "assets": "capacitor-assets generate --android --iconBackgroundColor '#f7f4ef' --iconBackgroundColorDark '#f7f4ef' --splashBackgroundColor '#f7f4ef' --splashBackgroundColorDark '#f7f4ef'",
     "apk": "npm run sync && cd android && gradlew.bat assembleDebug"
   },
   "dependencies": {
