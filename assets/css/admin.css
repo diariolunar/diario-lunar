@@ -13,6 +13,15 @@
   flex-shrink: 0;
 }
 
+.admin-sidebar-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-menu-toggle {
+  display: none;
+}
+
 .admin-voltar {
   color: white;
   text-decoration: none;
@@ -901,6 +910,36 @@
 
   .admin-sidebar {
     width: 100%;
+    padding: 16px 18px;
+  }
+
+  .admin-menu-toggle {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.06);
+    color: white;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .admin-menu-toggle i {
+    width: 18px;
+  }
+
+  .admin-sidebar-body {
+    display: none;
+    padding-top: 20px;
+  }
+
+  .admin-sidebar.admin-sidebar-open .admin-sidebar-body {
+    display: flex;
   }
 
   .materia-card-admin {

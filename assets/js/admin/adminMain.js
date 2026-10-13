@@ -626,6 +626,17 @@ async function abrirPagina(pagina) {
 }
 
 function ativarMenu() {
+  const sidebar = document.querySelector(".admin-sidebar");
+  const alternador = sidebar?.querySelector(".admin-menu-toggle");
+
+  alternador?.addEventListener("click", () => {
+    const aberto = sidebar.classList.toggle("admin-sidebar-open");
+
+    alternador.setAttribute("aria-expanded", String(aberto));
+    alternador.querySelector("i")?.classList.toggle("fa-bars", !aberto);
+    alternador.querySelector("i")?.classList.toggle("fa-xmark", aberto);
+  });
+
   document
     .querySelectorAll("[data-page]")
     .forEach((botao) => {

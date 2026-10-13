@@ -11,28 +11,38 @@ import {
 export function renderSidebar(usuario = {}) {
   return `
     <aside class="admin-sidebar">
+      <button
+        type="button"
+        class="admin-menu-toggle"
+        aria-expanded="false"
+        aria-controls="adminSidebarBody"
+      >
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        <span>Menu do painel</span>
+      </button>
 
-      <a href="/index.html" class="admin-voltar">
-        ← Voltar ao site
-      </a>
+      <div class="admin-sidebar-body" id="adminSidebarBody">
+        <a href="/index.html" class="admin-voltar">
+          ← Voltar ao site
+        </a>
 
-      <div class="admin-logo">
-        <img src="/assets/images/logo-diario-lunar2.png">
-      </div>
+        <div class="admin-logo">
+          <img src="/assets/images/logo-diario-lunar2.png">
+        </div>
 
-      <div class="admin-user">
-        <img src="${usuario.fotoUrl || "/assets/images/logo-vertical.png"}">
+        <div class="admin-user">
+          <img src="${usuario.fotoUrl || "/assets/images/logo-vertical.png"}">
 
-        <h3>${usuario.nome || "Administrador"}</h3>
+          <h3>${usuario.nome || "Administrador"}</h3>
 
-        <p>@${usuario.user || "admin"}</p>
+          <p>@${usuario.user || "admin"}</p>
 
-        <span>
-          ${usuario.cargo || "Equipe Lunar"}
-        </span>
-      </div>
+          <span>
+            ${usuario.cargo || "Equipe Lunar"}
+          </span>
+        </div>
 
-      <div class="admin-menu">
+        <div class="admin-menu">
 
         <button data-page="dashboard">
           Painel
@@ -136,6 +146,7 @@ export function renderSidebar(usuario = {}) {
           Sair
         </button>
 
+        </div>
       </div>
 
     </aside>
