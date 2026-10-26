@@ -124,12 +124,25 @@ function renderizarPagina(post, postId, urlPublica) {
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
   <link rel="stylesheet" href="/assets/css/post.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <script type="application/ld+json">${schema}</script>
 </head>
 <body>
   <div id="navbar"></div>
   <main class="post-container container">
-    <a href="/index.html" class="voltar-link">← Voltar para o início</a>
+    <div class="post-top-actions">
+      <a href="/index.html" class="voltar-link">← Voltar para o início</a>
+
+      <button
+        type="button"
+        id="compartilharPostBtn"
+        class="share-icon-button"
+        aria-label="Compartilhar matéria"
+        title="Compartilhar matéria"
+      >
+        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+      </button>
+    </div>
     <p id="categoria" class="post-category">${escaparHtml(categoria)}</p>
     <h1 id="titulo">${escaparHtml(titulo)}</h1>
     <div class="post-meta">

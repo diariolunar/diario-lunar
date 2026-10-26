@@ -9,6 +9,34 @@
   text-decoration: none;
 }
 
+.post-top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.share-icon-button {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--roxo);
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(88, 28, 135, 0.2);
+}
+
+.share-icon-button:hover,
+.share-icon-button:focus-visible {
+  background: var(--azul);
+}
+
 .post-category {
   color: var(--roxo);
   font-weight: bold;

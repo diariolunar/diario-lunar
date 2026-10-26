@@ -16,6 +16,7 @@ import {
 
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
+import { compartilharConteudo } from "../utils/share.js";
 
 document.getElementById("navbar").innerHTML = renderNavbar();
 document.getElementById("footer").innerHTML = renderFooter();
@@ -327,9 +328,21 @@ async function carregarAudiobook() {
   document.title = `${audio.titulo || "Audiobook"} - Diário Lunar`;
 
   container.innerHTML = `
-    <a href="/audiobooks.html" class="btn" style="margin-bottom:25px; display:inline-block;">
-      ← Voltar para Audiobooks
-    </a>
+    <div class="audiobook-top-actions">
+      <a href="/audiobooks.html" class="btn">
+        ← Voltar para Audiobooks
+      </a>
+
+      <button
+        type="button"
+        id="compartilharAudiobookBtn"
+        class="share-icon-button"
+        aria-label="Compartilhar audiobook"
+        title="Compartilhar audiobook"
+      >
+        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+      </button>
+    </div>
 
     <section class="audiobook-hero card">
 
@@ -409,6 +422,35 @@ async function carregarAudiobook() {
     </section>
 
     <style>
+      .audiobook-top-actions{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:16px;
+        margin-bottom:25px;
+      }
+
+      .share-icon-button{
+        width:44px;
+        height:44px;
+        flex:0 0 44px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border:0;
+        border-radius:50%;
+        background:var(--roxo);
+        color:white;
+        font-size:18px;
+        cursor:pointer;
+        box-shadow:0 6px 18px rgba(88,28,135,0.2);
+      }
+
+      .share-icon-button:hover,
+      .share-icon-button:focus-visible{
+        background:var(--azul);
+      }
+
       .audiobook-hero{
         display:grid;
         grid-template-columns:360px 1fr;
@@ -549,6 +591,13 @@ async function carregarAudiobook() {
 
   document.getElementById("enviarComentarioAudiobookBtn").onclick =
     enviarComentario;
+
+  document.getElementById("compartilharAudiobookBtn").onclick = () => {
+    compartilharConteudo({
+      titulo: audio.titulo || "Audiobook do Diário Lunar",
+      texto: "Confira este audiobook no Diário Lunar."
+    });
+  };
 
   const usuarioSalvo = localStorage.getItem("usuarioWattpad");
 
