@@ -18,7 +18,10 @@ import {
   limparResumoSeo
 } from "../utils/seo.js";
 
-import { ehConteudoHoroscopo } from "../utils/posts.js";
+import {
+  ehConteudoHoroscopo,
+  postEstaPublico
+} from "../utils/posts.js";
 
 import {
   obterAutorIdsPost,
@@ -43,35 +46,6 @@ function formatarData(data) {
   } catch {
     return "";
   }
-}
-
-function getDataNumber(post) {
-  if (post.data?.toDate) {
-    return post.data.toDate().getTime();
-  }
-
-  if (post.data) {
-    return new Date(post.data).getTime();
-  }
-
-  return 0;
-}
-
-function postEstaPublico(post) {
-  const status = post.status || "rascunho";
-
-  if (status === "publicado") {
-    return true;
-  }
-
-  if (status === "agendado") {
-    const dataPost = getDataNumber(post);
-    const agora = Date.now();
-
-    return dataPost && dataPost <= agora;
-  }
-
-  return false;
 }
 
 function mostrarMateriaNaoEncontrada() {

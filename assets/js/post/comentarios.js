@@ -1,5 +1,7 @@
 ﻿import { db } from "../config/firebase.js";
 
+import { postEstaPublico } from "../utils/posts.js";
+
 import {
   doc,
   getDoc,
@@ -52,13 +54,7 @@ async function comentar(postId) {
   const postRef = doc(db, "posts", postId);
   const postSnap = await getDoc(postRef);
 
-  if (
-    !postSnap.exists() ||
-    (
-      postSnap.data().status &&
-      postSnap.data().status !== "publicado"
-    )
-  ) {
+  if (!postSnap.exists() || !postEstaPublico(postSnap.data())) {
     alert("Essa matéria não está disponível para comentários.");
     return;
   }

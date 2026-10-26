@@ -1,5 +1,7 @@
 import { db } from "../config/firebase.js";
 
+import { postEstaPublico } from "../utils/posts.js";
+
 import {
   doc,
   getDoc,
@@ -140,6 +142,14 @@ export async function iniciarCurtidas(postId) {
     const postRef = doc(db, "posts", postId);
 
     try {
+      const postSnap = await getDoc(postRef);
+
+      if (!postSnap.exists() || !postEstaPublico(postSnap.data())) {
+        alert("Essa matéria não está disponível para curtidas.");
+        botao.disabled = false;
+        return;
+      }
+
       curtido = await usuarioJaCurtiu(postId, usuario);
 
       if (curtido) {
