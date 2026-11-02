@@ -23,7 +23,7 @@ jobs:
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=diario-lunar-agendamentos" \
             | jq --raw-output '.value')
 
-          curl --fail --silent --show-error \
+          curl --fail-with-body --silent --show-error \
             --request POST \
             --header "Authorization: Bearer $OIDC_TOKEN" \
             --header "Content-Type: application/json" \
