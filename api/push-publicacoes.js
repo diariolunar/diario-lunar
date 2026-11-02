@@ -304,9 +304,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Ação inválida." });
     } catch (error) {
       console.error("Erro no serviço de notificações:", error);
+      const identidadeVercel = chamadaCron && oidcToken
+        ? decodificarJwtParte(oidcToken.split(".")[1])
+        : null;
       return res.status(500).json({
         error: "Não foi possível processar as notificações.",
-        ...(chamadaCron ? { detalhe: error.message } : {})
+        ...(chamadaCron ? {
+          detalhe: error.message,
+          identidadeVercel: identidadeVercel && {
+            iss: identidadeVercel.iss,
+            aud: identidadeVercel.aud,
+            sub: identidadeVercel.sub
+          }
+        } : {})
       });
     }
   });
