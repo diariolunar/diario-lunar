@@ -15,9 +15,7 @@ import {
   formatarAutoresPost,
   postEhCollab
 } from "../utils/autores.js";
-
 import { notificarPublicacao } from "../services/pushService.js";
-
 function formatarData(data) {
   if (!data) {
     return "Sem data";
