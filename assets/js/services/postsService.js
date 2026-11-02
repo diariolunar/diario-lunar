@@ -1,4 +1,5 @@
 import { db } from "../config/firebase.js";
+import { notificarPublicacao } from "./pushService.js";
 
 import {
   collection,
@@ -179,6 +180,8 @@ export async function publicarAgendadosVencidos(usuario = null) {
         statusAnterior: "agendado",
         statusNovo: "publicado"
       });
+
+      await notificarPublicacao(post.id);
     }
   }
 }

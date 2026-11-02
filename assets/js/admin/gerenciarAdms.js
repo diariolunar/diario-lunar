@@ -63,6 +63,12 @@ function criarLinhaAdm(adm, usuarioAtual) {
           ${badgeStatus(adm)}
           ${badgeReporter(adm)}
 
+          ${
+            adm.notificacoesPublicacao === true
+              ? '<span class="status-publicado">Notificações</span>'
+              : ""
+          }
+
           <span class="status-rascunho">
             ${adm.role || "admin"}
           </span>
@@ -306,6 +312,15 @@ function renderModalEditarAdm(adm, usuarioAtual) {
               É repórter
             </label>
 
+            <label>
+              <input
+                id="editAdmNotificacoes"
+                type="checkbox"
+                ${adm.notificacoesPublicacao === true ? "checked" : ""}
+              >
+              Receber notificações de novas matérias
+            </label>
+
           </div>
         </div>
 
@@ -450,6 +465,8 @@ async function abrirModalEditarAdm(id, usuarioAtual, onReload) {
     const role = document.getElementById("editAdmRole").value;
     const ativo = document.getElementById("editAdmAtivo").checked;
     const reporter = document.getElementById("editAdmReporter").checked;
+    const notificacoesPublicacao =
+      document.getElementById("editAdmNotificacoes").checked;
 
     if (!nome || !user || !cargo) {
       alert("Nome, user e cargo são obrigatórios.");
@@ -469,6 +486,7 @@ async function abrirModalEditarAdm(id, usuarioAtual, onReload) {
       },
       ativo,
       reporter,
+      notificacoesPublicacao,
       permissoes: {
         publicar: document.getElementById("editPermPublicar").checked,
         publicarDireto: document.getElementById("editPermPublicarDireto").checked,

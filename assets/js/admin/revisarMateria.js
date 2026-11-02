@@ -10,6 +10,8 @@ import {
   postEhCollab
 } from "../utils/autores.js";
 
+import { notificarPublicacao } from "../services/pushService.js";
+
 function formatarData(data) {
   if (!data) return "Sem data";
 
@@ -86,6 +88,8 @@ async function aprovarMateria(post, usuarioAtual, onFinalizar) {
       statusAnterior: post.status || "em_revisao",
       statusNovo: "publicado"
     });
+
+    await notificarPublicacao(post.id);
 
     alert("Matéria aprovada e publicada.");
 

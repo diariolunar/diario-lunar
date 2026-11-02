@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "817640390152",
+    "project_id": "diario-lunar-dee91",
+    "storage_bucket": "diario-lunar-dee91.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817640390152:android:14a88fbb2080f99d6f1bbd",
+        "android_client_info": {
+          "package_name": "com.diariolunar.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "817640390152-h6bju26sie46ofsirmb07l216mncantm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7Xuszzi1NSoV2FXSQq5KnCHN-Dq6IJso"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "817640390152-h6bju26sie46ofsirmb07l216mncantm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

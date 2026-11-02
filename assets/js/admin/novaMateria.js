@@ -28,6 +28,8 @@ import {
   postEhCollab
 } from "../utils/autores.js";
 
+import { notificarPublicacao } from "../services/pushService.js";
+
 let imagemCapaArquivo = null;
 let imagemCapaUrl = "";
 let postAtual = null;
@@ -623,6 +625,7 @@ async function salvarMateria(status, usuario) {
     const dados = montarDadosMateria(status, usuario);
 
     const statusAnterior = postAtual?.status || "novo";
+    let postIdSalvo = postAtual?.id || "";
 
     if (postAtual?.id) {
       await atualizarPost(postAtual.id, dados);
@@ -642,6 +645,7 @@ async function salvarMateria(status, usuario) {
         views: 0,
         criadoEm: new Date()
       });
+      postIdSalvo = novoPost.id;
 
       await registrarHistoricoPost({
         postId: novoPost.id,
@@ -650,6 +654,10 @@ async function salvarMateria(status, usuario) {
         statusAnterior: "novo",
         statusNovo: status
       });
+    }
+
+    if (status === "publicado" && statusAnterior !== "publicado") {
+      await notificarPublicacao(postIdSalvo);
     }
 
     const mensagens = {

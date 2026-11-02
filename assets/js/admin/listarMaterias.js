@@ -16,6 +16,8 @@ import {
   postEhCollab
 } from "../utils/autores.js";
 
+import { notificarPublicacao } from "../services/pushService.js";
+
 function formatarData(data) {
   if (!data) {
     return "Sem data";
@@ -276,6 +278,10 @@ async function ativarMudancaStatus(usuarioAtual, onReload) {
           statusAnterior: post.status || "rascunho",
           statusNovo: novoStatus
         });
+
+        if (novoStatus === "publicado" && post.status !== "publicado") {
+          await notificarPublicacao(id);
+        }
 
         alert("Status atualizado.");
 

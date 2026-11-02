@@ -9,6 +9,7 @@ import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
+import { inicializarPushPublicacoes } from "../services/pushService.js";
 
 import {
   renderFormularioAudiobook,
@@ -681,6 +682,7 @@ function renderPainel(usuario) {
   ativarMenu();
   ativarLogout();
   abrirDashboard();
+  inicializarPushPublicacoes(usuario);
 }
 
 renderCarregandoInicial();

@@ -1,0 +1,31 @@
+name: Publicar matérias agendadas
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: publicar-materias-agendadas
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Publicar agendamentos vencidos e enviar notificações
+        run: |
+          OIDC_TOKEN=$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=diario-lunar-agendamentos" \
+            | jq --raw-output '.value')
+
+          curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $OIDC_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{"action":"processScheduled"}' \
+            https://diario-lunar.vercel.app/api/push-publicacoes
