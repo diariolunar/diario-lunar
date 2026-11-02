@@ -254,13 +254,12 @@ export default async function handler(req, res) {
   }
 
   const oidcToken = String(req.headers["x-vercel-oidc-token"] || "");
-  let chamadaCron = false;
 
   return executarComOidc(oidcToken, async () => {
     try {
       const bearer = extrairBearer(req);
       const acao = req.body?.action || "";
-      chamadaCron = await autenticarCronGitHub(bearer);
+      const chamadaCron = await autenticarCronGitHub(bearer);
 
       if (acao === "processScheduled") {
         if (!chamadaCron) {
@@ -304,19 +303,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Ação inválida." });
     } catch (error) {
       console.error("Erro no serviço de notificações:", error);
-      const identidadeVercel = chamadaCron && oidcToken
-        ? decodificarJwtParte(oidcToken.split(".")[1])
-        : null;
       return res.status(500).json({
-        error: "Não foi possível processar as notificações.",
-        ...(chamadaCron ? {
-          detalhe: error.message,
-          identidadeVercel: identidadeVercel && {
-            iss: identidadeVercel.iss,
-            aud: identidadeVercel.aud,
-            sub: identidadeVercel.sub
-          }
-        } : {})
+        error: "Não foi possível processar as notificações."
       });
     }
   });
