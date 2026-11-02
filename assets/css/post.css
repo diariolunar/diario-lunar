@@ -218,7 +218,98 @@
   background: #F8F6F1;
   padding: 15px;
   margin-top: 15px;
-  border-radius: 12px;
+  border-radius: 8px;
+}
+
+.comentario-autor {
+  color: var(--roxo);
+}
+
+.comentario-texto {
+  margin: 8px 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.comentario-data {
+  color: #64748b;
+}
+
+.comentario-acoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.comentario-acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 9px;
+  border: 0;
+  background: transparent;
+  color: #475569;
+  font: inherit;
+  cursor: pointer;
+}
+
+.comentario-acao:hover,
+.comentario-acao-ativa {
+  color: var(--roxo);
+}
+
+.comentario-acao-perigo:hover {
+  color: #b91c1c;
+}
+
+.comentario-acao:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.comentario-respostas {
+  margin: 12px 0 0 18px;
+  padding-left: 14px;
+  border-left: 2px solid #ddd6fe;
+}
+
+.comentario-resposta {
+  background: #fff;
+  margin-top: 10px;
+}
+
+.comentario-resposta-form {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.comentario-resposta-form[hidden] {
+  display: none;
+}
+
+.comentario-resposta-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.comentario-resposta-form textarea {
+  height: 90px;
+  margin-bottom: 8px;
+}
+
+.comentario-resposta-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.comentarios-vazio {
+  margin-top: 16px;
+  color: #64748b;
 }
 
 @media (max-width: 850px) {
@@ -241,5 +332,10 @@
 
   .post-gallery img {
     height: auto;
+  }
+
+  .comentario-respostas {
+    margin-left: 6px;
+    padding-left: 10px;
   }
 }

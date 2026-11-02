@@ -160,7 +160,7 @@ function renderizarPagina(post, postId, urlPublica) {
     </section>
     <section class="interaction-box">
       <h3>Comentários</h3>
-      <textarea id="comentarioInput" placeholder="Escreva um comentário..."></textarea>
+      <textarea id="comentarioInput" maxlength="1000" placeholder="Escreva um comentário..."></textarea>
       <button id="comentarBtn" class="btn">Comentar</button>
       <div id="listaComentarios"></div>
     </section>
