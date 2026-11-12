@@ -104,7 +104,7 @@ function montarPlayer(audioUrl) {
       <iframe
         src="https://drive.google.com/file/d/${id}/preview"
         width="100%"
-        height="110"
+        height="160"
         allow="autoplay"
         class="audio-player-frame"
       ></iframe>
@@ -499,6 +499,9 @@ async function carregarAudiobook() {
       }
 
       .audio-player-frame{
+        display:block;
+        width:100%;
+        height:160px;
         border:0;
         border-radius:18px;
         background:#111827;
