@@ -151,10 +151,6 @@ function renderizarPagina(post, postId, urlPublica) {
     </div>
     <img id="imagem" class="post-cover" src="${escaparHtml(imagem)}" alt="${escaparHtml(post.imagemAlt || titulo)}">
     <article id="conteudo" class="post-content">${conteudo}</article>
-    <section id="materiasRelacionadas" class="related-posts" hidden>
-      <h2>Continue lendo</h2>
-      <div id="listaMateriasRelacionadas" class="related-posts-grid"></div>
-    </section>
     <section class="interaction-box">
       <h3>Interação Lunar</h3>
       <input id="usuarioWattpad" placeholder="Seu usuário do Wattpad">
@@ -167,6 +163,10 @@ function renderizarPagina(post, postId, urlPublica) {
       <textarea id="comentarioInput" maxlength="1000" placeholder="Escreva um comentário..."></textarea>
       <button id="comentarBtn" class="btn">Comentar</button>
       <div id="listaComentarios"></div>
+    </section>
+    <section id="materiasRelacionadas" class="related-posts" hidden>
+      <h2>Continue lendo</h2>
+      <div id="listaMateriasRelacionadas" class="related-posts-grid"></div>
     </section>
   </main>
   <div id="footer"></div>
