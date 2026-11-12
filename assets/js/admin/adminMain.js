@@ -13,6 +13,7 @@ import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 import { inicializarPushPublicacoes } from "../services/pushService.js";
 
 import {
+  buscarAudiobook,
   renderFormularioAudiobook,
   renderListarAudiobooks
 } from "./audiobooksAdmin.js";
@@ -588,6 +589,20 @@ async function abrirPagina(pagina) {
   }
 
   if (pagina === "novaMateria") {
+    const postId = new URLSearchParams(window.location.search).get("editar");
+
+    if (postId) {
+      const post = await buscarPost(postId);
+
+      if (!post) {
+        mostrarErro(new Error("Matéria não encontrada."));
+        return;
+      }
+
+      await abrirNovaMateria(post);
+      return;
+    }
+
     await abrirNovaMateria();
     return;
   }
@@ -618,6 +633,20 @@ async function abrirPagina(pagina) {
   }
 
   if (pagina === "novoAudiobook") {
+    const audiobookId = new URLSearchParams(window.location.search).get("editar");
+
+    if (audiobookId) {
+      const audiobook = await buscarAudiobook(audiobookId);
+
+      if (!audiobook) {
+        mostrarErro(new Error("Audiobook não encontrado."));
+        return;
+      }
+
+      await abrirFormularioAudiobook(audiobook);
+      return;
+    }
+
     await abrirFormularioAudiobook();
     return;
   }

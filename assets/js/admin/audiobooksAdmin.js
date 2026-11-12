@@ -506,7 +506,7 @@ async function listarAudiobooks() {
   return lista;
 }
 
-async function buscarAudiobook(id) {
+export async function buscarAudiobook(id) {
   const snap = await getDoc(doc(db, "audiobooks", id));
 
   if (!snap.exists()) {

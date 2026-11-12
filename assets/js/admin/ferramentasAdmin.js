@@ -71,39 +71,41 @@ async function diagnosticar(posts, audiobooks) {
 
   posts.forEach((post) => {
     const nome = post.titulo || `Matéria ${post.id}`;
-    if (!post.titulo) problemas.push({ tipo: "Conteúdo", item: nome, detalhe: "Título ausente" });
-    if (!post.imagem) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Capa ausente" });
-    else imagens.push({ nome, url: post.imagem });
-    if (post.imagem && !post.imagemAlt) problemas.push({ tipo: "Acessibilidade", item: nome, detalhe: "Capa sem descrição" });
-    if (!String(post.conteudo || "").trim()) problemas.push({ tipo: "Conteúdo", item: nome, detalhe: "Conteúdo vazio" });
+    const referencia = { destino: "novaMateria", id: post.id };
+    if (!post.titulo) problemas.push({ tipo: "Conteúdo", item: nome, detalhe: "Título ausente", ...referencia });
+    if (!post.imagem) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Capa ausente", ...referencia });
+    else imagens.push({ nome, url: post.imagem, ...referencia });
+    if (post.imagem && !post.imagemAlt) problemas.push({ tipo: "Acessibilidade", item: nome, detalhe: "Capa sem descrição", ...referencia });
+    if (!String(post.conteudo || "").trim()) problemas.push({ tipo: "Conteúdo", item: nome, detalhe: "Conteúdo vazio", ...referencia });
 
     const data = post.data ? new Date(post.data).getTime() : 0;
     if (post.status === "agendado" && data > 0 && data <= agora) {
-      problemas.push({ tipo: "Agendamento", item: nome, detalhe: "Horário vencido e ainda não publicado" });
+      problemas.push({ tipo: "Agendamento", item: nome, detalhe: "Horário vencido e ainda não publicado", ...referencia });
     }
     if (post.notificacaoStatus === "falhou") {
-      problemas.push({ tipo: "Notificação", item: nome, detalhe: "A última notificação falhou" });
+      problemas.push({ tipo: "Notificação", item: nome, detalhe: "A última notificação falhou", ...referencia });
     }
 
     extrairLinks(post.conteudo).forEach((url) => {
       if (!/^(https?:|data:|\/)/i.test(url)) {
-        problemas.push({ tipo: "Link", item: nome, detalhe: `Endereço inválido: ${url}` });
+        problemas.push({ tipo: "Link", item: nome, detalhe: `Endereço inválido: ${url}`, ...referencia });
       }
     });
   });
 
   audiobooks.forEach((audio) => {
     const nome = audio.titulo || `Audiobook ${audio.id}`;
-    if (!audio.capa) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Capa ausente" });
-    else imagens.push({ nome, url: audio.capa });
-    if (!audio.audioUrl && !audio.linkAudio) problemas.push({ tipo: "Áudio", item: nome, detalhe: "Arquivo de áudio ausente" });
+    const referencia = { destino: "novoAudiobook", id: audio.id };
+    if (!audio.capa) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Capa ausente", ...referencia });
+    else imagens.push({ nome, url: audio.capa, ...referencia });
+    if (!audio.audioUrl && !audio.linkAudio) problemas.push({ tipo: "Áudio", item: nome, detalhe: "Arquivo de áudio ausente", ...referencia });
   });
 
   const resultadosImagens = await Promise.all(
     imagens.map(async (imagem) => ({ ...imagem, ok: await imagemCarrega(imagem.url) }))
   );
   resultadosImagens.filter((imagem) => !imagem.ok).forEach((imagem) => {
-    problemas.push({ tipo: "Imagem", item: imagem.nome, detalhe: "A imagem não está carregando" });
+    problemas.push({ tipo: "Imagem", item: imagem.nome, detalhe: "A imagem não está carregando", destino: imagem.destino, id: imagem.id });
   });
 
   return problemas;
@@ -154,9 +156,11 @@ async function executarDiagnostico() {
       : "Nenhum problema encontrado.";
     lista.innerHTML = problemas.length
       ? problemas.map((problema) => `
-          <li>
+          <li class="diagnostico-item-clicavel">
+            <a href="/admin.html?pagina=${encodeURIComponent(problema.destino)}&editar=${encodeURIComponent(problema.id)}">
             <strong>${escaparHtml(problema.tipo)}: ${escaparHtml(problema.item)}</strong>
             <span>${escaparHtml(problema.detalhe)}</span>
+            </a>
           </li>
         `).join("")
       : '<li class="diagnostico-ok">O acervo está em ordem.</li>';
