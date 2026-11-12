@@ -4,10 +4,10 @@
 }
 
 .admin-sidebar {
-  width: 290px;
+  width: 260px;
   background: var(--escuro);
   color: white;
-  padding: 30px 25px;
+  padding: 20px 18px;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -27,29 +27,29 @@
   text-decoration: none;
   border: 1px solid rgba(255,255,255,0.2);
   padding: 11px;
-  border-radius: 14px;
+  border-radius: 8px;
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
   display: block;
 }
 
 .admin-logo {
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 22px;
 }
 
 .admin-logo img {
-  width: 120px;
+  width: 108px;
 }
 
 .admin-user {
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 22px;
 }
 
 .admin-user img {
-  width: 90px;
-  height: 90px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 12px;
@@ -70,14 +70,14 @@
   margin-top: 8px;
   background: linear-gradient(90deg, var(--azul), var(--roxo));
   padding: 7px 13px;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 13px;
 }
 
 .admin-menu {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .admin-menu button,
@@ -85,8 +85,8 @@
   background: rgba(255,255,255,0.06);
   color: white;
   border: none;
-  padding: 14px 16px;
-  border-radius: 14px;
+  padding: 11px 13px;
+  border-radius: 8px;
   cursor: pointer;
   text-align: left;
   transition: 0.2s;
@@ -123,15 +123,15 @@
 
 .admin-content {
   flex: 1;
-  padding: 35px;
+  padding: 24px;
   overflow: visible;
   min-width: 0;
 }
 
 .admin-card {
   background: white;
-  border-radius: 20px;
-  padding: 25px;
+  border-radius: 8px;
+  padding: 20px;
   box-shadow: var(--sombra);
   overflow: visible;
 }
@@ -148,12 +148,12 @@
   width: min(420px, 100%);
   background: white;
   padding: 35px;
-  border-radius: 24px;
+  border-radius: 8px;
   box-shadow: var(--sombra);
 }
 
 .admin-login-card img {
-  width: 120px;
+  width: min(260px, 100%);
   display: block;
   margin: 0 auto 25px;
 }
@@ -209,7 +209,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
 }
 
 .admin-topo h1 {
@@ -222,22 +222,22 @@
 
 .admin-data {
   background: white;
-  padding: 14px 18px;
-  border-radius: 14px;
+  padding: 11px 14px;
+  border-radius: 8px;
   box-shadow: var(--sombra);
 }
 
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 22px;
-  margin-bottom: 28px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .metric-card {
   background: white;
-  padding: 26px;
-  border-radius: 22px;
+  padding: 20px;
+  border-radius: 8px;
   box-shadow: var(--sombra);
 }
 
@@ -250,7 +250,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   font-size: 22px;
 }
 
@@ -280,9 +280,9 @@
 
 .relatorio-campos input {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border: 1px solid #d1d5db;
-  border-radius: 14px;
+  border-radius: 8px;
   background: white;
 }
 
@@ -485,7 +485,7 @@
   justify-content: space-between;
   gap: 20px;
   align-items: flex-start;
-  margin-bottom: 25px;
+  margin-bottom: 18px;
 }
 
 .editor-actions-top {
@@ -497,11 +497,11 @@
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 260px;
-  gap: 20px;
+  gap: 16px;
 }
 
 .form-group {
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
@@ -513,15 +513,15 @@
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 14px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
 }
 
 .upload-box {
   border: 2px dashed #cbd5e1;
-  border-radius: 18px;
-  padding: 35px;
+  border-radius: 8px;
+  padding: 26px;
   text-align: center;
   cursor: pointer;
   background: #f8fafc;
@@ -537,7 +537,7 @@
   width: 100%;
   max-height: 360px;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: 8px;
   margin-top: 15px;
   box-shadow: var(--sombra);
 }
@@ -555,7 +555,7 @@
   background: #f8fafc;
   border: 1px solid #e5e7eb;
   padding: 13px;
-  border-radius: 14px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -645,7 +645,7 @@
 .materia-card-admin {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
   display: grid;
   grid-template-columns: 220px 1fr 180px;
@@ -659,7 +659,7 @@
 }
 
 .materia-admin-info {
-  padding: 22px 0;
+  padding: 18px 0;
 }
 
 .materia-admin-info small {
@@ -684,7 +684,7 @@
 }
 
 .materia-admin-actions {
-  padding: 22px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -695,7 +695,7 @@
 .btn-excluir {
   border: none;
   padding: 12px;
-  border-radius: 14px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
 }
@@ -722,7 +722,7 @@
 .adm-card-admin {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 20px;
+  border-radius: 8px;
   overflow: hidden;
   display: grid;
   grid-template-columns: 90px 1fr 190px;
@@ -762,8 +762,8 @@
 .admin-textarea {
   width: 100%;
   min-height: 130px;
-  padding: 14px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   font-family: Arial, sans-serif;
   resize: vertical;
@@ -803,8 +803,8 @@
 
 .comentario-admin-card {
   border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 16px;
   display: grid;
   grid-template-columns: 1fr 170px;
   gap: 20px;

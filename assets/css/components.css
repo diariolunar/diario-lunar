@@ -2,7 +2,7 @@
   background: var(--roxo);
   color: white;
   padding: 12px 24px;
-  border-radius: 25px;
+  border-radius: 8px;
   text-decoration: none;
   display: inline-block;
   border: none;
@@ -40,7 +40,7 @@
 
 .card {
   background: white;
-  border-radius: 18px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--sombra);
 }
@@ -78,14 +78,14 @@
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.18);
   padding: 22px;
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 .newsletter-box input {
   width: 100%;
   padding: 13px;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   margin: 10px 0;
 }
 
@@ -107,7 +107,7 @@
 .modal-global {
   width: min(460px, 100%);
   background: #ffffff;
-  border-radius: 18px;
+  border-radius: 8px;
   padding: 26px;
   box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
 }

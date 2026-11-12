@@ -75,7 +75,7 @@ function renderCarregandoInicial() {
   app.innerHTML = `
     <section class="admin-login">
       <div class="admin-login-card">
-        <img src="/assets/images/logo-vertical.png">
+        <img src="/assets/images/logo-diario-lunar.png" alt="Diário Lunar">
         <p>Carregando sessao...</p>
       </div>
     </section>
@@ -144,7 +144,7 @@ function renderLogin() {
   app.innerHTML = `
     <section class="admin-login">
       <div class="admin-login-card">
-        <img src="/assets/images/logo-vertical.png">
+        <img src="/assets/images/logo-diario-lunar.png" alt="Diário Lunar">
 
         <h1>Entrar na Área ADM</h1>
 

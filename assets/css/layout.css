@@ -4,7 +4,7 @@
 }
 
 .section {
-  padding: 40px 0 70px;
+  padding: 36px 0 58px;
 }
 
 .grid {
@@ -33,5 +33,13 @@
 
   .grid-4 {
     grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 28px 0 44px;
+  }
+
+  .grid {
+    gap: 18px;
   }
 }

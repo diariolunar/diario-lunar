@@ -25,7 +25,7 @@
 .hero-card {
   background: var(--escuro);
   color: white;
-  border-radius: 22px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0,0,0,0.12);
   cursor: pointer;
@@ -123,11 +123,22 @@
 @media (max-width: 850px) {
   .home-hero {
     grid-template-columns: 1fr;
-    padding-top: 35px;
+    gap: 28px;
+    padding-top: 28px;
+    padding-bottom: 40px;
   }
 
   .home-hero-text h1 {
-    font-size: 38px;
+    font-size: 34px;
+    margin: 18px 0;
+  }
+
+  .home-hero-text p {
+    font-size: 17px;
+  }
+
+  .hero-content {
+    padding: 20px;
   }
 }
 
@@ -174,7 +185,7 @@
 
 .autor-publico-card {
   background: white;
-  border-radius: 24px;
+  border-radius: 8px;
   padding: 35px;
   box-shadow: var(--sombra);
   display: grid;
@@ -238,6 +249,7 @@
 
 .arquivo-lunar-titulo {
   font-size: 48px;
+  margin: 14px 0;
 }
 
 #posts.grid-auto {
@@ -252,7 +264,7 @@
 .materias-filtros select {
   width: 100%;
   padding: 15px;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   background: white;
   font-size: 15px;
@@ -275,14 +287,14 @@
 .empty-state {
   background: white;
   padding: 30px;
-  border-radius: 20px;
+  border-radius: 8px;
   box-shadow: var(--sombra);
   grid-column: 1 / -1;
 }
 
 .skeleton-card {
   background: white;
-  border-radius: 18px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--sombra);
 }
@@ -377,12 +389,38 @@
   .not-found-card h1 {
     font-size: 34px;
   }
+
+  .arquivo-lunar-titulo {
+    font-size: 36px;
+    line-height: 1.12;
+  }
+
+  #posts.grid-auto {
+    margin-top: 22px;
+  }
+
+  .post-card img {
+    height: 170px;
+  }
+
+  .post-card-content {
+    padding: 16px;
+  }
+
+  .post-card-content h3 {
+    font-size: 19px;
+    margin: 9px 0;
+  }
+
+  .post-card-content p {
+    margin: 8px 0;
+  }
 }
 
 .contato-card {
   background: white;
   padding: 32px;
-  border-radius: 24px;
+  border-radius: 8px;
   box-shadow: var(--sombra);
   margin-top: 30px;
 }
@@ -401,7 +439,7 @@
 .form-public-group textarea {
   width: 100%;
   padding: 15px;
-  border-radius: 14px;
+  border-radius: 8px;
   border: 1px solid #d1d5db;
   font-family: Arial, sans-serif;
 }

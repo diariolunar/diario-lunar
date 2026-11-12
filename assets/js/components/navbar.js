@@ -19,7 +19,19 @@
           >
         </a>
 
-        <nav class="navbar-menu-lunar">
+        <button
+          type="button"
+          class="navbar-mobile-toggle"
+          aria-label="Abrir menu"
+          aria-controls="navbarMenuLunar"
+          aria-expanded="false"
+          title="Menu"
+          onclick="const header=this.closest('header'); const aberto=header.classList.toggle('navbar-aberta'); this.setAttribute('aria-expanded', String(aberto)); this.setAttribute('aria-label', aberto ? 'Fechar menu' : 'Abrir menu');"
+        >
+          <span aria-hidden="true">&#9776;</span>
+        </button>
+
+        <nav class="navbar-menu-lunar" id="navbarMenuLunar">
 
           <a class="nav-link-lunar" href="/index.html">
             Início
@@ -31,7 +43,11 @@
 
           <div class="dropdown-lunar">
 
-            <button class="dropdown-btn-lunar">
+            <button
+              type="button"
+              class="dropdown-btn-lunar"
+              onclick="this.parentElement.classList.toggle('dropdown-open')"
+            >
               Categorias ▾
             </button>
 
@@ -118,7 +134,7 @@
           justify-content:center;
           background:#07101f;
           padding:10px 18px;
-          border-radius:18px;
+          border-radius:8px;
           text-decoration:none;
           flex-shrink:0;
         }
@@ -136,6 +152,10 @@
           align-items:center;
           gap:12px;
           flex-wrap:wrap;
+        }
+
+        .navbar-mobile-toggle{
+          display:none;
         }
 
         .nav-link-lunar{
@@ -174,7 +194,7 @@
           left:0;
           min-width:220px;
           background:#ffffff;
-          border-radius:18px;
+          border-radius:8px;
           box-shadow:0 10px 35px rgba(0,0,0,0.12);
           padding:10px;
           display:none;
@@ -201,11 +221,15 @@
           display:flex;
         }
 
+        .dropdown-lunar.dropdown-open .dropdown-content-lunar{
+          display:flex;
+        }
+
         .btn-admin-lunar{
           background:linear-gradient(90deg,#0ea5e9,#7c3aed);
           color:#ffffff;
           padding:11px 18px;
-          border-radius:999px;
+          border-radius:8px;
           text-decoration:none;
           font-weight:800;
           margin-left:6px;
@@ -268,12 +292,64 @@
         @media(max-width:900px){
 
           .navbar-lunar{
-            flex-direction:column;
-            align-items:flex-start;
+            display:grid;
+            grid-template-columns:1fr 44px;
+            align-items:center;
+            gap:12px;
+            padding:10px 15px;
+          }
+
+          .navbar-logo-lunar{
+            justify-self:start;
+            padding:7px 10px;
+          }
+
+          .navbar-logo-lunar img{
+            height:44px;
+            max-width:170px;
+          }
+
+          .navbar-mobile-toggle{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:44px;
+            height:44px;
+            border:1px solid #cbd5e1;
+            border-radius:8px;
+            background:#fff;
+            color:#0f172a;
+            font-size:24px;
+            cursor:pointer;
           }
 
           .navbar-menu-lunar{
+            grid-column:1 / -1;
             width:100%;
+            display:none;
+            align-items:stretch;
+            flex-direction:column;
+            gap:2px;
+            padding:8px 0 4px;
+          }
+
+          header.navbar-aberta .navbar-menu-lunar{
+            display:flex;
+          }
+
+          .nav-link-lunar,
+          .dropdown-btn-lunar,
+          .btn-admin-lunar{
+            width:100%;
+            min-height:44px;
+            display:flex;
+            align-items:center;
+            padding:10px 12px;
+            margin:0;
+          }
+
+          .dropdown-lunar{
+            padding:0;
           }
 
           .navbar-busca-lunar{
@@ -283,7 +359,7 @@
 
           .dropdown-content-lunar{
             position:static;
-            margin-top:12px;
+            margin:0 0 6px;
             box-shadow:none;
             border:1px solid #e5e7eb;
           }
