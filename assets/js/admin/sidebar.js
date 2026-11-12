@@ -8,6 +8,14 @@ import {
   podeAcessarRelatorios
 } from "./auth/permissions.js";
 
+function linkMenu(pagina, texto) {
+  return `
+    <a href="/admin.html?pagina=${encodeURIComponent(pagina)}" data-page="${pagina}">
+      ${texto}
+    </a>
+  `;
+}
+
 export function renderSidebar(usuario = {}) {
   return `
     <aside class="admin-sidebar">
@@ -44,9 +52,7 @@ export function renderSidebar(usuario = {}) {
 
         <div class="admin-menu">
 
-        <button data-page="dashboard">
-          Painel
-        </button>
+        ${linkMenu("dashboard", "Painel")}
 
         ${
           podePublicar(usuario) || podeEditar(usuario) || podeExcluir(usuario) || podeRevisar(usuario)
@@ -58,24 +64,18 @@ export function renderSidebar(usuario = {}) {
               <div class="admin-submenu">
                 ${
                   podePublicar(usuario)
-                    ? `<button data-page="novaMateria">Nova Matéria</button>`
+                    ? linkMenu("novaMateria", "Nova Matéria")
                     : ""
                 }
 
-                <button data-page="materiasPublicadas">
-                  Matérias Publicadas
-                </button>
+                ${linkMenu("materiasPublicadas", "Matérias Publicadas")}
 
-                <button data-page="materiasRascunho">
-                  Matérias em Rascunho
-                </button>
+                ${linkMenu("materiasRascunho", "Matérias em Rascunho")}
 
                 ${
                   podeRevisar(usuario)
                     ? `
-                      <button data-page="materiasRevisar">
-                        Matérias a Revisar
-                      </button>
+                      ${linkMenu("materiasRevisar", "Matérias a Revisar")}
                     `
                     : ""
                 }
@@ -92,13 +92,9 @@ export function renderSidebar(usuario = {}) {
               </button>
 
               <div class="admin-submenu">
-                <button data-page="novoAudiobook">
-                  Novo Audiobook
-                </button>
+                ${linkMenu("novoAudiobook", "Novo Audiobook")}
 
-                <button data-page="listarAudiobooks">
-                  Listar Audiobooks
-                </button>
+                ${linkMenu("listarAudiobooks", "Listar Audiobooks")}
               </div>
             `
             : ""
@@ -107,9 +103,7 @@ export function renderSidebar(usuario = {}) {
         ${
           podeModerarComentarios(usuario)
             ? `
-              <button data-page="comentarios">
-                Comentários
-              </button>
+              ${linkMenu("comentarios", "Comentários")}
             `
             : ""
         }
@@ -117,27 +111,19 @@ export function renderSidebar(usuario = {}) {
         ${
           podeAcessarRelatorios(usuario)
             ? `
-              <button data-page="relatorios">
-                Relatórios
-              </button>
+              ${linkMenu("relatorios", "Relatórios")}
             `
             : ""
         }
 
-        <button data-page="editarPerfil">
-          Editar Perfil
-        </button>
+        ${linkMenu("editarPerfil", "Editar Perfil")}
 
         ${
           podeGerenciarAdmins(usuario)
             ? `
-              <button data-page="cadastrarAdm">
-                Cadastrar ADM
-              </button>
+              ${linkMenu("cadastrarAdm", "Cadastrar ADM")}
 
-              <button data-page="gerenciarAdms">
-                Gerenciar ADMs
-              </button>
+              ${linkMenu("gerenciarAdms", "Gerenciar ADMs")}
             `
             : ""
         }

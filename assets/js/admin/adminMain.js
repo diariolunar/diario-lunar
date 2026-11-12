@@ -51,6 +51,22 @@ let usuarioAtual = null;
 let tipoListaAtual = "todas";
 let primeiraSincroniaAuth = true;
 
+const TITULOS_PAGINAS = {
+  dashboard: "Painel",
+  novaMateria: "Nova Matéria",
+  materiasPublicadas: "Matérias Publicadas",
+  materiasRascunho: "Matérias em Rascunho",
+  materiasRevisar: "Matérias a Revisar",
+  listarMaterias: "Todas as Matérias",
+  novoAudiobook: "Novo Audiobook",
+  listarAudiobooks: "Audiobooks",
+  comentarios: "Comentários",
+  relatorios: "Relatórios",
+  cadastrarAdm: "Cadastrar ADM",
+  gerenciarAdms: "Gerenciar ADMs",
+  editarPerfil: "Editar Perfil"
+};
+
 instalarModaisGlobais();
 
 function renderCarregandoInicial() {
@@ -121,6 +137,8 @@ async function sincronizarUsuarioAtual() {
 }
 
 function renderLogin() {
+  document.title = "Entrar no Painel - Diário Lunar";
+
   app.innerHTML = `
     <section class="admin-login">
       <div class="admin-login-card">
@@ -267,13 +285,18 @@ async function notificarMateriasParaRevisao(usuario) {
 
   sessionStorage.setItem(chave, "true");
 
-  await mostrarModal({
+  const revisarAgora = await window.confirmarModal({
     titulo: "Matérias aguardando revisão",
     mensagem: total === 1
       ? "Existe 1 matéria aguardando revisão no painel."
       : `Existem ${total} matérias aguardando revisão no painel.`,
-    textoBotao: "Ver painel"
+    textoConfirmar: "Revisar Matérias",
+    textoCancelar: "Fechar Aviso"
   });
+
+  if (revisarAgora) {
+    await navegarPara("materiasRevisar");
+  }
 }
 
 async function abrirNovaMateria(postExistente = null) {
@@ -555,6 +578,8 @@ async function ativarAcoesMaterias() {
 }
 
 async function abrirPagina(pagina) {
+  document.title = `${TITULOS_PAGINAS[pagina] || "Painel"} - Diário Lunar`;
+
   if (pagina === "dashboard") {
     await abrirDashboard();
     return;
@@ -626,6 +651,45 @@ async function abrirPagina(pagina) {
   }
 }
 
+function paginaDaUrl() {
+  const pagina = new URLSearchParams(window.location.search).get("pagina");
+  return TITULOS_PAGINAS[pagina] ? pagina : "dashboard";
+}
+
+function atualizarMenuAtivo(pagina) {
+  document.querySelectorAll("[data-page]").forEach((item) => {
+    const ativo = item.dataset.page === pagina;
+    item.classList.toggle("admin-menu-active", ativo);
+
+    if (ativo) {
+      item.setAttribute("aria-current", "page");
+      item.closest(".admin-submenu")?.classList.add("submenu-open");
+    } else {
+      item.removeAttribute("aria-current");
+    }
+  });
+}
+
+async function navegarPara(pagina, { substituir = false } = {}) {
+  const paginaValida = TITULOS_PAGINAS[pagina] ? pagina : "dashboard";
+  const url = new URL(window.location.href);
+  url.searchParams.set("pagina", paginaValida);
+
+  window.history[substituir ? "replaceState" : "pushState"](
+    { pagina: paginaValida },
+    "",
+    url
+  );
+
+  await abrirPagina(paginaValida);
+  atualizarMenuAtivo(paginaDaUrl());
+
+  const sidebar = document.querySelector(".admin-sidebar");
+  sidebar?.classList.remove("admin-sidebar-open");
+  sidebar?.querySelector(".admin-menu-toggle")?.setAttribute("aria-expanded", "false");
+  sidebar?.querySelector(".admin-menu-toggle i")?.classList.replace("fa-xmark", "fa-bars");
+}
+
 function ativarMenu() {
   const sidebar = document.querySelector(".admin-sidebar");
   const alternador = sidebar?.querySelector(".admin-menu-toggle");
@@ -641,13 +705,23 @@ function ativarMenu() {
   document
     .querySelectorAll("[data-page]")
     .forEach((botao) => {
-      botao.onclick = async () => {
+      botao.onclick = async (event) => {
+        if (
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+
+        event.preventDefault();
         const usuario = await sincronizarUsuarioAtual();
 
         if (!usuario) return;
 
         const pagina = botao.dataset.page;
-        await abrirPagina(pagina);
+        await navegarPara(pagina);
       };
     });
 }
@@ -681,9 +755,20 @@ function renderPainel(usuario) {
 
   ativarMenu();
   ativarLogout();
-  abrirDashboard();
+  navegarPara(paginaDaUrl(), { substituir: true });
   inicializarPushPublicacoes(usuario);
 }
+
+window.addEventListener("popstate", async () => {
+  if (!usuarioAtual) return;
+
+  const usuario = await sincronizarUsuarioAtual();
+  if (!usuario) return;
+
+  const pagina = paginaDaUrl();
+  await abrirPagina(pagina);
+  atualizarMenuAtivo(pagina);
+});
 
 renderCarregandoInicial();
 

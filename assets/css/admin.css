@@ -80,7 +80,8 @@
   gap: 12px;
 }
 
-.admin-menu button {
+.admin-menu button,
+.admin-menu a {
   background: rgba(255,255,255,0.06);
   color: white;
   border: none;
@@ -90,9 +91,13 @@
   text-align: left;
   transition: 0.2s;
   font-size: 15px;
+  display: block;
+  text-decoration: none;
 }
 
-.admin-menu button:hover {
+.admin-menu button:hover,
+.admin-menu a:hover,
+.admin-menu a.admin-menu-active {
   background: rgba(255,255,255,0.12);
 }
 
@@ -109,7 +114,8 @@
   display: flex;
 }
 
-.admin-submenu button {
+.admin-submenu button,
+.admin-submenu a {
   font-size: 14px;
   padding: 11px 14px;
   background: rgba(255,255,255,0.04);
