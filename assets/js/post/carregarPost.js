@@ -85,7 +85,7 @@ async function carregarMateriasRelacionadas(postAtual) {
       <a class="related-post-card" href="/post.html?id=${encodeURIComponent(post.id)}">
         <img
           src="${escaparHtml(post.imagem || "/assets/images/footer.png") }"
-          alt="${escaparHtml(post.imagemAlt || post.titulo || "Matéria") }"
+          alt="${escaparHtml(post.titulo || "Matéria") }"
           loading="lazy"
           onerror="this.src='/assets/images/footer.png'"
         >
@@ -263,7 +263,7 @@ export async function carregarPost(postId) {
   document.getElementById("titulo").innerText = post.titulo || "";
   document.getElementById("categoria").innerText = post.categoria || "";
   document.getElementById("imagem").src = post.imagem || "/assets/images/footer.png";
-  document.getElementById("imagem").alt = post.imagemAlt || post.titulo || "Capa da matéria";
+  document.getElementById("imagem").alt = post.titulo || "Capa da matéria";
   document.getElementById("conteudo").innerHTML = post.conteudo || "";
   document.getElementById("curtidas").innerText = post.curtidas || 0;
 

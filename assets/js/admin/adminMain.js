@@ -1,6 +1,6 @@
 ﻿import { renderSidebar } from "./sidebar.js";
 import { renderDashboard } from "./dashboard.js";
-import { renderNovaMateria } from "./novaMateria.js";
+import { renderNovaMateria } from "./novaMateria.js?v=2";
 import { renderListarMaterias } from "./listarMaterias.js";
 import { renderCadastrarAdm } from "./cadastrarAdm.js";
 import { renderGerenciarAdms } from "./gerenciarAdms.js";
@@ -8,7 +8,7 @@ import { renderComentariosAdmin } from "./comentariosAdmin.js";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
-import { renderFerramentasAdmin } from "./ferramentasAdmin.js";
+import { renderFerramentasAdmin } from "./ferramentasAdmin.js?v=2";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 import { inicializarPushPublicacoes } from "../services/pushService.js";
 

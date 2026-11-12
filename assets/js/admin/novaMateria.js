@@ -2,7 +2,7 @@
   getConteudoEditor,
   iniciarEditor,
   setConteudoEditor
-} from "./editorMateria.js";
+} from "./editorMateria.js?v=2";
 
 import {
   criarPost,
@@ -170,7 +170,6 @@ function dadosRascunhoAutomatico() {
     categoria: document.getElementById("categoriaMateria")?.value || "Literatura",
     data: document.getElementById("dataMateria")?.value || "",
     hora: document.getElementById("horaMateria")?.value || "",
-    imagemAlt: document.getElementById("imagemAltMateria")?.value || "",
     destaque: document.getElementById("destaqueMateria")?.checked === true,
     collab: document.getElementById("collabMateria")?.checked === true,
     reporteres: [...document.querySelectorAll("[data-reporter-collab]:checked")]
@@ -214,7 +213,6 @@ function aplicarRascunhoAutomatico(dados) {
   atribuir("categoriaMateria", dados.categoria);
   atribuir("dataMateria", dados.data);
   atribuir("horaMateria", dados.hora);
-  atribuir("imagemAltMateria", dados.imagemAlt);
   document.getElementById("destaqueMateria").checked = dados.destaque === true;
   document.getElementById("collabMateria").checked = dados.collab === true;
   document.getElementById("collabMateria").dispatchEvent(new Event("change"));
@@ -391,7 +389,6 @@ function montarDadosMateria(status, usuario) {
     categoria: document.getElementById("categoriaMateria").value,
     conteudo: getConteudoEditor(),
     imagem: imagemCapaUrl,
-    imagemAlt: document.getElementById("imagemAltMateria")?.value.trim() || "",
     autor: autores[0] || usuario.user || usuario.email || "diario_lunar",
     autores,
     autorIds,
@@ -1092,19 +1089,8 @@ export async function renderNovaMateria(usuario, postExistente = null) {
           id="previewCapa"
           class="preview-capa"
           src="${postExistente?.imagem || ""}"
-          alt="${escaparHtml(postExistente?.imagemAlt || postExistente?.titulo || "Prévia da capa") }"
+          alt="${escaparHtml(postExistente?.titulo || "Prévia da capa") }"
           style="${postExistente?.imagem ? "display:block;" : "display:none;"}"
-        >
-
-        <label for="imagemAltMateria" style="margin-top:16px;">
-          Descrição da imagem para acessibilidade
-        </label>
-        <input
-          id="imagemAltMateria"
-          type="text"
-          maxlength="180"
-          placeholder="Ex.: Duas pessoas conversando em uma biblioteca"
-          value="${escaparHtml(postExistente?.imagemAlt || "")}"
         >
       </div>
 

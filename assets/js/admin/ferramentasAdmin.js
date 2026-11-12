@@ -75,7 +75,6 @@ async function diagnosticar(posts, audiobooks) {
     if (!post.titulo) problemas.push({ tipo: "Conteúdo", item: nome, detalhe: "Título ausente", ...referencia });
     if (!post.imagem) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Capa ausente", ...referencia });
     else imagens.push({ nome, url: post.imagem, ...referencia });
-    if (post.imagem && !post.imagemAlt) problemas.push({ tipo: "Acessibilidade", item: nome, detalhe: "Capa sem descrição", ...referencia });
     if (!String(post.conteudo || "").trim()) problemas.push({ tipo: "Conteúdo", item: nome, detalhe: "Conteúdo vazio", ...referencia });
 
     const data = post.data ? new Date(post.data).getTime() : 0;

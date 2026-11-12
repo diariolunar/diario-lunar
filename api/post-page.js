@@ -149,7 +149,7 @@ function renderizarPagina(post, postId, urlPublica) {
       <div id="autoresPost" class="autores-post"></div>
       <div id="dataPublicacaoTexto" class="data-publicacao">${dataFormatada ? `Publicado em ${escaparHtml(dataFormatada)}` : ""}</div>
     </div>
-    <img id="imagem" class="post-cover" src="${escaparHtml(imagem)}" alt="${escaparHtml(post.imagemAlt || titulo)}">
+    <img id="imagem" class="post-cover" src="${escaparHtml(imagem)}" alt="${escaparHtml(titulo)}">
     <article id="conteudo" class="post-content">${conteudo}</article>
     <section class="interaction-box">
       <h3>Interação Lunar</h3>
@@ -170,7 +170,7 @@ function renderizarPagina(post, postId, urlPublica) {
     </section>
   </main>
   <div id="footer"></div>
-  <script type="module" src="/assets/js/pages/post.js?v=4"></script>
+  <script type="module" src="/assets/js/pages/post.js?v=5"></script>
 </body>
 </html>`;
 }
