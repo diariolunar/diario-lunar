@@ -235,13 +235,23 @@ async function processarAgendamentos() {
       data: new Date()
     });
 
-    resultados.push({
-      postId: post.id,
-      ...(await enviarNotificacaoPost({
+    try {
+      const resultado = await enviarNotificacaoPost({
         ...post,
         status: "publicado"
-      }))
-    });
+      });
+      await salvarDocumento("posts", post.id, {
+        notificacaoStatus: "enviada",
+        notificacaoEm: new Date()
+      });
+      resultados.push({ postId: post.id, ...resultado });
+    } catch (error) {
+      await salvarDocumento("posts", post.id, {
+        notificacaoStatus: "falhou",
+        notificacaoEm: new Date()
+      });
+      resultados.push({ postId: post.id, erro: error.message });
+    }
   }
 
   return resultados;
@@ -296,8 +306,20 @@ export default async function handler(req, res) {
           return res.status(404).json({ error: "Matéria não encontrada." });
         }
 
-        const resultado = await enviarNotificacaoPost(post);
-        return res.status(200).json(resultado);
+        try {
+          const resultado = await enviarNotificacaoPost(post);
+          await salvarDocumento("posts", postId, {
+            notificacaoStatus: "enviada",
+            notificacaoEm: new Date()
+          });
+          return res.status(200).json(resultado);
+        } catch (error) {
+          await salvarDocumento("posts", postId, {
+            notificacaoStatus: "falhou",
+            notificacaoEm: new Date()
+          });
+          throw error;
+        }
       }
 
       return res.status(400).json({ error: "Ação inválida." });

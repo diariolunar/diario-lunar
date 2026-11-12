@@ -48,6 +48,67 @@ function formatarData(data) {
   }
 }
 
+function escaparHtml(valor) {
+  return String(valor || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function resumoTexto(html, limite = 110) {
+  const area = document.createElement("div");
+  area.innerHTML = html || "";
+  const texto = (area.textContent || "").replace(/\s+/g, " ").trim();
+  return texto.length > limite ? `${texto.slice(0, limite).trim()}...` : texto;
+}
+
+async function carregarMateriasRelacionadas(postAtual) {
+  const secao = document.getElementById("materiasRelacionadas");
+  const lista = document.getElementById("listaMateriasRelacionadas");
+
+  if (!secao || !lista) return;
+
+  try {
+    const snapshot = await getDocs(
+      query(collection(db, "posts"), where("status", "in", ["publicado", "agendado"]))
+    );
+    const autoresAtuais = new Set(obterAutoresPost(postAtual).map((autor) => autor.toLowerCase()));
+    const relacionadas = snapshot.docs
+      .map((item) => ({ id: item.id, ...item.data() }))
+      .filter((post) => post.id !== postAtual.id && postEstaPublico(post) && !ehConteudoHoroscopo(post))
+      .map((post) => {
+        const mesmaCategoria = post.categoria === postAtual.categoria;
+        const mesmoAutor = obterAutoresPost(post).some((autor) => autoresAtuais.has(autor.toLowerCase()));
+        return { post, pontuacao: (mesmaCategoria ? 2 : 0) + (mesmoAutor ? 1 : 0) };
+      })
+      .filter((item) => item.pontuacao > 0)
+      .sort((a, b) => b.pontuacao - a.pontuacao)
+      .slice(0, 3)
+      .map((item) => item.post);
+
+    if (!relacionadas.length) return;
+
+    lista.innerHTML = relacionadas.map((post) => `
+      <a class="related-post-card" href="/post.html?id=${encodeURIComponent(post.id)}">
+        <img
+          src="${escaparHtml(post.imagem || "/assets/images/footer.png") }"
+          alt="${escaparHtml(post.imagemAlt || post.titulo || "Matéria") }"
+          loading="lazy"
+          onerror="this.src='/assets/images/footer.png'"
+        >
+        <span>${escaparHtml(post.categoria || "Matéria")}</span>
+        <h3>${escaparHtml(post.titulo || "Sem título")}</h3>
+        <p>${escaparHtml(resumoTexto(post.conteudo || ""))}</p>
+      </a>
+    `).join("");
+    secao.hidden = false;
+  } catch (error) {
+    console.error("Não foi possível carregar matérias relacionadas.", error);
+  }
+}
+
 function mostrarMateriaNaoEncontrada() {
   document.querySelector(".post-container").innerHTML = `
     <div class="card" style="padding:35px; margin-top:25px;">
@@ -211,6 +272,7 @@ export async function carregarPost(postId) {
   document.getElementById("titulo").innerText = post.titulo || "";
   document.getElementById("categoria").innerText = post.categoria || "";
   document.getElementById("imagem").src = post.imagem || "/assets/images/footer.png";
+  document.getElementById("imagem").alt = post.imagemAlt || post.titulo || "Capa da matéria";
   document.getElementById("conteudo").innerHTML = post.conteudo || "";
   document.getElementById("curtidas").innerText = post.curtidas || 0;
 
@@ -224,6 +286,7 @@ export async function carregarPost(postId) {
 
   const reporteres = await buscarReporteres(post);
   renderAutoresPost(reporteres);
+  carregarMateriasRelacionadas(post);
 
   const dataFormatada = formatarData(post.data);
 

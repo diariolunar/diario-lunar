@@ -124,6 +124,8 @@ export function renderSidebar(usuario = {}) {
               ${linkMenu("cadastrarAdm", "Cadastrar ADM")}
 
               ${linkMenu("gerenciarAdms", "Gerenciar ADMs")}
+
+              ${linkMenu("ferramentas", "Saúde e backup")}
             `
             : ""
         }

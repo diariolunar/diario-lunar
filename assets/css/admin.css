@@ -346,6 +346,67 @@
   font-size: 14px;
 }
 
+.rascunho-automatico-aviso,
+.ferramentas-admin-acoes,
+.diagnostico-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rascunho-automatico-aviso {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid #c4b5fd;
+  border-radius: 8px;
+  background: #f5f3ff;
+}
+
+.rascunho-automatico-aviso[hidden] {
+  display: none;
+}
+
+.rascunho-automatico-aviso p,
+.rascunho-automatico-status {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.diagnostico-lista {
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.diagnostico-lista li {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-left: 4px solid #f59e0b;
+  background: #fff7ed;
+}
+
+.diagnostico-lista li span {
+  color: #475569;
+}
+
+.diagnostico-lista .diagnostico-ok {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+}
+
+@media (max-width: 700px) {
+  .rascunho-automatico-aviso,
+  .ferramentas-admin-acoes,
+  .diagnostico-cabecalho {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 .dashboard-post {
   display: grid;
   grid-template-columns: 90px 1fr 110px;

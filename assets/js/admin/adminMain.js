@@ -8,6 +8,7 @@ import { renderComentariosAdmin } from "./comentariosAdmin.js";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
+import { renderFerramentasAdmin } from "./ferramentasAdmin.js";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 import { inicializarPushPublicacoes } from "../services/pushService.js";
 
@@ -62,6 +63,7 @@ const TITULOS_PAGINAS = {
   listarAudiobooks: "Audiobooks",
   comentarios: "Comentários",
   relatorios: "Relatórios",
+  ferramentas: "Saúde e backup",
   cadastrarAdm: "Cadastrar ADM",
   gerenciarAdms: "Gerenciar ADMs",
   editarPerfil: "Editar Perfil"
@@ -632,6 +634,16 @@ async function abrirPagina(pagina) {
 
   if (pagina === "relatorios") {
     await abrirRelatorios();
+    return;
+  }
+
+  if (pagina === "ferramentas") {
+    if (!podeGerenciarAdmins(usuarioAtual)) {
+      mostrarErro(new Error("Você não tem permissão para acessar as ferramentas."));
+      return;
+    }
+
+    document.getElementById("adminPage").innerHTML = renderFerramentasAdmin();
     return;
   }
 

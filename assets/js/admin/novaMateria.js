@@ -1,6 +1,7 @@
 ﻿import {
   getConteudoEditor,
-  iniciarEditor
+  iniciarEditor,
+  setConteudoEditor
 } from "./editorMateria.js";
 
 import {
@@ -35,6 +36,8 @@ let imagemCapaUrl = "";
 let postAtual = null;
 let reporteresDisponiveis = [];
 let autorPadraoMateria = null;
+let rascunhoAutomaticoTimer = null;
+let chaveRascunhoAutomatico = "";
 
 let cropImagemOriginal = null;
 let cropImagemObj = null;
@@ -154,6 +157,101 @@ function escaparTextarea(valor) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+function montarChaveRascunho(usuario, postExistente) {
+  const autor = usuario?.id || usuario?.user || usuario?.email || "admin";
+  return `diario_rascunho_automatico_${autor}_${postExistente?.id || "nova"}`;
+}
+
+function dadosRascunhoAutomatico() {
+  return {
+    titulo: document.getElementById("tituloMateria")?.value || "",
+    categoria: document.getElementById("categoriaMateria")?.value || "Literatura",
+    data: document.getElementById("dataMateria")?.value || "",
+    hora: document.getElementById("horaMateria")?.value || "",
+    imagemAlt: document.getElementById("imagemAltMateria")?.value || "",
+    destaque: document.getElementById("destaqueMateria")?.checked === true,
+    collab: document.getElementById("collabMateria")?.checked === true,
+    reporteres: [...document.querySelectorAll("[data-reporter-collab]:checked")]
+      .map((input) => input.dataset.reporterUser || ""),
+    conteudo: getConteudoEditor(),
+    salvoEm: new Date().toISOString()
+  };
+}
+
+function salvarRascunhoAutomaticoLocal() {
+  if (!chaveRascunhoAutomatico || !document.getElementById("tituloMateria")) return;
+
+  const dados = dadosRascunhoAutomatico();
+  if (!dados.titulo.trim() && !dados.conteudo.trim()) return;
+
+  const status = document.getElementById("statusRascunhoAutomatico");
+
+  try {
+    localStorage.setItem(chaveRascunhoAutomatico, JSON.stringify(dados));
+  } catch {
+    if (status) status.textContent = "O navegador não conseguiu salvar o rascunho automático.";
+    return;
+  }
+
+  if (status) {
+    const hora = new Date().toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    status.textContent = `Rascunho automático salvo às ${hora}`;
+  }
+}
+
+function aplicarRascunhoAutomatico(dados) {
+  const atribuir = (id, valor) => {
+    const campo = document.getElementById(id);
+    if (campo && valor !== undefined) campo.value = valor;
+  };
+
+  atribuir("tituloMateria", dados.titulo);
+  atribuir("categoriaMateria", dados.categoria);
+  atribuir("dataMateria", dados.data);
+  atribuir("horaMateria", dados.hora);
+  atribuir("imagemAltMateria", dados.imagemAlt);
+  document.getElementById("destaqueMateria").checked = dados.destaque === true;
+  document.getElementById("collabMateria").checked = dados.collab === true;
+  document.getElementById("collabMateria").dispatchEvent(new Event("change"));
+
+  document.querySelectorAll("[data-reporter-collab]").forEach((input) => {
+    input.checked = (dados.reporteres || []).includes(input.dataset.reporterUser || "");
+    input.dispatchEvent(new Event("change"));
+  });
+
+  setTimeout(() => setConteudoEditor(dados.conteudo || ""), 350);
+  document.getElementById("recuperarRascunhoAutomatico")?.remove();
+}
+
+function iniciarRascunhoAutomatico(usuario, postExistente) {
+  clearInterval(rascunhoAutomaticoTimer);
+  chaveRascunhoAutomatico = montarChaveRascunho(usuario, postExistente);
+  const salvo = localStorage.getItem(chaveRascunhoAutomatico);
+
+  if (salvo) {
+    try {
+      const dados = JSON.parse(salvo);
+      const aviso = document.getElementById("recuperarRascunhoAutomatico");
+
+      if (aviso) {
+        aviso.hidden = false;
+        aviso.querySelector("[data-recuperar]").onclick = () => aplicarRascunhoAutomatico(dados);
+        aviso.querySelector("[data-descartar]").onclick = () => {
+          localStorage.removeItem(chaveRascunhoAutomatico);
+          aviso.remove();
+        };
+      }
+    } catch {
+      localStorage.removeItem(chaveRascunhoAutomatico);
+    }
+  }
+
+  rascunhoAutomaticoTimer = setInterval(salvarRascunhoAutomaticoLocal, 10000);
 }
 
 function buscarIdAutor(user, postExistente, usuario) {
@@ -293,6 +391,7 @@ function montarDadosMateria(status, usuario) {
     categoria: document.getElementById("categoriaMateria").value,
     conteudo: getConteudoEditor(),
     imagem: imagemCapaUrl,
+    imagemAlt: document.getElementById("imagemAltMateria")?.value.trim() || "",
     autor: autores[0] || usuario.user || usuario.email || "diario_lunar",
     autores,
     autorIds,
@@ -669,6 +768,9 @@ async function salvarMateria(status, usuario) {
 
     alert(mensagens[status] || "Matéria salva.");
 
+    localStorage.removeItem(chaveRascunhoAutomatico);
+    clearInterval(rascunhoAutomaticoTimer);
+
     navegarDepoisDeSalvar(status);
 
   } catch (error) {
@@ -808,6 +910,7 @@ export async function renderNovaMateria(usuario, postExistente = null) {
     iniciarCropBotoes();
     iniciarBotoesSalvar(usuario);
     iniciarSeletorCollab();
+    iniciarRascunhoAutomatico(usuario, postExistente);
   }, 100);
 
   return `
@@ -989,9 +1092,32 @@ export async function renderNovaMateria(usuario, postExistente = null) {
           id="previewCapa"
           class="preview-capa"
           src="${postExistente?.imagem || ""}"
+          alt="${escaparHtml(postExistente?.imagemAlt || postExistente?.titulo || "Prévia da capa") }"
           style="${postExistente?.imagem ? "display:block;" : "display:none;"}"
         >
+
+        <label for="imagemAltMateria" style="margin-top:16px;">
+          Descrição da imagem para acessibilidade
+        </label>
+        <input
+          id="imagemAltMateria"
+          type="text"
+          maxlength="180"
+          placeholder="Ex.: Duas pessoas conversando em uma biblioteca"
+          value="${escaparHtml(postExistente?.imagemAlt || "")}"
+        >
       </div>
+
+      <div id="recuperarRascunhoAutomatico" class="rascunho-automatico-aviso" hidden>
+        <div>
+          <strong>Há uma edição não salva neste aparelho.</strong>
+          <p>Você pode recuperá-la sem alterar a versão que está no site.</p>
+        </div>
+        <button type="button" class="btn" data-recuperar>Recuperar</button>
+        <button type="button" class="btn btn-secundario" data-descartar>Descartar</button>
+      </div>
+
+      <p id="statusRascunhoAutomatico" class="rascunho-automatico-status" aria-live="polite"></p>
 
       <div class="form-group editor-wrapper">
         <label>Conteúdo da matéria</label>

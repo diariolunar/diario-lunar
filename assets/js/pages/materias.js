@@ -29,6 +29,9 @@ let materiasFiltradas = [];
 let quantidadeVisivel = 0;
 
 const QUANTIDADE_POR_PAGINA = 8;
+const buscaInicial = new URLSearchParams(window.location.search).get("q") || "";
+
+buscaInput.value = buscaInicial;
 
 function limparTexto(html) {
   let texto = html || "";
@@ -193,7 +196,7 @@ function renderizarMaterias() {
     `;
 
     resultadoBusca.innerText = "Nenhum resultado encontrado.";
-    carregarMaisBtn.style.display = "none";
+    carregarMaisBtn.hidden = true;
     return;
   }
 
@@ -205,10 +208,7 @@ function renderizarMaterias() {
   resultadoBusca.innerText =
     `${materiasFiltradas.length} matéria(s) encontrada(s).`;
 
-  carregarMaisBtn.style.display =
-    quantidadeVisivel < materiasFiltradas.length
-      ? "inline-block"
-      : "none";
+  carregarMaisBtn.hidden = quantidadeVisivel >= materiasFiltradas.length;
 }
 
 async function carregarMaterias() {
@@ -236,10 +236,7 @@ async function carregarMaterias() {
 
   todasMaterias.sort((a, b) => b.dataNum - a.dataNum);
 
-  materiasFiltradas = [...todasMaterias];
-  quantidadeVisivel = QUANTIDADE_POR_PAGINA;
-
-  renderizarMaterias();
+  aplicarFiltros();
 }
 
 buscaInput.addEventListener("input", aplicarFiltros);

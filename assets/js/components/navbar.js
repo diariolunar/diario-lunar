@@ -77,6 +77,20 @@
             Sugestão de Pauta
           </a>
 
+          <form class="navbar-busca-lunar" action="/materias.html" method="get" role="search">
+            <label class="sr-only" for="navbarBuscaMaterias">Buscar matérias</label>
+            <input
+              id="navbarBuscaMaterias"
+              name="q"
+              type="search"
+              placeholder="Buscar matérias"
+              autocomplete="off"
+            >
+            <button type="submit" aria-label="Buscar matérias" title="Buscar matérias">
+              <span aria-hidden="true">&#128269;</span>
+            </button>
+          </form>
+
           <a
             href="/admin.html"
             class="btn-admin-lunar"
@@ -203,6 +217,54 @@
           opacity:0.95;
         }
 
+        .navbar-busca-lunar{
+          display:flex;
+          align-items:center;
+          width:min(220px, 100%);
+          height:42px;
+          border:1px solid #cbd5e1;
+          border-radius:8px;
+          overflow:hidden;
+          background:#fff;
+        }
+
+        .navbar-busca-lunar input{
+          width:100%;
+          min-width:0;
+          height:100%;
+          border:0;
+          padding:0 10px;
+          font:inherit;
+          outline:none;
+        }
+
+        .navbar-busca-lunar:focus-within{
+          border-color:#7c3aed;
+          box-shadow:0 0 0 3px rgba(124,58,237,.15);
+        }
+
+        .navbar-busca-lunar button{
+          width:42px;
+          height:42px;
+          flex:0 0 42px;
+          border:0;
+          background:transparent;
+          color:#6d28d9;
+          cursor:pointer;
+        }
+
+        .sr-only{
+          position:absolute;
+          width:1px;
+          height:1px;
+          padding:0;
+          margin:-1px;
+          overflow:hidden;
+          clip:rect(0,0,0,0);
+          white-space:nowrap;
+          border:0;
+        }
+
         @media(max-width:900px){
 
           .navbar-lunar{
@@ -211,6 +273,11 @@
           }
 
           .navbar-menu-lunar{
+            width:100%;
+          }
+
+          .navbar-busca-lunar{
+            order:-1;
             width:100%;
           }
 

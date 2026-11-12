@@ -138,6 +138,8 @@ export function iniciarEditor({ onPreview } = {}) {
     convert_urls: false,
     image_caption: true,
     image_advtab: true,
+    image_title: true,
+    a11y_advanced_options: true,
     automatic_uploads: true,
     file_picker_types: "image",
     images_upload_handler: subirImagem,

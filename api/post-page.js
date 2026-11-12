@@ -123,7 +123,7 @@ function renderizarPagina(post, postId, urlPublica) {
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/post.css?v=2">
+  <link rel="stylesheet" href="/assets/css/post.css?v=3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <script type="application/ld+json">${schema}</script>
 </head>
@@ -149,8 +149,12 @@ function renderizarPagina(post, postId, urlPublica) {
       <div id="autoresPost" class="autores-post"></div>
       <div id="dataPublicacaoTexto" class="data-publicacao">${dataFormatada ? `Publicado em ${escaparHtml(dataFormatada)}` : ""}</div>
     </div>
-    <img id="imagem" class="post-cover" src="${escaparHtml(imagem)}" alt="${escaparHtml(titulo)}">
+    <img id="imagem" class="post-cover" src="${escaparHtml(imagem)}" alt="${escaparHtml(post.imagemAlt || titulo)}">
     <article id="conteudo" class="post-content">${conteudo}</article>
+    <section id="materiasRelacionadas" class="related-posts" hidden>
+      <h2>Continue lendo</h2>
+      <div id="listaMateriasRelacionadas" class="related-posts-grid"></div>
+    </section>
     <section class="interaction-box">
       <h3>Interação Lunar</h3>
       <input id="usuarioWattpad" placeholder="Seu usuário do Wattpad">
@@ -166,7 +170,7 @@ function renderizarPagina(post, postId, urlPublica) {
     </section>
   </main>
   <div id="footer"></div>
-  <script type="module" src="/assets/js/pages/post.js?v=2"></script>
+  <script type="module" src="/assets/js/pages/post.js?v=3"></script>
 </body>
 </html>`;
 }

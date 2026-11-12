@@ -231,6 +231,23 @@
   margin-top: 30px;
 }
 
+.arquivo-lunar-kicker {
+  color: var(--azul);
+  font-weight: bold;
+}
+
+.arquivo-lunar-titulo {
+  font-size: 48px;
+}
+
+#posts.grid-auto {
+  margin-top: 30px;
+}
+
+.ver-mais [hidden] {
+  display: none !important;
+}
+
 .materias-filtros input,
 .materias-filtros select {
   width: 100%;
