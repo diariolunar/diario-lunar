@@ -48,15 +48,6 @@ function formatarData(data) {
   }
 }
 
-function escaparHtml(valor) {
-  return String(valor || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
 function resumoTexto(html, limite = 110) {
   const area = document.createElement("div");
   area.innerHTML = html || "";
