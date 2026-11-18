@@ -5,6 +5,10 @@
   removerPermissaoOraculoLegada
 } from "../services/adminsService.js";
 
+import {
+  uploadFotoPerfil
+} from "./profile/uploadPerfil.js";
+
 function badgeStatus(adm) {
   if (adm.ativo === false) {
     return `<span class="status-rascunho">Inativo</span>`;
@@ -213,6 +217,30 @@ function renderModalEditarAdm(adm, usuarioAtual) {
             value="${adm.nomenclatura || ""}"
           >
         </div>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Foto de perfil</label>
+
+        <input
+          id="editAdmFotoInput"
+          type="file"
+          accept="image/*"
+          hidden
+        >
+
+        <div id="editAdmFotoUploadBox" class="upload-box">
+          Clique para alterar a foto
+        </div>
+
+        <img
+          id="editAdmFotoPreview"
+          class="preview-perfil-admin"
+          src="${adm.fotoUrl || "/assets/images/logo-vertical.png"}"
+          alt="Foto de ${adm.nome || "ADM"}"
+        >
 
       </div>
 
@@ -447,6 +475,22 @@ async function abrirModalEditarAdm(id, usuarioAtual, onReload) {
 
   document.getElementById("fecharModalAdm").onclick = fecharModal;
 
+  const fotoInput = document.getElementById("editAdmFotoInput");
+  const fotoUploadBox = document.getElementById("editAdmFotoUploadBox");
+  const fotoPreview = document.getElementById("editAdmFotoPreview");
+  let novaFotoArquivo = null;
+
+  fotoUploadBox.onclick = () => fotoInput.click();
+
+  fotoInput.onchange = () => {
+    novaFotoArquivo = fotoInput.files[0] || null;
+
+    if (!novaFotoArquivo) return;
+
+    fotoPreview.src = URL.createObjectURL(novaFotoArquivo);
+    fotoUploadBox.innerText = "Nova foto selecionada";
+  };
+
   modal.onclick = (event) => {
     if (event.target === modal) {
       fecharModal();
@@ -454,6 +498,7 @@ async function abrirModalEditarAdm(id, usuarioAtual, onReload) {
   };
 
   document.getElementById("salvarEdicaoAdmBtn").onclick = async () => {
+    const botaoSalvar = document.getElementById("salvarEdicaoAdmBtn");
     const nome = document.getElementById("editAdmNome").value.trim();
     const user = document.getElementById("editAdmUser").value.trim();
     const cargo = document.getElementById("editAdmCargo").value.trim();
@@ -473,42 +518,64 @@ async function abrirModalEditarAdm(id, usuarioAtual, onReload) {
       return;
     }
 
-    const dadosAtualizados = {
-      nome,
-      user,
-      cargo,
-      nomenclatura,
-      bio,
-      redes: {
-        instagram,
-        wattpad,
-        site
-      },
-      ativo,
-      reporter,
-      notificacoesPublicacao,
-      permissoes: {
-        publicar: document.getElementById("editPermPublicar").checked,
-        publicarDireto: document.getElementById("editPermPublicarDireto").checked,
-        editar: document.getElementById("editPermEditar").checked,
-        excluir: document.getElementById("editPermExcluir").checked,
-        revisar: document.getElementById("editPermRevisar").checked,
-        moderarComentarios: document.getElementById("editPermModerarComentarios").checked,
-        gerenciarAdmins: document.getElementById("editPermGerenciarAdmins").checked
+    botaoSalvar.disabled = true;
+    botaoSalvar.innerText = novaFotoArquivo ? "Enviando foto..." : "Salvando...";
+
+    try {
+      let fotoUrl = adm.fotoUrl || "";
+
+      if (novaFotoArquivo) {
+        const novaFotoUrl = await uploadFotoPerfil(novaFotoArquivo);
+
+        if (!novaFotoUrl) return;
+
+        fotoUrl = novaFotoUrl;
       }
-    };
 
-    if (usuarioAtual.role === "superadmin") {
-      dadosAtualizados.role = role;
+      const dadosAtualizados = {
+        nome,
+        user,
+        cargo,
+        nomenclatura,
+        bio,
+        fotoUrl,
+        redes: {
+          instagram,
+          wattpad,
+          site
+        },
+        ativo,
+        reporter,
+        notificacoesPublicacao,
+        permissoes: {
+          publicar: document.getElementById("editPermPublicar").checked,
+          publicarDireto: document.getElementById("editPermPublicarDireto").checked,
+          editar: document.getElementById("editPermEditar").checked,
+          excluir: document.getElementById("editPermExcluir").checked,
+          revisar: document.getElementById("editPermRevisar").checked,
+          moderarComentarios: document.getElementById("editPermModerarComentarios").checked,
+          gerenciarAdmins: document.getElementById("editPermGerenciarAdmins").checked
+        }
+      };
+
+      if (usuarioAtual.role === "superadmin") {
+        dadosAtualizados.role = role;
+      }
+
+      await atualizarAdmin(id, dadosAtualizados);
+
+      alert("ADM atualizado com sucesso.");
+
+      fecharModal();
+
+      await onReload();
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível atualizar o ADM.");
+    } finally {
+      botaoSalvar.disabled = false;
+      botaoSalvar.innerText = "Salvar alterações";
     }
-
-    await atualizarAdmin(id, dadosAtualizados);
-
-    alert("ADM atualizado com sucesso.");
-
-    fecharModal();
-
-    await onReload();
   };
 }
 

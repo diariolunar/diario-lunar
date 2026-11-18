@@ -3,7 +3,7 @@ import { renderDashboard } from "./dashboard.js";
 import { renderNovaMateria } from "./novaMateria.js?v=2";
 import { renderListarMaterias } from "./listarMaterias.js";
 import { renderCadastrarAdm } from "./cadastrarAdm.js";
-import { renderGerenciarAdms } from "./gerenciarAdms.js";
+import { renderGerenciarAdms } from "./gerenciarAdms.js?v=2";
 import { renderComentariosAdmin } from "./comentariosAdmin.js?v=2";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
