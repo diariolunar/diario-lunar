@@ -7,7 +7,7 @@ import { renderGerenciarAdms } from "./gerenciarAdms.js?v=2";
 import { renderComentariosAdmin } from "./comentariosAdmin.js?v=2";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
-import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
+import { renderRelatoriosAdmin } from "./relatoriosAdmin.js?v=2";
 import { renderFerramentasAdmin } from "./ferramentasAdmin.js?v=3";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 import { inicializarPushPublicacoes } from "../services/pushService.js";

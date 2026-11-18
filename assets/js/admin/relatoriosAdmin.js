@@ -10,8 +10,7 @@ import {
 
 let dadosRelatorio = {
   posts: [],
-  comentarios: 0,
-  curtidas: 0
+  comentarios: 0
 };
 
 function paraData(valor) {
@@ -112,16 +111,14 @@ function criarConsultaPeriodo(nomeColecao, periodo) {
 }
 
 async function carregarDados(periodo) {
-  const [postsSnap, comentariosSnap, curtidasSnap] = await Promise.all([
+  const [postsSnap, comentariosSnap] = await Promise.all([
     getDocs(criarConsultaPeriodo("posts", periodo)),
-    getCountFromServer(criarConsultaPeriodo("comentarios", periodo)),
-    getCountFromServer(criarConsultaPeriodo("likes", periodo))
+    getCountFromServer(criarConsultaPeriodo("comentarios", periodo))
   ]);
 
   dadosRelatorio = {
     posts: extrairDocumentos(postsSnap),
-    comentarios: comentariosSnap.data().count || 0,
-    curtidas: curtidasSnap.data().count || 0
+    comentarios: comentariosSnap.data().count || 0
   };
 }
 
@@ -145,7 +142,7 @@ function calcularMetricas(periodo) {
     agendadas: contarStatus("agendado"),
     reprovadas: contarStatus("reprovado"),
     visualizacoes: posts.reduce((total, post) => total + Number(post.views || 0), 0),
-    curtidas: dadosRelatorio.curtidas,
+    curtidas: posts.reduce((total, post) => total + Number(post.curtidas || 0), 0),
     comentarios: dadosRelatorio.comentarios
   };
 }
@@ -288,7 +285,7 @@ export async function renderRelatoriosAdmin() {
     </div>
 
     <p class="relatorio-observacao">
-      Visualizações correspondem ao total acumulado das matérias incluídas no período.
+      Visualizações e curtidas correspondem aos totais acumulados das matérias publicadas no período selecionado.
     </p>
   `;
 }
