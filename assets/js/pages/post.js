@@ -1,7 +1,7 @@
 import { renderNavbar } from "../components/navbar.js";
 import { renderFooter } from "../components/footer.js";
 
-import { carregarPost } from "../post/carregarPost.js?v=3";
+import { carregarPost } from "../post/carregarPost.js?v=4";
 import { iniciarCurtidas } from "../post/curtidas.js";
 import { iniciarComentarios } from "../post/comentarios.js?v=2";
 import { compartilharConteudo } from "../utils/share.js";

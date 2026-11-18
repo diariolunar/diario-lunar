@@ -10,6 +10,7 @@ const COLECOES_BACKUP = [
   "audiobooks",
   "trilhasSonoras",
   "booktrailers",
+  "visualizacoesDiarias",
   "comentarios",
   "likes",
   "historicoPosts",

@@ -170,7 +170,7 @@ function renderizarPagina(post, postId, urlPublica) {
     </section>
   </main>
   <div id="footer"></div>
-  <script type="module" src="/assets/js/pages/post.js?v=5"></script>
+  <script type="module" src="/assets/js/pages/post.js?v=6"></script>
 </body>
 </html>`;
 }

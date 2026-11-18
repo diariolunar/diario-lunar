@@ -36,6 +36,19 @@ service cloud.firestore {
       allow create, update, delete: if isLoggedIn();
     }
 
+    match /visualizacoesDiarias/{visualizacaoId} {
+      allow read: if isLoggedIn();
+      allow create: if request.resource.data.keys()
+          .hasOnly(["postId", "dia", "data", "total"])
+        && request.resource.data.postId is string
+        && request.resource.data.dia is string
+        && request.resource.data.total == 1;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(["total"])
+        && request.resource.data.total == resource.data.total + 1;
+      allow delete: if isLoggedIn();
+    }
+
     match /historicoPosts/{historicoId} {
       allow read: if isLoggedIn();
       allow create: if isLoggedIn();

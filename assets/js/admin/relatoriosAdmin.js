@@ -10,7 +10,9 @@ import {
 
 let dadosRelatorio = {
   posts: [],
-  comentarios: 0
+  comentarios: 0,
+  curtidas: 0,
+  visualizacoes: 0
 };
 
 function paraData(valor) {
@@ -111,14 +113,19 @@ function criarConsultaPeriodo(nomeColecao, periodo) {
 }
 
 async function carregarDados(periodo) {
-  const [postsSnap, comentariosSnap] = await Promise.all([
+  const [postsSnap, comentariosSnap, curtidasSnap, visualizacoesSnap] = await Promise.all([
     getDocs(criarConsultaPeriodo("posts", periodo)),
-    getCountFromServer(criarConsultaPeriodo("comentarios", periodo))
+    getCountFromServer(criarConsultaPeriodo("comentarios", periodo)),
+    getCountFromServer(criarConsultaPeriodo("likes", periodo)),
+    getDocs(criarConsultaPeriodo("visualizacoesDiarias", periodo))
   ]);
 
   dadosRelatorio = {
     posts: extrairDocumentos(postsSnap),
-    comentarios: comentariosSnap.data().count || 0
+    comentarios: comentariosSnap.data().count || 0,
+    curtidas: curtidasSnap.data().count || 0,
+    visualizacoes: extrairDocumentos(visualizacoesSnap)
+      .reduce((total, item) => total + Number(item.total || 0), 0)
   };
 }
 
@@ -141,8 +148,8 @@ function calcularMetricas(periodo) {
     revisao: contarStatus("em_revisao"),
     agendadas: contarStatus("agendado"),
     reprovadas: contarStatus("reprovado"),
-    visualizacoes: posts.reduce((total, post) => total + Number(post.views || 0), 0),
-    curtidas: posts.reduce((total, post) => total + Number(post.curtidas || 0), 0),
+    visualizacoes: dadosRelatorio.visualizacoes,
+    curtidas: dadosRelatorio.curtidas,
     comentarios: dadosRelatorio.comentarios
   };
 }
@@ -285,7 +292,8 @@ export async function renderRelatoriosAdmin() {
     </div>
 
     <p class="relatorio-observacao">
-      Visualizações e curtidas correspondem aos totais acumulados das matérias publicadas no período selecionado.
+      Curtidas e comentários são filtrados pela data da interação, independentemente da publicação da matéria.
+      Visualizações por período são registradas a partir de 18/11/2026.
     </p>
   `;
 }

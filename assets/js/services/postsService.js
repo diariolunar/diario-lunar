@@ -12,7 +12,8 @@ import {
   query,
   where,
   deleteDoc,
-  increment
+  increment,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 export async function criarPost(dados) {
@@ -93,11 +94,29 @@ export async function registrarVisualizacaoPost(id) {
     return;
   }
 
-  sessionStorage.setItem(chaveView, "true");
+  const agora = new Date();
+  const dia = [
+    agora.getFullYear(),
+    String(agora.getMonth() + 1).padStart(2, "0"),
+    String(agora.getDate()).padStart(2, "0")
+  ].join("-");
+  const visualizacaoRef = doc(db, "visualizacoesDiarias", `${id}_${dia}`);
+  const batch = writeBatch(db);
 
-  await updateDoc(doc(db, "posts", id), {
+  batch.update(doc(db, "posts", id), {
     views: increment(1)
   });
+
+  batch.set(visualizacaoRef, {
+    postId: id,
+    dia,
+    data: new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()),
+    total: increment(1)
+  }, { merge: true });
+
+  await batch.commit();
+
+  sessionStorage.setItem(chaveView, "true");
 }
 
 export async function registrarHistoricoPost({

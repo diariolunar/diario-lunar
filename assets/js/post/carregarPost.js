@@ -11,7 +11,7 @@ import {
 
 import {
   registrarVisualizacaoPost
-} from "../services/postsService.js";
+} from "../services/postsService.js?v=2";
 
 import {
   aplicarSeo,
