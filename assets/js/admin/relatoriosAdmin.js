@@ -293,7 +293,7 @@ export async function renderRelatoriosAdmin() {
 
     <p class="relatorio-observacao">
       Curtidas e comentários são filtrados pela data da interação, independentemente da publicação da matéria.
-      Visualizações por período são registradas a partir de 18/11/2026.
+      Antes de 18/11/2026, as visualizações representam o mínimo comprovado pelas interações; depois dessa data, são registradas diretamente.
     </p>
   `;
 }
