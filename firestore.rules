@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function isUpdatingOnlyLikesOrViews() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(["curtidas", "views"]);
+    }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn() || isUpdatingOnlyLikesOrViews();
+      allow delete: if isLoggedIn();
+    }
+
+    match /audiobooks/{audiobookId} {
+      allow read: if true;
+      allow create, delete: if isLoggedIn();
+      allow update: if isLoggedIn() || isUpdatingOnlyLikesOrViews();
+    }
+
+    match /trilhasSonoras/{trilhaId} {
+      allow read: if true;
+      allow create, delete: if isLoggedIn();
+      allow update: if isLoggedIn() || isUpdatingOnlyLikesOrViews();
+    }
+
+    match /booktrailers/{booktrailerId} {
+      allow read: if true;
+      allow create, update, delete: if isLoggedIn();
+    }
+
+    match /historicoPosts/{historicoId} {
+      allow read: if isLoggedIn();
+      allow create: if isLoggedIn();
+      allow update, delete: if isLoggedIn();
+    }
+
+    match /admins/{adminId} {
+      allow read: if true;
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if isLoggedIn();
+    }
+
+    match /comentarios/{comentarioId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if isLoggedIn();
+      allow delete: if isLoggedIn();
+    }
+
+    match /likes/{likeId} {
+      allow read: if true;
+      allow create: if true;
+      allow delete: if true;
+      allow update: if false;
+    }
+
+    match /newsletter/{newsletterId} {
+      allow create: if true;
+      allow read, update, delete: if isLoggedIn();
+    }
+
+    match /sugestoesPauta/{sugestaoId} {
+      allow create: if true;
+      allow read, update, delete: if isLoggedIn();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

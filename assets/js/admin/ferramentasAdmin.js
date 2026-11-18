@@ -8,6 +8,8 @@ import {
 const COLECOES_BACKUP = [
   "posts",
   "audiobooks",
+  "trilhasSonoras",
+  "booktrailers",
   "comentarios",
   "likes",
   "historicoPosts",
@@ -64,7 +66,7 @@ function imagemCarrega(url) {
   });
 }
 
-async function diagnosticar(posts, audiobooks) {
+async function diagnosticar(posts, audiobooks, trilhas, booktrailers) {
   const problemas = [];
   const agora = Date.now();
   const imagens = [];
@@ -98,6 +100,22 @@ async function diagnosticar(posts, audiobooks) {
     if (!audio.capa) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Capa ausente", ...referencia });
     else imagens.push({ nome, url: audio.capa, ...referencia });
     if (!audio.audioUrl && !audio.linkAudio) problemas.push({ tipo: "Áudio", item: nome, detalhe: "Arquivo de áudio ausente", ...referencia });
+  });
+
+  trilhas.forEach((trilha) => {
+    const nome = trilha.titulo || `Trilha ${trilha.id}`;
+    const referencia = { destino: "novaTrilhaSonora", id: trilha.id };
+    if (!trilha.capa) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Capa ausente", ...referencia });
+    else imagens.push({ nome, url: trilha.capa, ...referencia });
+    if (!trilha.audioUrl) problemas.push({ tipo: "Áudio", item: nome, detalhe: "Arquivo de áudio ausente", ...referencia });
+  });
+
+  booktrailers.forEach((video) => {
+    const nome = video.titulo || `BookTrailer ${video.id}`;
+    const referencia = { destino: "novoBooktrailer", id: video.id };
+    if (!video.banner) problemas.push({ tipo: "Imagem", item: nome, detalhe: "Banner ausente", ...referencia });
+    else imagens.push({ nome, url: video.banner, ...referencia });
+    if (!video.youtubeUrl) problemas.push({ tipo: "Vídeo", item: nome, detalhe: "Link do YouTube ausente", ...referencia });
   });
 
   const resultadosImagens = await Promise.all(
@@ -148,8 +166,10 @@ async function executarDiagnostico() {
   lista.innerHTML = "";
 
   try {
-    const [posts, audiobooks] = await Promise.all([lerColecao("posts"), lerColecao("audiobooks")]);
-    const problemas = await diagnosticar(posts, audiobooks);
+    const [posts, audiobooks, trilhas, booktrailers] = await Promise.all([
+      lerColecao("posts"), lerColecao("audiobooks"), lerColecao("trilhasSonoras"), lerColecao("booktrailers")
+    ]);
+    const problemas = await diagnosticar(posts, audiobooks, trilhas, booktrailers);
     resumo.textContent = problemas.length
       ? `${problemas.length} item(ns) precisam de atenção.`
       : "Nenhum problema encontrado.";

@@ -1,0 +1,617 @@
+import { db } from "../config/firebase.js";
+
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  increment,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  setDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+import { renderNavbar } from "../components/navbar.js";
+import { renderFooter } from "../components/footer.js";
+import { compartilharConteudo } from "../utils/share.js";
+
+document.getElementById("navbar").innerHTML = renderNavbar();
+document.getElementById("footer").innerHTML = renderFooter();
+
+const container = document.getElementById("trilhaDetalhe");
+
+const params = new URLSearchParams(window.location.search);
+const trilhaId = params.get("id");
+
+function normalizarUsuario(usuario) {
+  return usuario
+    .trim()
+    .toLowerCase()
+    .replaceAll(" ", "");
+}
+
+function escaparHtml(valor) {
+  const div = document.createElement("div");
+  div.innerText = valor || "";
+
+  return div.innerHTML;
+}
+
+function pegarUsuarioTrilhaSonora() {
+  const inputUsuario = document.getElementById("comentarioUsuario");
+  const usuarioSalvo = localStorage.getItem("usuarioWattpad") || "";
+  const usuario = normalizarUsuario(inputUsuario?.value || usuarioSalvo);
+
+  if (!usuario) {
+    alert("Preencha seu nome/user antes.");
+    inputUsuario?.focus();
+    return null;
+  }
+
+  localStorage.setItem("usuarioWattpad", usuario);
+
+  if (inputUsuario) {
+    inputUsuario.value = usuario;
+  }
+
+  return usuario;
+}
+
+function getLikeId() {
+  const usuario = pegarUsuarioTrilhaSonora();
+
+  if (!usuario) return null;
+
+  return {
+    id: `trilha_${trilhaId}_${encodeURIComponent(usuario)}`,
+    usuario
+  };
+}
+
+function extrairIdDrive(url) {
+  if (!url || !url.includes("drive.google.com")) return "";
+
+  const match = url.match(/\/d\/([^/]+)/);
+
+  if (match && match[1]) return match[1];
+
+  try {
+    const params = new URLSearchParams(url.split("?")[1]);
+    return params.get("id") || "";
+  } catch {
+    return "";
+  }
+}
+
+function montarImagemCapa(url) {
+  const id = extrairIdDrive(url);
+
+  if (id) {
+    return `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+  }
+
+  return url || "/assets/images/footer.png";
+}
+
+function montarPlayer(audioUrl) {
+  const id = extrairIdDrive(audioUrl);
+
+  if (id) {
+    return `
+      <iframe
+        src="https://drive.google.com/file/d/${id}/preview"
+        width="100%"
+        height="160"
+        allow="autoplay"
+        class="audio-player-frame"
+      ></iframe>
+    `;
+  }
+
+  if (audioUrl) {
+    return `
+      <audio controls class="audio-player-native">
+        <source src="${audioUrl}">
+        Seu navegador não suporta reprodução de áudio.
+      </audio>
+    `;
+  }
+
+  return `
+    <p class="audio-error">
+      Áudio não informado.
+    </p>
+  `;
+}
+
+function formatarData(data) {
+  if (!data) return "Sem data";
+
+  try {
+    if (data.toDate) {
+      return data.toDate().toLocaleDateString("pt-BR");
+    }
+
+    return new Date(data).toLocaleDateString("pt-BR");
+  } catch {
+    return "Sem data";
+  }
+}
+
+function comentarioVisivel(comentario) {
+  return comentario.status !== "oculto";
+}
+
+async function carregarComentarios() {
+  const box = document.getElementById("comentariosTrilhaSonoraLista");
+
+  if (!box) return;
+
+  const snap = await getDocs(
+    query(collection(db, "comentarios"), where("postId", "==", `trilha_${trilhaId}`))
+  );
+
+  let comentarios = [];
+
+  snap.forEach((item) => {
+    const comentario = item.data();
+
+    if (comentarioVisivel(comentario)) {
+      comentarios.push({
+        id: item.id,
+        ...comentario
+      });
+    }
+  });
+
+  comentarios.sort((a, b) => {
+    const dataA = a.data?.toDate
+      ? a.data.toDate().getTime()
+      : new Date(a.data || 0).getTime();
+
+    const dataB = b.data?.toDate
+      ? b.data.toDate().getTime()
+      : new Date(b.data || 0).getTime();
+
+    return dataB - dataA;
+  });
+
+  box.innerHTML = comentarios.length
+    ? comentarios.map((comentario) => `
+        <div class="comentario">
+          <strong>@${escaparHtml(comentario.usuario || "usuario")}</strong>
+          <p>${escaparHtml(comentario.texto || "")}</p>
+          <small>${formatarData(comentario.data)}</small>
+        </div>
+      `).join("")
+    : `
+      <p style="color:var(--cinza);">
+        Nenhum comentário ainda. Seja o primeiro a comentar.
+      </p>
+    `;
+}
+
+async function enviarComentario() {
+  const usuario = pegarUsuarioTrilhaSonora();
+  const texto = document.getElementById("comentarioTexto").value.trim();
+
+  if (!usuario || !texto) {
+    alert("Preencha seu nome/user e o comentário.");
+    return;
+  }
+
+  await addDoc(collection(db, "comentarios"), {
+    postId: `trilha_${trilhaId}`,
+    tipo: "trilha",
+    usuario,
+    texto,
+    status: "aprovado",
+    data: new Date()
+  });
+
+  document.getElementById("comentarioTexto").value = "";
+
+  await carregarComentarios();
+
+  alert("Comentário enviado.");
+}
+
+async function iniciarCurtida(audio) {
+  const botao = document.getElementById("curtirTrilhaSonoraBtn");
+  const contador = document.getElementById("curtidasTrilhaSonora");
+
+  if (!botao || !contador) return;
+
+  const usuarioSalvo = normalizarUsuario(localStorage.getItem("usuarioWattpad") || "");
+  const likeInicialRef = usuarioSalvo
+    ? doc(db, "likes", `trilha_${trilhaId}_${encodeURIComponent(usuarioSalvo)}`)
+    : null;
+  let curtido = likeInicialRef
+    ? (await getDoc(likeInicialRef)).exists()
+    : false;
+
+  function atualizarVisual() {
+    botao.innerHTML = curtido ? "💜 Curtido" : "🤍 Curtir";
+    contador.innerText = audio.curtidas || 0;
+  }
+
+  atualizarVisual();
+
+  botao.onclick = async () => {
+    botao.disabled = true;
+
+    try {
+      const audioRef = doc(db, "trilhasSonoras", trilhaId);
+      const likeAtual = getLikeId();
+
+      if (!likeAtual) {
+        botao.disabled = false;
+        return;
+      }
+
+      const likeRef = doc(db, "likes", likeAtual.id);
+      curtido = (await getDoc(likeRef)).exists();
+
+      if (curtido) {
+        await deleteDoc(likeRef);
+
+        await updateDoc(audioRef, {
+          curtidas: increment(-1)
+        });
+
+        audio.curtidas = Math.max((audio.curtidas || 0) - 1, 0);
+        curtido = false;
+
+      } else {
+        await setDoc(likeRef, {
+          postId: `trilha_${trilhaId}`,
+          trilhaId,
+          usuario: likeAtual.usuario,
+          tipo: "trilha",
+          data: new Date()
+        });
+
+        await updateDoc(audioRef, {
+          curtidas: increment(1)
+        });
+
+        audio.curtidas = (audio.curtidas || 0) + 1;
+        curtido = true;
+      }
+
+      atualizarVisual();
+
+    } catch (error) {
+      console.error(error);
+      alert("Não foi possível registrar a curtida.");
+    }
+
+    botao.disabled = false;
+  };
+}
+
+async function carregarTrilhaSonora() {
+  if (!trilhaId) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <h2>Trilha sonora não encontrada</h2>
+        <p>Nenhum trilha foi informado.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "trilhasSonoras", trilhaId));
+
+  if (!snap.exists()) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <h2>Trilha sonora não encontrada</h2>
+        <p>Esse trilha não existe ou foi removido.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const audio = {
+    id: snap.id,
+    ...snap.data()
+  };
+
+  const capa = montarImagemCapa(audio.capa || "");
+
+  document.title = `${audio.titulo || "Trilha Sonora"} - Diário Lunar`;
+
+  container.innerHTML = `
+    <div class="trilha-top-actions">
+      <a href="/trilhas-sonoras.html" class="btn">
+        ← Voltar para Trilhas Sonoras
+      </a>
+
+      <button
+        type="button"
+        id="compartilharTrilhaSonoraBtn"
+        class="share-icon-button"
+        aria-label="Compartilhar trilha"
+        title="Compartilhar trilha"
+      >
+        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <section class="trilha-hero card">
+
+      <div class="trilha-capa-box">
+        <img
+          src="${capa}"
+          alt="${audio.titulo || "Trilha Sonora"}"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          onerror="this.src='/assets/images/footer.png'"
+        >
+      </div>
+
+      <div class="trilha-info-box">
+
+        <p style="color:var(--azul); font-weight:bold;">
+          ✦ ${audio.categoria || "Trilha Sonora"}
+        </p>
+
+        <h1>${audio.titulo || "Sem título"}</h1>
+
+        <p><b>Autor:</b> ${audio.autor || "Não informado"}</p>
+        <p><b>Produzido por:</b> ${audio.produtor || "Não informado"}</p>
+        <p><b>Publicado em:</b> ${formatarData(audio.data)}</p>
+
+        ${
+          audio.descricao
+            ? `
+              <p class="trilha-descricao">
+                ${audio.descricao}
+              </p>
+            `
+            : ""
+        }
+
+        <div class="trilha-player-box">
+          ${montarPlayer(audio.audioUrl || audio.linkAudio || "")}
+        </div>
+
+        <div class="post-actions">
+          <button id="curtirTrilhaSonoraBtn" class="btn">
+            🤍 Curtir
+          </button>
+
+          <span>
+            💜 <b id="curtidasTrilhaSonora">${audio.curtidas || 0}</b> curtida(s)
+          </span>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="card comentarios-box">
+      <h2>Comentários</h2>
+
+      <div class="comentario-form">
+        <input
+          id="comentarioUsuario"
+          type="text"
+          placeholder="Seu nome/user"
+        >
+
+        <input
+          id="comentarioTexto"
+          type="text"
+          placeholder="Escreva seu comentário"
+        >
+
+        <button id="enviarComentarioTrilhaSonoraBtn" class="btn btn-gradient">
+          Enviar comentário
+        </button>
+      </div>
+
+      <div id="comentariosTrilhaSonoraLista" class="comentarios-lista"></div>
+    </section>
+
+    <style>
+      .trilha-top-actions{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:16px;
+        margin-bottom:25px;
+      }
+
+      .share-icon-button{
+        width:44px;
+        height:44px;
+        flex:0 0 44px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        border:0;
+        border-radius:50%;
+        background:var(--roxo);
+        color:white;
+        font-size:18px;
+        cursor:pointer;
+        box-shadow:0 6px 18px rgba(88,28,135,0.2);
+      }
+
+      .share-icon-button:hover,
+      .share-icon-button:focus-visible{
+        background:var(--azul);
+      }
+
+      .trilha-hero{
+        display:grid;
+        grid-template-columns:360px 1fr;
+        gap:34px;
+        align-items:stretch;
+        padding:0;
+        overflow:hidden;
+      }
+
+      .trilha-capa-box{
+        height:100%;
+        min-height:620px;
+        background:#111827;
+      }
+
+      .trilha-capa-box img{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        display:block;
+      }
+
+      .trilha-info-box{
+        padding:34px 34px 34px 0;
+      }
+
+      .trilha-info-box h1{
+        font-size:56px;
+        line-height:1.05;
+        margin:16px 0 24px;
+        color:#07101f;
+      }
+
+      .trilha-info-box p{
+        font-size:18px;
+        color:#374151;
+      }
+
+      .trilha-descricao{
+        margin-top:24px;
+        line-height:1.8;
+      }
+
+      .trilha-player-box{
+        margin-top:24px;
+      }
+
+      .audio-player-frame{
+        display:block;
+        width:100%;
+        height:160px;
+        border:0;
+        border-radius:18px;
+        background:#111827;
+      }
+
+      .audio-player-native{
+        width:100%;
+        margin-top:18px;
+      }
+
+      .audio-error{
+        color:#991b1b;
+        font-weight:bold;
+      }
+
+      .post-actions{
+        margin-top:24px;
+        display:flex;
+        align-items:center;
+        gap:18px;
+        flex-wrap:wrap;
+      }
+
+      .comentarios-box{
+        margin-top:35px;
+        padding:30px;
+      }
+
+      .comentarios-box h2{
+        margin-bottom:20px;
+      }
+
+      .comentario-form{
+        display:grid;
+        grid-template-columns:220px 1fr auto;
+        gap:14px;
+        margin-bottom:28px;
+      }
+
+      .comentario-form input{
+        width:100%;
+        padding:14px;
+        border-radius:14px;
+        border:1px solid #d1d5db;
+      }
+
+      .comentarios-lista{
+        display:flex;
+        flex-direction:column;
+        gap:16px;
+      }
+
+      .comentario{
+        border-bottom:1px solid #e5e7eb;
+        padding:16px 0;
+      }
+
+      .comentario p{
+        margin:8px 0;
+      }
+
+      .comentario small{
+        color:#6b7280;
+      }
+
+      @media(max-width:900px){
+        .trilha-hero{
+          grid-template-columns:1fr;
+        }
+
+        .trilha-capa-box{
+          min-height:auto;
+          aspect-ratio:3/4;
+        }
+
+        .trilha-info-box{
+          padding:28px;
+        }
+
+        .trilha-info-box h1{
+          font-size:40px;
+        }
+
+        .comentario-form{
+          grid-template-columns:1fr;
+        }
+      }
+    </style>
+  `;
+
+  document.getElementById("enviarComentarioTrilhaSonoraBtn").onclick =
+    enviarComentario;
+
+  document.getElementById("compartilharTrilhaSonoraBtn").onclick = () => {
+    compartilharConteudo({
+      titulo: audio.titulo || "Trilha Sonora do Diário Lunar",
+      texto: "Confira este trilha no Diário Lunar."
+    });
+  };
+
+  const usuarioSalvo = localStorage.getItem("usuarioWattpad");
+
+  if (usuarioSalvo) {
+    document.getElementById("comentarioUsuario").value = usuarioSalvo;
+  }
+
+  await iniciarCurtida(audio);
+  await carregarComentarios();
+}
+
+carregarTrilhaSonora();
+
+

@@ -33,6 +33,26 @@
   </url>
 
   <url>
+    <loc>https://diario-lunar.vercel.app/midias.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://diario-lunar.vercel.app/audiobooks.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://diario-lunar.vercel.app/trilhas-sonoras.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://diario-lunar.vercel.app/booktrailers.html</loc>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://diario-lunar.vercel.app/privacidade.html</loc>
     <priority>0.6</priority>
   </url>

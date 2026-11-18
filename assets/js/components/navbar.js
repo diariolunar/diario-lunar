@@ -85,9 +85,17 @@
 
           </div>
 
-          <a class="nav-link-lunar" href="/audiobooks.html">
-            Audiobooks
-          </a>
+          <div class="dropdown-lunar">
+            <button type="button" class="dropdown-btn-lunar" onclick="this.parentElement.classList.toggle('dropdown-open')">
+              Mídias ▾
+            </button>
+            <div class="dropdown-content-lunar">
+              <a href="/midias.html">Todas as Mídias</a>
+              <a href="/audiobooks.html">Audiobooks</a>
+              <a href="/trilhas-sonoras.html">Trilhas Sonoras</a>
+              <a href="/booktrailers.html">BookTrailers</a>
+            </div>
+          </div>
 
           <a class="nav-link-lunar" href="/contato.html">
             Sugestão de Pauta

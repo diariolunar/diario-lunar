@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mídias - Diário Lunar</title>
+  <link rel="icon" href="/assets/images/favicon.png">
+  <link rel="stylesheet" href="/assets/css/base.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/public.css">
+</head>
+<body>
+  <div id="navbar"></div>
+  <main class="container section midias-page">
+    <p class="arquivo-lunar-kicker">✦ Produções Lunares</p>
+    <h1 class="arquivo-lunar-titulo">Mídias</h1>
+    <p>Ouça e assista às produções da comunidade Lunar.</p>
+    <div class="midias-grid">
+      <a class="midia-categoria" href="/audiobooks.html">
+        <span aria-hidden="true">🎧</span><h2>Audiobooks</h2><p>Histórias e leituras narradas.</p>
+      </a>
+      <a class="midia-categoria" href="/trilhas-sonoras.html">
+        <span aria-hidden="true">🎵</span><h2>Trilhas Sonoras</h2><p>Músicas inspiradas em obras e universos literários.</p>
+      </a>
+      <a class="midia-categoria" href="/booktrailers.html">
+        <span aria-hidden="true">▶</span><h2>BookTrailers</h2><p>Vídeos que apresentam histórias e lançamentos.</p>
+      </a>
+    </div>
+  </main>
+  <div id="footer"></div>
+  <script type="module">
+    import { renderNavbar } from "/assets/js/components/navbar.js";
+    import { renderFooter } from "/assets/js/components/footer.js";
+
+    document.getElementById("navbar").innerHTML = renderNavbar();
+    document.getElementById("footer").innerHTML = renderFooter();
+  </script>
+</body>
+</html>

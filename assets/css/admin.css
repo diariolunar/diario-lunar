@@ -564,6 +564,11 @@
   box-shadow: var(--sombra);
 }
 
+.booktrailer-admin-preview {
+  max-height: none;
+  aspect-ratio: 3 / 1;
+}
+
 .permissions-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

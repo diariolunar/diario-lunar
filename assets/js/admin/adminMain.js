@@ -4,11 +4,11 @@ import { renderNovaMateria } from "./novaMateria.js?v=2";
 import { renderListarMaterias } from "./listarMaterias.js";
 import { renderCadastrarAdm } from "./cadastrarAdm.js";
 import { renderGerenciarAdms } from "./gerenciarAdms.js";
-import { renderComentariosAdmin } from "./comentariosAdmin.js";
+import { renderComentariosAdmin } from "./comentariosAdmin.js?v=2";
 import { renderRevisarMateria } from "./revisarMateria.js";
 import { renderEditarPerfil } from "./profile/editarPerfil.js";
 import { renderRelatoriosAdmin } from "./relatoriosAdmin.js";
-import { renderFerramentasAdmin } from "./ferramentasAdmin.js?v=2";
+import { renderFerramentasAdmin } from "./ferramentasAdmin.js?v=3";
 import { instalarModaisGlobais, mostrarModal } from "../utils/modal.js";
 import { inicializarPushPublicacoes } from "../services/pushService.js";
 
@@ -17,6 +17,8 @@ import {
   renderFormularioAudiobook,
   renderListarAudiobooks
 } from "./audiobooksAdmin.js";
+import { buscarTrilhaSonora, renderFormularioTrilhaSonora, renderListarTrilhasSonoras } from "./trilhasSonorasAdmin.js?v=1";
+import { buscarBooktrailer, renderFormularioBooktrailer, renderListarBooktrailers } from "./booktrailersAdmin.js?v=1";
 
 import {
   buscarPost,
@@ -62,6 +64,10 @@ const TITULOS_PAGINAS = {
   listarMaterias: "Todas as Matérias",
   novoAudiobook: "Novo Audiobook",
   listarAudiobooks: "Audiobooks",
+  novaTrilhaSonora: "Nova Trilha Sonora",
+  listarTrilhasSonoras: "Trilhas Sonoras",
+  novoBooktrailer: "Novo BookTrailer",
+  listarBooktrailers: "BookTrailers",
   comentarios: "Comentários",
   relatorios: "Relatórios",
   ferramentas: "Saúde e backup",
@@ -427,6 +433,30 @@ async function abrirListaAudiobooks() {
   }
 }
 
+async function abrirFormularioTrilha(atual = null) {
+  if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual)) return mostrarSemPermissao();
+  mostrarCarregando("Carregando editor de trilha sonora...");
+  document.getElementById("adminPage").innerHTML = await renderFormularioTrilhaSonora(atual, abrirListaTrilhas);
+}
+
+async function abrirListaTrilhas() {
+  if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual) && !podeExcluir(usuarioAtual)) return mostrarSemPermissao();
+  mostrarCarregando("Carregando trilhas sonoras...");
+  document.getElementById("adminPage").innerHTML = await renderListarTrilhasSonoras(abrirFormularioTrilha, abrirListaTrilhas);
+}
+
+async function abrirFormularioBooktrailer(atual = null) {
+  if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual)) return mostrarSemPermissao();
+  mostrarCarregando("Carregando editor de BookTrailer...");
+  document.getElementById("adminPage").innerHTML = await renderFormularioBooktrailer(atual, abrirListaBooktrailers);
+}
+
+async function abrirListaBooktrailers() {
+  if (!podePublicar(usuarioAtual) && !podeEditar(usuarioAtual) && !podeExcluir(usuarioAtual)) return mostrarSemPermissao();
+  mostrarCarregando("Carregando BookTrailers...");
+  document.getElementById("adminPage").innerHTML = await renderListarBooktrailers(abrirFormularioBooktrailer, abrirListaBooktrailers);
+}
+
 async function abrirComentarios() {
   try {
     if (!podeModerarComentarios(usuarioAtual)) {
@@ -653,6 +683,28 @@ async function abrirPagina(pagina) {
 
   if (pagina === "listarAudiobooks") {
     await abrirListaAudiobooks();
+    return;
+  }
+
+  if (pagina === "novaTrilhaSonora") {
+    const id = new URLSearchParams(window.location.search).get("editar");
+    await abrirFormularioTrilha(id ? await buscarTrilhaSonora(id) : null);
+    return;
+  }
+
+  if (pagina === "listarTrilhasSonoras") {
+    await abrirListaTrilhas();
+    return;
+  }
+
+  if (pagina === "novoBooktrailer") {
+    const id = new URLSearchParams(window.location.search).get("editar");
+    await abrirFormularioBooktrailer(id ? await buscarBooktrailer(id) : null);
+    return;
+  }
+
+  if (pagina === "listarBooktrailers") {
+    await abrirListaBooktrailers();
     return;
   }
 

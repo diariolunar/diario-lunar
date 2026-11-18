@@ -88,13 +88,19 @@ export function renderSidebar(usuario = {}) {
           podePublicar(usuario) || podeEditar(usuario) || podeExcluir(usuario)
             ? `
               <button type="button" onclick="this.nextElementSibling.classList.toggle('submenu-open')">
-                Audiobooks ▾
+                Mídias ▾
               </button>
 
               <div class="admin-submenu">
                 ${linkMenu("novoAudiobook", "Novo Audiobook")}
 
                 ${linkMenu("listarAudiobooks", "Listar Audiobooks")}
+
+                ${linkMenu("novaTrilhaSonora", "Nova Trilha Sonora")}
+                ${linkMenu("listarTrilhasSonoras", "Listar Trilhas Sonoras")}
+
+                ${linkMenu("novoBooktrailer", "Novo BookTrailer")}
+                ${linkMenu("listarBooktrailers", "Listar BookTrailers")}
               </div>
             `
             : ""

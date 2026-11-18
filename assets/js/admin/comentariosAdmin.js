@@ -23,6 +23,7 @@ let comentariosGlobais = [];
 let curtidasGlobais = [];
 let postsGlobais = [];
 let audiobooksGlobais = [];
+let trilhasGlobais = [];
 
 function escaparHtml(valor) {
   const div = document.createElement("div");
@@ -104,6 +105,11 @@ async function listarAudiobooksComentarios() {
   return audiobooks;
 }
 
+async function listarTrilhasComentarios() {
+  const snap = await getDocs(collection(db, "trilhasSonoras"));
+  return snap.docs.map((item) => ({ id: item.id, ...item.data() }));
+}
+
 function getConteudoComentario(comentario) {
   if (comentario.tipo === "audiobook" || comentario.postId?.startsWith("audiobook_")) {
     const audiobookId = comentario.audiobookId || comentario.postId.replace("audiobook_", "");
@@ -112,6 +118,16 @@ function getConteudoComentario(comentario) {
     return {
       tipo: "Audiobook",
       titulo: audiobook?.titulo || "Audiobook nao encontrado"
+    };
+  }
+
+  if (comentario.tipo === "trilha" || comentario.postId?.startsWith("trilha_")) {
+    const trilhaId = comentario.trilhaId || comentario.postId.replace("trilha_", "");
+    const trilha = trilhasGlobais.find((item) => item.id === trilhaId);
+
+    return {
+      tipo: "Trilha sonora",
+      titulo: trilha?.titulo || "Trilha sonora não encontrada"
     };
   }
 
@@ -452,6 +468,7 @@ export async function renderComentariosAdmin(onReload) {
   curtidasGlobais = await listarCurtidas();
   postsGlobais = await listarPosts();
   audiobooksGlobais = await listarAudiobooksComentarios();
+  trilhasGlobais = await listarTrilhasComentarios();
 
   comentariosGlobais.sort((a, b) => {
     const dataA = getDataComentario(a)?.getTime() || 0;
