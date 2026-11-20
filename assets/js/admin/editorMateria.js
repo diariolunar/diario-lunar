@@ -50,6 +50,48 @@ function registrarAtalhos(editor) {
   editor.addShortcut("meta+shift+s", "Caracteres especiais", () => editor.execCommand("mceShowCharmap"));
 }
 
+function elementoImagemSelecionado(editor) {
+  const selecionado = editor.selection.getNode();
+
+  if (selecionado?.matches?.("img")) return selecionado;
+  if (selecionado?.matches?.("figure.image")) return selecionado;
+
+  return selecionado?.closest?.("figure.image") || null;
+}
+
+function alinharImagem(editor, alinhamento) {
+  const elemento = elementoImagemSelecionado(editor);
+
+  if (!elemento) return;
+
+  editor.dom.removeClass(elemento, "editor-image-float-left");
+  editor.dom.removeClass(elemento, "editor-image-center");
+  editor.dom.removeClass(elemento, "editor-image-float-right");
+  editor.dom.addClass(elemento, alinhamento);
+  editor.nodeChanged();
+}
+
+function registrarBotaoAlinhamentoImagem(editor, {
+  nome,
+  icone,
+  tooltip,
+  classe
+}) {
+  editor.ui.registry.addButton(nome, {
+    icon: icone,
+    tooltip,
+    onAction: () => alinharImagem(editor, classe),
+    onSetup(botao) {
+      const atualizar = () => botao.setEnabled(Boolean(elementoImagemSelecionado(editor)));
+
+      editor.on("NodeChange", atualizar);
+      atualizar();
+
+      return () => editor.off("NodeChange", atualizar);
+    }
+  });
+}
+
 export function getConteudoEditor() {
   const editor = getEditor();
 
@@ -121,7 +163,7 @@ export function iniciarEditor({ onPreview } = {}) {
     toolbar: [
       "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough",
       "forecolor backcolor | alignleft aligncenter alignright alignjustify",
-      "bullist numlist outdent indent | link image media table",
+      "bullist numlist outdent indent | link image imagemEsquerda imagemCentro imagemDireita media table",
       "charmap emoticons blockquote hr | removeformat code fullscreen preview"
     ].join(" | "),
     font_family_formats: [
@@ -152,6 +194,39 @@ export function iniciarEditor({ onPreview } = {}) {
         max-width: 100%;
         height: auto;
       }
+      .editor-image-float-left,
+      .editor-image-float-right {
+        width: min(42%, 360px);
+        max-width: 100%;
+        height: auto;
+      }
+      .editor-image-float-left {
+        float: left;
+        margin: 8px 24px 16px 0;
+      }
+      .editor-image-float-right {
+        float: right;
+        margin: 8px 0 16px 24px;
+      }
+      .editor-image-center {
+        float: none;
+        display: block;
+        margin: 24px auto;
+      }
+      body::after {
+        content: "";
+        display: block;
+        clear: both;
+      }
+      @media (max-width: 700px) {
+        .editor-image-float-left,
+        .editor-image-float-right {
+          float: none;
+          display: block;
+          width: auto;
+          margin: 20px auto;
+        }
+      }
       blockquote {
         border-left: 4px solid #7c3aed;
         margin: 18px 0;
@@ -171,6 +246,24 @@ export function iniciarEditor({ onPreview } = {}) {
     `,
     setup(editor) {
       registrarAtalhos(editor);
+      registrarBotaoAlinhamentoImagem(editor, {
+        nome: "imagemEsquerda",
+        icone: "align-left",
+        tooltip: "Imagem à esquerda, com texto ao lado",
+        classe: "editor-image-float-left"
+      });
+      registrarBotaoAlinhamentoImagem(editor, {
+        nome: "imagemCentro",
+        icone: "align-center",
+        tooltip: "Centralizar imagem",
+        classe: "editor-image-center"
+      });
+      registrarBotaoAlinhamentoImagem(editor, {
+        nome: "imagemDireita",
+        icone: "align-right",
+        tooltip: "Imagem à direita, com texto ao lado",
+        classe: "editor-image-float-right"
+      });
 
       editor.on("init", () => {
         editor.setContent(area.value || "");
