@@ -123,7 +123,7 @@ function renderizarPagina(post, postId, urlPublica) {
   <link rel="stylesheet" href="/assets/css/base.css">
   <link rel="stylesheet" href="/assets/css/layout.css">
   <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/post.css?v=4">
+  <link rel="stylesheet" href="/assets/css/post.css?v=5">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <script type="application/ld+json">${schema}</script>
 </head>

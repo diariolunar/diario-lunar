@@ -180,6 +180,9 @@ export function iniciarEditor({ onPreview } = {}) {
     convert_urls: false,
     image_caption: true,
     image_advtab: true,
+    image_dimensions: true,
+    object_resizing: "img",
+    resize_img_proportional: true,
     automatic_uploads: true,
     file_picker_types: "image",
     images_upload_handler: subirImagem,
@@ -196,8 +199,7 @@ export function iniciarEditor({ onPreview } = {}) {
       }
       .editor-image-float-left,
       .editor-image-float-right {
-        width: min(42%, 360px);
-        max-width: 100%;
+        max-width: min(42%, 360px);
         height: auto;
       }
       .editor-image-float-left {
@@ -223,7 +225,7 @@ export function iniciarEditor({ onPreview } = {}) {
         .editor-image-float-right {
           float: none;
           display: block;
-          width: auto;
+          max-width: 100%;
           margin: 20px auto;
         }
       }

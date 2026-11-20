@@ -1,6 +1,6 @@
 ﻿import { renderSidebar } from "./sidebar.js";
 import { renderDashboard } from "./dashboard.js";
-import { renderNovaMateria } from "./novaMateria.js?v=3";
+import { renderNovaMateria } from "./novaMateria.js?v=4";
 import { renderListarMaterias } from "./listarMaterias.js";
 import { renderCadastrarAdm } from "./cadastrarAdm.js";
 import { renderGerenciarAdms } from "./gerenciarAdms.js?v=2";

@@ -124,8 +124,7 @@
 
 .preview-article-content .editor-image-float-left,
 .preview-article-content .editor-image-float-right {
-  width: min(42%, 360px);
-  max-width: 100%;
+  max-width: min(42%, 360px);
   height: auto;
 }
 
@@ -234,7 +233,7 @@
   .preview-article-content .editor-image-float-right {
     float: none;
     display: block;
-    width: auto;
+    max-width: 100%;
     margin: 20px auto;
   }
 }

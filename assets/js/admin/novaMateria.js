@@ -2,7 +2,7 @@
   getConteudoEditor,
   iniciarEditor,
   setConteudoEditor
-} from "./editorMateria.js?v=3";
+} from "./editorMateria.js?v=4";
 
 import {
   criarPost,
